@@ -1,19 +1,29 @@
 public class UMLRelationships {
 
-    final private String dest;
-    final private String source;
+    final private UMLClass dest;
+    final private UMLClass source;
 
-    public UMLRelationships(final String dest, final String source) {
-        this.dest = dest;
+    public UMLRelationships(final UMLClass source, final UMLClass dest) {
         this.source = source;
+        this.dest = dest;
     }
 
-    public UMLRelationships addRelationship(final String dest, final String source) {
+    public UMLRelationships addRelationship(final UMLClass source, final UMLClass dest) {
 
-        UMLRelationships newRel = new UMLClass(dest, source);
+        if (source == null || dest == null)
+            throw new IllegalArgumentException("Cannot find destination or source or relationship");
+
+        UMLRelationships newRel = new UMLClass(source, dest);
 
         return newRel;
 
+    }
+
+    // 
+    public void deleteRelationship(UMLClass dest, UMLClass source) {
+
+        
+        
     }
 
 
