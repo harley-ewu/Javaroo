@@ -44,6 +44,7 @@ public class UMLMenu {
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume the newline character
 
+            //menu choice implementation
             switch (choice) {
                 case 1:
                     // Implement logic to add a class
