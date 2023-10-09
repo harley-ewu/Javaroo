@@ -47,16 +47,57 @@ public class UMLMenu {
             //menu choice implementation
             switch (choice) {
                 case 1:
-                    // Implement logic to add a class
+                    // add class logic
+                    System.out.println("Enter the class name to be added: ");
+                    String addClassName = scanner.nextLine();
+                    Class newClass = new Class(addClassName);
+                    Class.add(newClass);
+                    System.out.println("Class added: " + newClass);
                     break;
                 case 2:
-                    // Implement logic to delete a class
+                    // delete class logic
+                    //check if empty
+                    if(Class.isEmpty()){
+                        System.out.println("There are no classes to delete.");
+                        break;
+                    }
+                    else{
+                        System.out.println("Enter the class name to be deleted: ");
+                        String deleteClassName = scanner.nextLine();
+                        //check if class exists
+                        if(Class.contains(deleteClassName)){
+                            Class.remove(deleteClassName);
+                            System.out.println("Class deleted: " + deleteClassName);
+                        }
+                        else{
+                            System.out.println("Class does not exist.");
+                        }
+                    }
                     break;
                 case 3:
-                    // Implement logic to rename a class
+                    //rename class logic
+                    //check if empty
+                    if(Class.isEmpty()){
+                        System.out.println("There are no classes to rename.");
+                        break;
+                    }
+                    else{
+                        System.out.println("Enter the class name to be renamed: ");
+                        String renameClassName = scanner.nextLine();
+                        //check if class exists
+                        if(Class.contains(renameClassName)){
+                            System.out.println("Enter the new class name: ");
+                            String newClassName = scanner.nextLine();
+                            Class.rename(renameClassName, newClassName);
+                            System.out.println("Class renamed: " + renameClassName + " to " + newClassName);
+                        }
+                        else{
+                            System.out.println("Class does not exist.");
+                        }
+                    }
                     break;
                 case 4:
-                    // Implement logic to add a relationship
+                
                     break;
                 case 5:
                     // Implement logic to delete a relationship
