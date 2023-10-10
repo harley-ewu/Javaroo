@@ -8,24 +8,24 @@ public class UMLRelationships {
         this.dest = dest;
     }
 
-    public UMLRelationships addRelationship(final UMLClass source, final UMLClass dest) {
+    public void addRelationship(final UMLClass source, final UMLClass dest) {
 
         if (source == null || dest == null)
-            throw new IllegalArgumentException("Cannot find destination or source or relationship");
+            throw new IllegalArgumentException("Cannot find source or destination");
 
-        UMLRelationships newRel = new UMLClass(source, dest);
-
-        return newRel;
+        relationships.add(new UMLRelationships(source, dest));
 
     }
 
-    // 
-    public void deleteRelationship(UMLClass dest, UMLClass source) {
-
+    
+    public void deleteRelationship(final UMLClass source, final UMLClass dest) {
         
+        if (!nameList.contains(source) || !nameList.contains(dest))
+            throw new IllegalArgumentException("Cannot find source or destination of relationship");
+            
+        relationships.remove(new UMLRelationships(source, dest));
         
     }
-
 
 
 }
