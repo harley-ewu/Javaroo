@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.lang.StringBuilder;
 
 public class Class {
 
@@ -23,7 +24,6 @@ public class Class {
     }
 
      public static void addClass(String name, UMLDiagram diagram) {
-        //diagram.getClasses().add(new Class(name));
         diagram.getClasses().put(name, new Class(name));
         System.out.println("Class added: " + name);
         
