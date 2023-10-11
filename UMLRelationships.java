@@ -2,28 +2,34 @@ public class UMLRelationships {
 
     final private UMLClass dest;
     final private UMLClass source;
+    final private String id;
 
     public UMLRelationships(final UMLClass source, final UMLClass dest) {
         this.source = source;
         this.dest = dest;
+        this.id = source.getName() + dest.getName();
     }
 
-    public void addRelationship(final UMLClass source, final UMLClass dest) {
+    public void addRelationship(final UMLDiagram diagram, final UMLClass source, final UMLClass dest) {
 
-        if (source == null || dest == null)
-            throw new IllegalArgumentException("Cannot find source or destination");
+        if (source == null || dest == null) {
+            System.out.println("Sorry but we could not find a valid source or destination for this diagram");
+            return;
+        }
 
-        relationships.add(new UMLRelationships(source, dest));
+        diagram.getRelationships().add(new UMLRelationships(source, dest));
 
     }
 
     
-    public void deleteRelationship(final UMLClass source, final UMLClass dest) {
+    public void deleteRelationship(final UMLDiagram diagram, final UMLRelationships rel) {
         
-        if (!nameList.contains(source) || !nameList.contains(dest))
-            throw new IllegalArgumentException("Cannot find source or destination of relationship");
+        if (!diagram.getRelationships().contains(source) || !diagram.getRelationships().contains(dest)) {
+            System.out.println("Sorry but we could not find a valid source or destination for this diagram");
+            return;
+        }
             
-        relationships.remove(new UMLRelationships(source, dest));
+        diagram.getRelationships().remove(rel);
         
     }
 
