@@ -54,14 +54,40 @@ public class UMLDiagram {
         return null;
     }
 
+    public void listClasses() {
+        // Check if the classes map is empty, meaning no classes have been added.
+        if (classes.isEmpty()) {
+            System.out.println("No classes defined.");
+        } else {
+            // If classes are available, iterate through the key set of the classes map,
+            // which returns all keys (class names). This loop will run once for each class name in the map.
+            for (String className : classes.keySet()) {
+                // Call the listClassContents method to print details about each class.
+                // We pass the className, which serves as a unique identifier for retrieving class information from the map.
+                listClassContents(className);
+                // Print an empty line to separate the printed information of different classes for better readability.
+                System.out.println();
+            }
+        }
+    }
+
     // Method to list all classes and their details present in the UML diagram.
     private void listClassContents(String className) {
         // Check if the provided className exists in the classes map.
         UMLClass classEntity = classExists(className);
         if (classEntity != null) {
             // Print basic class information (name).
-            return classEntity.toString();
-            // Loop through all attributes of the UMLClass object.
+            System.out.println(classEntity.toString());
+            
+            System.out.println("Relationships:");
+            // Loop through all UMLRelationship objects stored in the relationships list.
+            for (UMLRelationship relationship : relationships) {
+                // Check if the current relationship object involves the class we are currently describing.
+                if (relationship.getSource().equals(className) || relationship.getDestination().equals(className)) {
+                    // Print the relationship in a readable format, showing the source and destination class names.
+                    System.out.println("- " + relationship.getSource() + " --> " + relationship.getDestination());
+                }
+            }
         } else {
             // Inform the user if the specified className does not exist within the classes map.
             System.out.println("Class '" + className + "' does not exist.");
