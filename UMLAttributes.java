@@ -20,6 +20,10 @@ public class UMLAttributes
         this.name = newName;
     }
 
+    /* Adds an attribute to a class
+        * @param c - the class to add the attribute to
+        * @param name - the name of the attribute
+    */
     public static void addAttribute(Class c, String name)
     {
         UMLAttributes attr = new UMLAttributes(name);
