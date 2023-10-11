@@ -10,31 +10,6 @@ public class Class {
         this.attributes = new ArrayList<>();
     }
 
-    public void add(String name) {
-        if (!isNameValid(name) || classList.contains(name)) {
-            System.out.println("Invalid or duplicated name.");
-        } else {
-            classList.add(name);
-            System.out.println("Name added: " + name);
-        }
-        
-    }
-
-    // dont need rename method
-    /*public void rename(String oldName, String newName) {
-        if (!isNameValid(newName) || classList.contains(newName)) {
-            System.out.println("Invalid or duplicated name.");
-        } 
-        else if (!classList.contains(oldName)) {
-            System.out.println("Name not found.");
-        } 
-        else {
-            classList.set(classList.indexOf(oldName), newName);
-            System.out.println("Name renamed from " + oldName + " to " + newName);
-        }
-
-    }*/
-
     // rename method
     public String getName() {
         return this.name;
@@ -46,20 +21,16 @@ public class Class {
 
     }
 
-    public void delete(String name) {
-        if (!classList.contains(name)) {
-            System.out.println("Name not found.");
-        } else {
-            classList.remove(name);
-            System.out.println("Name deleted: " + name);
-        }
-
+     public static void addClass(String name, UMLDiagram diagram) {
+        diagram.getClasses().add(new Class(name));
+        System.out.println("Class added: " + name);
+        
     }
 
-    // helper method to check if name is valid
-    private boolean isNameValid(String name) {
-        return name != null && !name.isEmpty();
-        
+    public void deleteClass(UMLClass c, UMLDiagram diagram) {
+        diagram.getClasses().remove(c);
+        System.out.println("Class deleted: " + c.getName());
+
     }
 
 }
