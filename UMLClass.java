@@ -29,7 +29,7 @@ public class Class {
         
     }
 
-    public void deleteClass(UMLClass c, UMLDiagram diagram) {
+    public static void deleteClass(UMLClass c, UMLDiagram diagram) {
         // statement to check if class exists
         if(c == null) {
             System.out.println("Class not found");

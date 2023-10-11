@@ -16,7 +16,7 @@ public class UMLSaveLoad {
      * saveData(): A method to serialize and save the data representing a UML diagram.
      * It serializes UML class entities and their relationships into JSON format and saves them to a file.
      */
-    private void saveData() {
+    private static void saveData() {
         // Creating a Gson object which is used for converting Java objects to JSON format.
         // Gson is a library used to convert Java Objects into their JSON representation.
         // It can also be used to convert a JSON string to an equivalent Java object.
@@ -92,7 +92,7 @@ public class UMLSaveLoad {
      * loadData(): A method to deserialize and load the data representing a UML diagram.
      * It reads data from a file, deserializes it from JSON format, and repopulates UML class entities and relationships.
      */
-    private void loadData() {
+    private static void loadData() {
         // Creating a Gson object which is used for converting JSON formatted string to Java objects.
         Gson gson = new Gson();
 
