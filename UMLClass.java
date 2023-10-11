@@ -28,6 +28,11 @@ public class Class {
     }
 
     public void deleteClass(UMLClass c, UMLDiagram diagram) {
+        if(c == null) {
+            System.out.println("Class not found");
+            return;
+        }
+        
         diagram.getClasses().remove(c);
         System.out.println("Class deleted: " + c.getName());
 
