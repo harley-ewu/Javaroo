@@ -5,6 +5,18 @@ plugins {
 group = 'org.example'
 version = '1.0-SNAPSHOT'
 
+apply plugin: 'java'
+
+jar {
+    manifest {
+        attributes ('Main Class' : 'UMLMenu.java')
+    }
+    from
+    {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 repositories {
     mavenCentral()
 }
