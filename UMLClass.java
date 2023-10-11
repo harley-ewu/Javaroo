@@ -1,57 +1,41 @@
+import java.util.ArrayList;
+
 public class Class {
 
     private String name;
-    private Attribute[] attributes;
-    private Relationship[] relationships;
-
-    public Class() {
-        this.name = "Class";
-
-    }
+    private ArrayList<UMLAttributes> attributes;
 
     public Class(String name) {
         this.name = name;
-
+        this.attributes = new ArrayList<>();
     }
 
+    // rename method
     public String getName() {
-        return name;
+        return this.name;
 
     }
 
-    public Class addName(String name) {
+    public void setName(String name) {
         this.name = name;
-        return this;
-
 
     }
 
-    public String toString() {
-        return name + " [Class]";
-
+     public static void addClass(String name, UMLDiagram diagram) {
+        diagram.getClasses().add(new Class(name));
+        System.out.println("Class added: " + name);
+        
     }
 
+    public void deleteClass(UMLClass c, UMLDiagram diagram) {
+        if(c == null) {
+            System.out.println("Class not found");
+            return;
+        }
+        
+        diagram.getClasses().remove(c);
+        System.out.println("Class deleted: " + c.getName());
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 
 }
