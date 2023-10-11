@@ -78,16 +78,6 @@ public class UMLDiagram {
         if (classEntity != null) {
             // Print basic class information (name).
             System.out.println(classEntity.toString());
-            
-            System.out.println("Relationships:");
-            // Loop through all UMLRelationship objects stored in the relationships list.
-            for (UMLRelationship relationship : relationships) {
-                // Check if the current relationship object involves the class we are currently describing.
-                if (relationship.getSource().equals(className) || relationship.getDestination().equals(className)) {
-                    // Print the relationship in a readable format, showing the source and destination class names.
-                    System.out.println("- " + relationship.getSource() + " --> " + relationship.getDestination());
-                }
-            }
         } else {
             // Inform the user if the specified className does not exist within the classes map.
             System.out.println("Class '" + className + "' does not exist.");
