@@ -41,6 +41,20 @@ public class Class {
 
     }
 
+    // method to check if attribute exists
+    public UMLAttributes attributesExists(String name)
+    {
+        for(UMLAttributes a : attributes)
+        {
+            if(a.getName().equals(name)
+            {
+                return a;
+            }
+        }
+        return null;
+
+    }
+
     // toString method
     public String toString() {
         StringBuilder sb = new StringBuilder();
