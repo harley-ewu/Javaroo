@@ -66,19 +66,22 @@ public class UMLMenu {
                 case "1":
                     System.out.print("Enter the class name to be added: ");
                     String addClassName = scanner.nextLine();
-                    diagram.addClass(new UMLClass(addClassName));
+                    UMLClass.addClass(addClassName, diagram);
                     break;
                 case "2":
                     System.out.print("Enter the class name to be deleted: ");
                     String deleteClassName = scanner.nextLine();
-                    diagram.deleteClass(deleteClassName); 
+                    Class c = diagram.classExists(deleteClassName);
+                    UMLClass.deleteClass(c, diagram); 
                     break;
                 case "3":
                     System.out.print("Enter the class name to be renamed: ");
                     String oldClassName = scanner.nextLine();
                     System.out.print("Enter the new class name: ");
                     String newClassName = scanner.nextLine();
-                    diagram.renameClass(oldClassName, newClassName); 
+                    Class c = diagram.classExists(oldClassName);
+                    c.setName(newClassName);
+                    System.out.println("Class renamed to " + newClassName + ".");
                     break;
                 case "4":
                     diagram.listClasses();
@@ -86,8 +89,7 @@ public class UMLMenu {
                 case "5":
                     System.out.print("Enter the class name: ");
                     String className = scanner.nextLine();
-                    String classDetails = diagram.getClassDetails(className); 
-                    System.out.println(classDetails);
+                    diagram.listClassContents(className); 
                     break;
                 case "6":
                     System.out.println("Help with class operations:");
@@ -113,8 +115,9 @@ public class UMLMenu {
             System.out.println("Attribute Operations:");
             System.out.println("1. Add Attribute");
             System.out.println("2. Delete Attribute");
-            System.out.println("3. Help");
-            System.out.println("4. Back to Main Menu");
+            System.out.println("3. Rename Attribute");
+            System.out.println("4. Help");
+            System.out.println("5. Back to Main Menu");
     
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
@@ -124,37 +127,58 @@ public class UMLMenu {
                     // Add attribute logic
                     System.out.print("Enter the class name: ");
                     String className = scanner.nextLine();
-                    System.out.print("Enter the attribute name: ");
-                    String attributeName = scanner.nextLine();
-    
-                    // Assuming UMLDiagram has a method getClassByName and UMLClass has a method addAttribute
-                    UMLClass umlClass = diagram.getClassByName(className);
-                    if (umlClass != null) {
-                        umlClass.addAttribute(new UMLAttributes(attributeName)); 
-                        System.out.println("Attribute " + attributeName + " added to class " + className + ".");
-                    } else {
-                        System.out.println("Class " + className + " not found.");
+                    Class c = diagram.classExists(className);
+                    if(c != null)
+                    {
+                        System.out.print("Enter the attribute name: ");
+                        String attributeName = scanner.nextLine();
+                        UMLAttributes.addAttribute(c, attributeName);
+                    }
+                    else
+                    {
+                        System.out.println("Class " + className + " does not exist.");
                     }
                     break;
                 case "2":
                     // Delete attribute logic
                     System.out.println("Enter the class name: ");
                     String deleteClassName = scanner.nextLine();
-                    System.out.println("Enter the attribute name to be deleted: ");
-                    String deleteAttributeName = scanner.nextLine();
-                    
-                    UMLClass deleteClass = diagram.getClassByName(deleteClassName);
-                    if (deleteClass != null) {
-                        if (deleteClass.deleteAttribute(deleteAttributeName)) {
-                            System.out.println("Attribute " + deleteAttributeName + " deleted from class " + deleteClassName + ".");
-                        } else {
-                            System.out.println("Attribute " + deleteAttributeName + " not found in class " + deleteClassName + ".");
-                        }
-                    } else {
-                        System.out.println("Class " + deleteClassName + " not found.");
-                    }
+                    Class c = diagram.classExists(deleteClassName);
+                    if(c != null)
+                    {
+                        System.out.println("Enter the attribute name to be deleted: ");
+                        String deleteAttributeName = scanner.nextLine();
+                        UMLAttributes.removeAttribute(c, deleteAttributeName);
+                    }                   
                     break;
                 case "3":
+                    // Rename attribute logic
+                    System.out.println("Enter the class name: ");
+                    String className = scanner.nextLine();
+                    Class c = diagram.classExists(className);
+                    if(c != null)
+                    {
+                        System.out.println("Enter the attribute name to be renamed: ");
+                        String oldAttributeName = scanner.nextLine();
+                        System.out.println("Enter the new attribute name: ");
+                        String newAttributeName = scanner.nextLine();
+                        UMLAttributes atr = c.attributeExists(oldAttributeName);
+                        if(atr != null)
+                        {
+                            atr.setName(newAttributeName);
+                            System.out.println("Attribute renamed to " + newAttributeName + ".");
+                        }
+                        else
+                        {
+                            System.out.println("Attribute " + oldAttributeName + " does not exist in class " + className + ".");
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("Class " + className + " does not exist.");
+                    }
+                    break;
+                case "4":
                     // Help logic for attribute operations
                     System.out.println("Help with attribute operations:");
                     System.out.println("[1: Add Attribute] To add an attribute, select option '1' and provide the class name and attribute name.");
@@ -189,27 +213,60 @@ public class UMLMenu {
                     // Add relationship logic
                     System.out.print("Enter the source class name: ");
                     String sourceClassName = scanner.nextLine();
-                    System.out.print("Enter the destination class name: ");
-                    String destinationClassName = scanner.nextLine();
-                    System.out.print("Enter the relationship type: ");
-                    String relationshipType = scanner.nextLine();
-                    
-                    diagram.addRelationship(sourceClassName, destinationClassName, relationshipType);
+                    Class a = diagram.classExists(sourceClassName);
+                    if(a != null)
+                    {
+                        System.out.print("Enter the destination class name: ");
+                        String destinationClassName = scanner.nextLine();
+                        Class b = diagram.classExists(destinationClassName);
+                        if(b != null)
+                        {
+                            UMLRelationships.addRelationship(diagram, a, b);
+                            System.out.println("Relationship added.");
+                        }
+                        else{
+                            System.out.println("Class " + destinationClassName + " does not exist.");
+                        }
+                    }
+                    else {
+                        System.out.println("Class " + sourceClassName + " does not exist.");
+                    }
                     break;
     
                 case "2":
                     // Delete relationship logic
                     System.out.print("Enter the source class name: ");
                     String deleteSourceClassName = scanner.nextLine();
-                    System.out.print("Enter the destination class name: ");
-                    String deleteDestinationClassName = scanner.nextLine();
-    
-                    diagram.deleteRelationship(deleteSourceClassName, deleteDestinationClassName);
+                    Class a = diagram.classExists(deleteSourceClassName);
+                    if(a != null)
+                    {
+                        System.out.print("Enter the destination class name: ");
+                        String deleteDestinationClassName = scanner.nextLine();
+                        Class b = diagram.classExists(deleteDestinationClassName);
+                        if(b != null)
+                        {
+                            String id = deleteSourceClassName + deleteDestinationClassName;
+                            UMLRelationship rel = diagram.relationshipExists(id);
+                            if(rel != null)
+                            {
+                                UMLRelationships.deleteRelationship(diagram, rel);
+                                System.out.println("Relationship deleted.");
+                            }
+                            else{
+                                System.out.println("Relationship does not exist.");
+                            }
+                        }
+                        else{
+                            System.out.println("Class " + destinationClassName + " does not exist.");
+                        }
+                    }
+                    else {
+                        System.out.println("Class " + sourceClassName + " does not exist.");
+                    }
                     break;
     
                 case "3":
-                    String relationshipsList = diagram.getRelationships();
-                    System.out.println(relationshipsList);
+                    diagram.listRelationships();
                     break;
     
                 case "4":
@@ -233,14 +290,35 @@ public class UMLMenu {
     
 
     private void displaySaveLoadMenu(Scanner scanner) {
-        System.out.println("Save/Load Operations:");
-        System.out.println("1: Save Diagram");
-        System.out.println("2: Load Diagram");
-        System.out.println("3: Back to Main Menu");
-        
-        System.out.print("Enter your choice: ");
-        String choice = scanner.nextLine();
+        boolean back = false;
+        while (!back) {
+            System.out.println("Save/Load Operations:");
+            System.out.println("1: Save Diagram");
+            System.out.println("2: Load Diagram");
+            System.out.println("3: Back to Main Menu");
+            
+            System.out.print("Enter your choice: ");
+            String choice = scanner.nextLine();
+            switch(choice)
+            {
+                case "1":
+                    System.out.print("Enter the file name: ");
+                    String fileName = scanner.nextLine();
+                    UMLSaveLoad.saveData(fileName);
+                    break;
+                case "2":
+                    System.out.print("Enter the file name: ");
+                    String fileName = scanner.nextLine();
+                    UMLSaveLoad.loadData(fileName);
+                    break;
+                case "3":
+                    back = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
+    }
     
 
     public static void main(String[] args) {

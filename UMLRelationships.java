@@ -10,7 +10,7 @@ public class UMLRelationships {
         this.id = source.getName() + dest.getName();
     }
 
-    public void addRelationship(final UMLDiagram diagram, final UMLClass source, final UMLClass dest) {
+    public static void addRelationship(final UMLDiagram diagram, final UMLClass source, final UMLClass dest) {
 
         if (source == null || dest == null) {
             System.out.println("Sorry but we could not find a valid source or destination for this diagram");
@@ -22,7 +22,7 @@ public class UMLRelationships {
     }
 
     
-    public void deleteRelationship(final UMLDiagram diagram, final UMLRelationships rel) {
+    public static void deleteRelationship(final UMLDiagram diagram, final UMLRelationships rel) {
         
         if (rel == null) {
             System.out.println("Sorry but we could not find a valid relationship for this diagram");

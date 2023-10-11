@@ -36,7 +36,7 @@ public class UMLAttributes
         * @param c - the class to remove the attribute from
         * @param name - the name of the attribute
     */
-   public void removeAttribute(Class c, String name)
+   public static void removeAttribute(Class c, String name)
    {
         UMLAttributes attr = c.attributeExists(name);
         if(attr == null)
