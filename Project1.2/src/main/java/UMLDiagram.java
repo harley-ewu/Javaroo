@@ -54,8 +54,7 @@ public class UMLDiagram {
         return null;
     }
 
-    // Method to list all classes and their details present in the UML diagram.
-    private void listClasses() {
+    public void listClasses() {
         // Check if the classes map is empty, meaning no classes have been added.
         if (classes.isEmpty()) {
             System.out.println("No classes defined.");
@@ -72,36 +71,21 @@ public class UMLDiagram {
         }
     }
 
-    // Method to display the attributes and relationships of a specified class.
+    // Method to list all classes and their details present in the UML diagram.
     private void listClassContents(String className) {
         // Check if the provided className exists in the classes map.
-        if (classes.containsKey(className)) {
-            // Retrieve the UMLClass object corresponding to the className from the classes map.
-            UMLClass classEntity = classes.get(className);
+        UMLClass classEntity = classExists(className);
+        if (classEntity != null) {
             // Print basic class information (name).
-            System.out.println("Class: " + className);
-            System.out.println("Attributes:");
-            // Loop through all attributes of the UMLClass object.
-            // The attributes are stored in a map within the UMLClass object, where each entry corresponds to an attribute name and its type.
-            for (Map.Entry<String, String> entry : classEntity.getAttributes().entrySet()) {
-                // Print each attribute with its name and type.
-                System.out.println("- " + entry.getKey() + " (" + entry.getValue() + ")");
-            }
-            System.out.println("Relationships:");
-            // Loop through all UMLRelationship objects stored in the relationships list.
-            for (UMLRelationship relationship : relationships) {
-                // Check if the current relationship object involves the class we are currently describing.
-                // It checks both the source and destination of the relationship to ensure all relevant relationships are included.
-                if (relationship.getSource().equals(className) || relationship.getDestination().equals(className)) {
-                    // Print the relationship in a readable format, showing the source and destination class names.
-                    System.out.println("- " + relationship.getSource() + " --> " + relationship.getDestination());
-                }
-            }
+            System.out.println(classEntity.toString());
         } else {
             // Inform the user if the specified className does not exist within the classes map.
             System.out.println("Class '" + className + "' does not exist.");
         }
     }
+
+    // Method to check if a specific class exists in the UML diagram.
+
 
     // Method to list all relationships defined in the UML diagram.
     private void listRelationships() {
