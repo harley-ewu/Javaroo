@@ -24,8 +24,8 @@ public class UMLRelationships {
     
     public void deleteRelationship(final UMLDiagram diagram, final UMLRelationships rel) {
         
-        if (!diagram.getRelationships().contains(source) || !diagram.getRelationships().contains(dest)) {
-            System.out.println("Sorry but we could not find a valid source or destination for this diagram");
+        if (rel == null) {
+            System.out.println("Sorry but we could not find a valid relationship for this diagram");
             return;
         }
             
