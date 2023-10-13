@@ -25,7 +25,7 @@ public class UMLAttributes
         * @param c - the class to add the attribute to
         * @param name - the name of the attribute
     */
-    public static void addAttribute(Class c, String name)
+    public static void addAttribute(UMLClass c, String name)
     {
         UMLAttributes attr = new UMLAttributes(name);
         c.getAttributes().add(attr);
@@ -36,7 +36,7 @@ public class UMLAttributes
         * @param c - the class to remove the attribute from
         * @param name - the name of the attribute
     */
-   public static void removeAttribute(Class c, String name)
+   public static void removeAttribute(UMLClass c, String name)
    {
         UMLAttributes attr = c.attributesExists(name);
         if(attr == null)
