@@ -79,8 +79,7 @@ public class UMLMenu {
                     String oldClassName = scanner.nextLine();
                     System.out.print("Enter the new class name: ");
                     String newClassName = scanner.nextLine();
-                    UMLClass cl = diagram.classExists(oldClassName);
-                    cl.setName(newClassName);
+                    UMLClass.renameClass(oldClassName, newClassName);
                     System.out.println("Class renamed to " + newClassName + ".");
                     break;
                 case "4":
