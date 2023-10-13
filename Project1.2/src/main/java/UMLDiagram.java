@@ -98,7 +98,7 @@ public class UMLDiagram {
             // This loop will run once for each UMLRelationship object stored in the list.
             for (UMLRelationships relationship : relationships) {
                 // Print each relationship, showcasing the source class and destination class.
-                System.out.println("- " + relationship.getSource() + " --> " + relationship.getDest());
+                System.out.println("- " + relationship.getSource().getName() + " --> " + relationship.getDest().getName());
             }
         }
     }
