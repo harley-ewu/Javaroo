@@ -9,7 +9,7 @@ public class UMLDiagram {
     // This allows for easy retrieval of UMLClass objects by using their name.
     private static Map<String, UMLClass> classes = new HashMap<>();
     // A list to store objects representing relationships between UML classes.
-    private static List<UMLRelationship> relationships = new ArrayList<>();
+    private static List<UMLRelationships> relationships = new ArrayList<>();
 
     public static Map<String, UMLClass> getClasses() {
         return classes;
@@ -19,18 +19,18 @@ public class UMLDiagram {
         UMLDiagram.classes = classes;
     }
 
-    public static List<UMLRelationship> getRelationships() {
+    public static List<UMLRelationships> getRelationships() {
         return relationships;
     }
 
-    public static void setRelationships(List<UMLRelationship> relationships) {
+    public static void setRelationships(List<UMLRelationships> relationships) {
         UMLDiagram.relationships = relationships;
     }
 
     //Method to see if a specific class exists in the UML diagram.
     public UMLClass classExists(String name)
     {
-        for(UMLClass c : classes)
+        for(UMLClass c : classes.values())
         {
             if(c.getName().equals(name))
             {
@@ -42,11 +42,11 @@ public class UMLDiagram {
     }
 
     //Method to see if a specific relationship exists in the UML diagram.
-    public UMLRelationship relationshipExists(String id)
+    public UMLRelationships relationshipExists(String id)
     {
-        for(UMLRelationship r : relationships)
+        for(UMLRelationships r : relationships)
         {
-            if(r.getId().equals(id)
+            if(r.getId().equals(id))
             {
                 return r;
             }
@@ -72,12 +72,12 @@ public class UMLDiagram {
     }
 
     // Method to list all classes and their details present in the UML diagram.
-    private void listClassContents(String className) {
+    void listClassContents(String className) {
         // Check if the provided className exists in the classes map.
-        UMLClass classEntity = classExists(className);
-        if (classEntity != null) {
+        UMLClass UMLClassEntity = classExists(className);
+        if (UMLClassEntity != null) {
             // Print basic class information (name).
-            System.out.println(classEntity.toString());
+            System.out.println(UMLClassEntity.toString());
         } else {
             // Inform the user if the specified className does not exist within the classes map.
             System.out.println("Class '" + className + "' does not exist.");
@@ -88,7 +88,7 @@ public class UMLDiagram {
 
 
     // Method to list all relationships defined in the UML diagram.
-    private void listRelationships() {
+    void listRelationships() {
         // Check if the relationships list is empty, implying no relationships have been defined.
         if (relationships.isEmpty()) {
             System.out.println("No relationships defined.");
@@ -96,9 +96,9 @@ public class UMLDiagram {
             System.out.println("Relationships:");
             // If relationships are present, iterate through the relationships list.
             // This loop will run once for each UMLRelationship object stored in the list.
-            for (UMLRelationship relationship : relationships) {
+            for (UMLRelationships relationship : relationships) {
                 // Print each relationship, showcasing the source class and destination class.
-                System.out.println("- " + relationship.getSource() + " --> " + relationship.getDestination());
+                System.out.println("- " + relationship.getSource() + " --> " + relationship.getDest());
             }
         }
     }
