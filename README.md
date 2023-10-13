@@ -14,5 +14,8 @@ To be able to run the program, please follow these steps.
 7. Open your Terminal (Linux or Mac Users) or CMD (Windows)
 8. Navigate to the directory where you saved the repository from github
    using the terminal/CMD commands
-9. run JAVAROO UML Editor
-10. Have fun with the JAVAROO UML Editor :)
+9. Build the project using the `gradlew build` command
+10. Navigate to the build directory using the terminal/CMD commands `.build\libs`
+11. run JAVAROO UML Editor via the `java -jar Project1.2-1.0-SNAPSHOT.jar`
+12. Have fun with the JAVAROO UML Editor :)
+13. After saving a file, you can find them in the `build\libs` directory.
