@@ -11,7 +11,7 @@ To be able to run the program, please follow these steps.
 4. Keep .jar and .java files on same directory 
 
 6. Create a directory to save .class files (optional)
-7. Install Homebrew
+7. If using a Mac computer Install Homebrew
       1. use this command: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
          Note: if using a Mac with Apple Silicon you need to add homebrew to your PATH folder using this
          command: `echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile eval "$(/opt/homebrew/bin/brew
