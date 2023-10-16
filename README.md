@@ -12,11 +12,11 @@ To be able to run the program, please follow these steps.
 
 6. Create a directory to save .class files (optional)
 7. Install Homebrew
-      1. use this command: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      1. use this command: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
          Note: if using a Mac with Apple Silicon you need to add homebrew to your PATH folder using this
-         command: echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile eval "$(/opt/homebrew/bin/brew shellenv)"
-         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      2. Install Gradle using this command: brew install gradle
+         command: `echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile eval "$(/opt/homebrew/bin/brew
+         shellenv)"`
+      2. Install Gradle using this command: `brew install gradle` 
 8. Open your Terminal (Linux or Mac Users) or CMD (Windows)
 9. Navigate to the directory where you saved the repository from github
    using the terminal/CMD commands
