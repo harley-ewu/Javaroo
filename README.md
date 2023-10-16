@@ -11,11 +11,14 @@ To be able to run the program, please follow these steps.
 4. Keep .jar and .java files on same directory 
 
 6. Create a directory to save .class files (optional)
-7. Open your Terminal (Linux or Mac Users) or CMD (Windows)
-8. Navigate to the directory where you saved the repository from github
+7. If using a mac computer install hombrew using this command :
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      after installing homebrew install gradle using this command : brew install gradle
+9. Open your Terminal (Linux or Mac Users) or CMD (Windows)
+10. Navigate to the directory where you saved the repository from github
    using the terminal/CMD commands
-9. Build the project using the `gradlew build` command
-10. Navigate to the build directory using the terminal/CMD commands `.build\libs`
-11. run JAVAROO UML Editor via the `java -jar Project1.2-1.0-SNAPSHOT.jar`
-12. Have fun with the JAVAROO UML Editor :)
-13. After saving a file, you can find them in the `build\libs` directory.
+11. Build the project using the `gradlew build` command
+12. Navigate to the build directory using the terminal/CMD commands `.build\libs`
+13. run JAVAROO UML Editor via the `java -jar Project1.2-1.0-SNAPSHOT.jar`
+14. Have fun with the JAVAROO UML Editor :)
+15. After saving a file, you can find them in the `build\libs` directory.
