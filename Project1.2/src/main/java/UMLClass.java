@@ -17,6 +17,10 @@ public class UMLClass {
 
     }
 
+    public static UMLClass getClass(String className) {
+        return UMLDiagram.getClasses().get(className); // this will return null if the class does not exist.
+    }
+
     public ArrayList<UMLAttributes> getAttributes() {
         return attributes;
     }

@@ -11,7 +11,7 @@ public class UMLSaveLoad {
     private static final Gson GSON = new Gson();
 
     static void saveData(String saveFilePath) {
-        try (FileWriter fileWriter = new FileWriter(saveFilePath)) {
+        try (FileWriter fileWriter = new FileWriter(saveFilePath + ".json")) {
             JsonObject data = new JsonObject();
             data.add("classes", createClassesJsonArray());
             data.add("relationships", createRelationshipsJsonArray());
@@ -61,13 +61,15 @@ public class UMLSaveLoad {
     }
 
     static void loadData(String saveFilePath) {
-        try (FileReader fileReader = new FileReader(saveFilePath)) {
+        try (FileReader fileReader = new FileReader(saveFilePath + ".json")) {
             JsonObject data = GSON.fromJson(fileReader, JsonObject.class);
             if (data == null) {
                 System.err.println("Error loading data: Data file is empty or corrupted.");
                 return;
             }
-            loadClasses(data.getAsJsonArray("classes"));
+
+            JsonArray classesArray = data.getAsJsonArray("classes");
+            loadClasses(classesArray);
             loadRelationships(data.getAsJsonArray("relationships"));
             System.out.println("Data loaded from " + saveFilePath);
         } catch (IOException e) {
@@ -77,20 +79,19 @@ public class UMLSaveLoad {
 
     private static void loadClasses(JsonArray classesArray) {
         for (JsonElement classElement : classesArray) {
-            UMLClass umlClass = deserializeUMLClass(classElement.getAsJsonObject());
-            UMLClass.addClass(umlClass.getName());
-        }
-    }
+            JsonObject classObject = classElement.getAsJsonObject();
+            String className = classObject.get("name").getAsString();
 
-    private static UMLClass deserializeUMLClass(JsonObject classObject) {
-        String className = classObject.get("name").getAsString();
-        UMLClass umlClass = new UMLClass(className);
-        JsonArray attributesArray = classObject.getAsJsonArray("attributes");
-        for (JsonElement attributeElement : attributesArray) {
-            JsonObject attributeObject = attributeElement.getAsJsonObject();
-            UMLAttributes.addAttribute(umlClass, attributeObject.get("name").getAsString());
+            // Create a new UMLClass instance and add it to the static map
+            UMLClass.addClass(className);
+
+            // Load attributes for this class
+            JsonArray attributesArray = classObject.getAsJsonArray("attributes");
+            for (JsonElement attributeElement : attributesArray) {
+                String attributeName = attributeElement.getAsJsonObject().get("name").getAsString();
+                UMLAttributes.addAttribute(UMLClass.getClass(className), attributeName);
+            }
         }
-        return umlClass;
     }
 
     private static void loadRelationships(JsonArray relationshipsArray) {
