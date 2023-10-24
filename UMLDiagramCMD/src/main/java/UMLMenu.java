@@ -332,6 +332,6 @@ public class UMLMenu {
         UMLMenu menu = new UMLMenu();
         // Call the displayMenu method
         menu.displayMenu();
-    }
+    }//
 }
 
