@@ -19,33 +19,45 @@ public class InitialController {
     @FXML
     public void cmd(ActionEvent actionEvent) {
         try {
+            // Detect the operating system from system properties
             String os = System.getProperty("os.name").toLowerCase();
+
+            // Command to execute, will be set based on the operating system
             String[] command;
 
-            // Get the current working directory
+            // Getting the directory where the Java program is currently running
             String currentWorkingDirectory = System.getProperty("user.dir");
 
+            // Define the gradlew path based on the current working directory
+            String gradlewPath = Paths.get(currentWorkingDirectory, "gradlew").toString();
+
+            // Here's where we define which Gradle task to run. In this example, I'm defaulting to "run"
+            // which typically runs the main method in a project's main class.
             String gradleCommand = "run"; // This will run Main1 by default
             // Uncomment the next line if you want to run Main2 instead
-             gradleCommand = "runMain2";
+            gradleCommand = "runMain2";
 
             if (os.contains("win")) {
-                // Windows: Start a new CMD window that executes gradlew
-                command = new String[]{"cmd.exe", "/c", "start", "cmd.exe", "/K", currentWorkingDirectory + "\\gradlew.bat " + gradleCommand + " --console=plain"};
-            } else if (os.contains("nix") || os.contains("nux")) {
-                // Linux: Start a new gnome-terminal window that executes gradlew (for GNOME)
-                command = new String[]{"gnome-terminal", "--", "/bin/sh", "-c", currentWorkingDirectory + "/gradlew " + gradleCommand + " --console=plain; bash"};
+                // Windows
+                command = new String[]{"cmd.exe", "/c", "cd \"" + currentWorkingDirectory + "\" && " + gradlewPath + " " + gradleCommand + " --console=plain"};
+            } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+                // Unix or Linux
+                command = new String[]{"/bin/bash", "-c", "cd '" + currentWorkingDirectory + "'; '" + gradlewPath + "' " + gradleCommand + " --console=plain"};
             } else if (os.contains("mac")) {
-                // macOS: Start a new Terminal window that executes gradlew
-                command = new String[]{"osascript", "-e", String.format("tell app \"Terminal\" to do script \"cd %s; ./gradlew %s --console=plain\"", currentWorkingDirectory, gradleCommand)};
+                // macOS
+                // Note: This assumes that Terminal will be used to run the command. Adjustments may be needed for other terminal applications.
+                String script = String.format("tell application \"Terminal\" to do script \"cd '%s'; '%s' %s --console=plain\"", currentWorkingDirectory, gradlewPath, gradleCommand);
+                command = new String[]{"osascript", "-e", script};
             } else {
                 throw new IOException("Unsupported operating system");
             }
 
-            new ProcessBuilder(command)
-                    .inheritIO()
-                    .start();
-            System.exit(0);
+            // Print the command for debugging purposes
+            System.out.println("Executing: " + String.join(" ", command));
+
+            // Execute the command
+            new ProcessBuilder(command).inheritIO().start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
