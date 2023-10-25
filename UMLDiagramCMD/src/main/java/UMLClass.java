@@ -4,31 +4,29 @@ import java.lang.StringBuilder;
 public class UMLClass {
 
     private String name;
-    private ArrayList<UMLAttributes> attributes;
+    private ArrayList<UMLFields> fields;
 
     // constructor
     public UMLClass(String name) {
         this.name = name;
-        this.attributes = new ArrayList<>();
+        this.fields = new ArrayList<>();
     }
     // getters method that will work as a rename method
     public String getName() {
         return this.name;
-
     }
 
     public static UMLClass getClass(String className) {
         return UMLDiagram.getClasses().get(className); // this will return null if the class does not exist.
     }
 
-    public ArrayList<UMLAttributes> getAttributes() {
-        return attributes;
+    public ArrayList<UMLFields> getFields() {
+        return this.fields;
     }
 
     // setters
     public void setName(String name) {
         this.name = name;
-
     }
 
      public static void addClass(String name) {
@@ -40,7 +38,7 @@ public class UMLClass {
         }
     }
 
-    static void renameClass(String oldName, String newName) {
+    public static void renameClass(String oldName, String newName) {
         if (UMLDiagram.getClasses().containsKey(oldName)) {
             if (!UMLDiagram.getClasses().containsKey(newName)) {
                 UMLDiagram.getClasses().remove(oldName);
@@ -66,10 +64,10 @@ public class UMLClass {
 
     }
 
-    // method to check if attribute exists
-    public UMLAttributes attributesExists(String name)
+    // method to check if a field exists
+    public UMLFields fieldExists(String name)
     {
-        for(UMLAttributes a : attributes)
+        for(UMLFields a : this.fields)
         {
             if(a.getName().equals(name))
             {
@@ -78,6 +76,31 @@ public class UMLClass {
         }
         return null;
     }
+
+
+    //Method to add a UMLFields object to the fields ArrayList with a name parameter
+    public void addField(String name, String type, String visibility)
+    {
+        //check for the empty string in paramters or if input contains only spaces
+        if(name.trim().isEmpty() || type.trim().isEmpty() || visibility.trim().isEmpty())
+        {
+            System.out.println("Invalid input");
+            return;
+        }
+        
+        //check if field already exists
+        if(fieldExists(name) == null)
+        {
+            this.fields.add(new UMLFields(name, type, visibility));
+            System.out.println("Field added: " + name);
+        }
+        else
+        {
+            System.out.println("Field already exists");
+        }
+    }
+
+
 
     // toString method
     public String toString() {
