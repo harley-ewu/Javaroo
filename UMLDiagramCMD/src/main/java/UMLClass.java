@@ -38,7 +38,7 @@ public class UMLClass {
         }
     }
 
-    static void renameClass(String oldName, String newName) {
+    public static void renameClass(String oldName, String newName) {
         if (UMLDiagram.getClasses().containsKey(oldName)) {
             if (!UMLDiagram.getClasses().containsKey(newName)) {
                 UMLDiagram.getClasses().remove(oldName);
