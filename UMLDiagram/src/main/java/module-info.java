@@ -5,5 +5,6 @@ module javaroo.umldiagram {
 
 
     opens javaroo.umldiagram to javafx.fxml;
-    exports javaroo.umldiagram;
+    //exports javaroo.umldiagram;
+    exports javaroo.umldiagram to javafx.graphics;
 }

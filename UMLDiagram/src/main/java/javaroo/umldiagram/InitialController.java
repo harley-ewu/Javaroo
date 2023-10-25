@@ -58,6 +58,7 @@ public class InitialController {
             // Execute the command
             new ProcessBuilder(command).inheritIO().start();
 
+
         } catch (IOException e) {
             e.printStackTrace();
         }

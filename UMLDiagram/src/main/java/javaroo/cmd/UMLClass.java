@@ -37,6 +37,7 @@ public class UMLClass {
         if(!UMLDiagram.getClasses().containsKey(name)){
             UMLDiagram.getClasses().put(name, new UMLClass(name));
             System.out.println("Class added: " + name);
+            UMLDiagram.setSaved(false);
         } else {
             System.out.println("Class" + name +" exits");
         }
@@ -48,6 +49,7 @@ public class UMLClass {
                 UMLDiagram.getClasses().remove(oldName);
                 addClass(newName);
                 System.out.println("Class '" + oldName + "' renamed to '" + newName + "'.");
+                UMLDiagram.setSaved(false);
             } else {
                 System.out.println("Class '" + newName + "' already exists.");
             }
@@ -65,6 +67,7 @@ public class UMLClass {
         // if class exists, classes will be fetched and removed
         diagram.getClasses().remove(c.getName());
         System.out.println("Class deleted: " + c.getName());
+        UMLDiagram.setSaved(false);
 
     }
 

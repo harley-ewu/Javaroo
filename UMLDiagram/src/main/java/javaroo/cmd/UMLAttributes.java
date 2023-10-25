@@ -32,6 +32,7 @@ public class UMLAttributes
         UMLAttributes attr = new UMLAttributes(name);
         c.getAttributes().add(attr);
         System.out.println("Attribute " + name + " added to class " + c.getName() + " successfully.");
+        UMLDiagram.setSaved(false);
     }
 
     /* Removes an attribute from a class

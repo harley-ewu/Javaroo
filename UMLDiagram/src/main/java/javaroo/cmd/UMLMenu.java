@@ -38,6 +38,14 @@ public class UMLMenu {
                     displaySaveLoadMenu(scanner);
                     break;
                 case "5":
+                    if (!UMLDiagram.isSaved()) {
+                        System.out.println("You have unsaved changes. Do you want to save them before exiting? (yes/no)");
+                        String saveChoice = scanner.nextLine();
+                        if (saveChoice.equalsIgnoreCase("yes")) {
+                            // Call the save method here
+                            UMLSaveLoad.saveData("yourFileName"); // Replace "yourFileName" with the appropriate file name or logic
+                        }
+                    }
                     System.out.println("Exiting the UML Diagram Menu.");
                     exit = true;
                     break;
