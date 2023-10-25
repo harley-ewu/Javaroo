@@ -1,13 +1,13 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.javamodularity.moduleplugin' version '1.8.12'
-    id 'org.openjfx.javafxplugin' version '0.0.13'
-    id 'org.beryx.jlink' version '2.25.0'
+    //id 'org.javamodularity.moduleplugin' version '1.8.12'
+    id "org.openjfx.javafxplugin" version "0.1.0"
+    id "org.beryx.jlink" version "3.0.0"
 }
 
 group 'javaroo'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -17,10 +17,8 @@ ext {
     junitVersion = '5.9.2'
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
@@ -46,7 +44,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.google.code.gson:gson:2.8.9'
 }
 
 
@@ -61,6 +59,8 @@ jlink {
         name = 'app'
     }
 }
+
+
 
 jlinkZip {
     group = 'distribution'
