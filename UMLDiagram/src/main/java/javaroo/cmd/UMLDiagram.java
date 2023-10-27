@@ -1,5 +1,3 @@
-package javaroo.cmd;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,17 +10,6 @@ public class UMLDiagram {
     private static Map<String, UMLClass> classes = new HashMap<>();
     // A list to store objects representing relationships between UML classes.
     private static List<UMLRelationships> relationships = new ArrayList<>();
-
-    private static boolean isSaved = true; // Add this instance variable at the top of the UMLDiagram class
-
-
-    public static boolean isSaved() {
-        return isSaved;
-    }
-
-    public static void setSaved(boolean saved) {
-        isSaved = saved;
-    }
 
     public static Map<String, UMLClass> getClasses() {
         return classes;

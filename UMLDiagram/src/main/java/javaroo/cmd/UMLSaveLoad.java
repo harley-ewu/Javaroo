@@ -1,5 +1,3 @@
-package javaroo.cmd;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -19,7 +17,6 @@ public class UMLSaveLoad {
             data.add("relationships", createRelationshipsJsonArray());
             GSON.toJson(data, fileWriter);
             System.out.println("Data saved to " + saveFilePath);
-            UMLDiagram.setSaved(true);
         } catch (IOException e) {
             System.err.println("Error saving data: " + e.getMessage());
         }
@@ -75,7 +72,6 @@ public class UMLSaveLoad {
             loadClasses(classesArray);
             loadRelationships(data.getAsJsonArray("relationships"));
             System.out.println("Data loaded from " + saveFilePath);
-            UMLDiagram.setSaved(true);
         } catch (IOException e) {
             System.err.println("Error loading data: " + e.getMessage());
         }

@@ -1,5 +1,3 @@
-package javaroo.cmd;
-
 public class UMLRelationships {
 
     final private UMLClass dest;
@@ -32,7 +30,6 @@ public class UMLRelationships {
         }
 
         UMLDiagram.getRelationships().add(new UMLRelationships(source, dest));
-        UMLDiagram.setSaved(false);
 
     }
 
@@ -45,7 +42,6 @@ public class UMLRelationships {
         }
             
         diagram.getRelationships().remove(rel);
-        UMLDiagram.setSaved(false);
         
     }
 
