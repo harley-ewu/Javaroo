@@ -1,3 +1,5 @@
+package javaroo.cmd;
+
 public class UMLAttributes
 {
     // Unique identifier
@@ -30,11 +32,12 @@ public class UMLAttributes
         UMLAttributes attr = new UMLAttributes(name);
         c.getAttributes().add(attr);
         System.out.println("Attribute " + name + " added to class " + c.getName() + " successfully.");
+        UMLDiagram.setSaved(false);
     }
 
     /* Removes an attribute from a class
         * @param c - the class to remove the attribute from
-        * @param name - the name of the attribute
+        /home/martin/Desktop//home/martin/Desktop/Folder/Live Sports Scoreboard/Live-Sports-Scoreboard/src/main/resources/static/homepageFolder/Live Sports Scoreboard/Live-Sports-Scoreboard/src/main/resources/static/homepage* @param name - the name of the attribute
     */
    public static void removeAttribute(UMLClass c, String name)
    {

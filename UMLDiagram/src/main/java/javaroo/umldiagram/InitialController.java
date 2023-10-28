@@ -68,14 +68,11 @@ public class InitialController {
     void newScene(ActionEvent event) {
         try {
             // Load the new scene from the FXML file
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("main-view.fxml")));
-
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("UMLCreator.fxml")));
             // Create the scene with the loaded parent
             Scene newScene = new Scene(root);
-
             // Assuming the event source is a Node, get the current stage
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
             // Set the new scene to the current stage
             currentStage.setScene(newScene);
         } catch (IOException e) {
