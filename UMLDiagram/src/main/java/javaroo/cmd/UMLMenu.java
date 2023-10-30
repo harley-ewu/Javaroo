@@ -3,10 +3,10 @@ import java.util.*;
 public class UMLMenu {
     private UMLDiagram diagram;
 
-    // public static void main(String[] args) {
-    //     UMLMenu menu = new UMLMenu();
-    //     menu.displayMenu();
-    // }
+    public static void main(String[] args) {
+        UMLMenu menu = new UMLMenu();
+        menu.displayMenu();
+    }
 
     public UMLMenu() {
         this.diagram = new UMLDiagram();
