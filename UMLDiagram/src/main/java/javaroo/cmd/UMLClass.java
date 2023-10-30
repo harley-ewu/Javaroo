@@ -5,12 +5,15 @@ public class UMLClass {
 
     private String name;
     private ArrayList<UMLFields> fields;
+    private ArrayList<UMLMethods> methods;
 
     // constructor
     public UMLClass(String name) {
         this.name = name;
         this.fields = new ArrayList<>();
+        this.methods = new ArrayList<>();
     }
+
     // getters method that will work as a rename method
     public String getName() {
         return this.name;
@@ -97,6 +100,41 @@ public class UMLClass {
         else
         {
             System.out.println("Field already exists");
+        }
+    }
+
+    //Method to check if a UMLMethods object exists in the methods ArrayList
+    public UMLMethods methodExists(String name, ArrayList<String> parameters)
+    {
+        for(UMLMethods m : this.methods)
+        {
+            if(m.getName().equals(name) && m.getParameters().equals(parameters))
+            {
+                return m;
+            }
+        }
+        return null;
+    }
+
+    //Method to add a UMLMethods object to the methods ArrayList with a name, returnType, and parameters parameter
+    public void addMethod(String name, String returnType, ArrayList<String> parameters)
+    {
+        //check for the empty string in paramters or if input contains only spaces
+        if(name.trim().isEmpty() || returnType.trim().isEmpty() || parameters == null)
+        {
+            System.out.println("Invalid input");
+            return;
+        }
+        
+        //check if method already exists
+        if(methodExists(name, parameters) == null)
+        {
+            this.methods.add(new UMLMethods(name, returnType, parameters));
+            System.out.println("Method added: " + name);
+        }
+        else
+        {
+            System.out.println("Method with that name and those parameters already exists");
         }
     }
 

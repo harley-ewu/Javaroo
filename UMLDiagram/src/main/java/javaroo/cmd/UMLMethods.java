@@ -4,12 +4,12 @@ public class UMLMethods
     private String returnType;
     private ArrayList<String> parameters;
 
-    //constructor that takes only name and return type and instantiates parameters as an empty arraylist
-    public UMLMethods(String name, String returnType)
+    //constructor that takes name and return type and the the parameters arraylist
+    public UMLMethods(String name, String returnType, ArrayList<String> parameters)
     {
         this.name = name;
         this.returnType = returnType;
-        this.parameters = new ArrayList<String>();
+        this.parameters = parameters;
     }
 
     //Getters and Setters
