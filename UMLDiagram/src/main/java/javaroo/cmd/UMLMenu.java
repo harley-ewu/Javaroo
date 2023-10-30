@@ -3,10 +3,10 @@ import java.util.*;
 public class UMLMenu {
     private UMLDiagram diagram;
 
-    public static void main(String[] args) {
-        UMLMenu menu = new UMLMenu();
-        menu.displayMenu();
-    }
+    // public static void main(String[] args) {
+    //     UMLMenu menu = new UMLMenu();
+    //     menu.displayMenu();
+    // }
 
     public UMLMenu() {
         this.diagram = new UMLDiagram();
@@ -90,6 +90,7 @@ public class UMLMenu {
             
             switch (choice) {
                 case "1":
+                    // update so user can also add attributes and methods here
                     diagram.listClasses();
                     System.out.print("\nEnter the class name to be added: ");
                     String addClassName = scanner.nextLine();
