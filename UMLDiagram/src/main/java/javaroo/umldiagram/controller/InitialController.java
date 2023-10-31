@@ -1,4 +1,4 @@
-package javaroo.umldiagram;
+package javaroo.umldiagram.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,14 +59,28 @@ public class InitialController {
             new ProcessBuilder(command).inheritIO().start();
 
 
+            try {
+                // Load the new scene from the FXML file
+                Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("UMLCreator-1.fxml")));
+                // Create the scene with the loaded parent
+                Scene newScene = new Scene(root);
+                // Assuming the event source is a Node, get the current stage
+                Stage currentStage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                // Set the new scene to the current stage
+                currentStage.setScene(newScene);
+            } catch (IOException e) {
+                // Handle exception, e.g., print stack trace or show an alert
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     @FXML
     void newScene(ActionEvent event) {
         try {
+//            System.out.println(getClass().getResource("UMLCreator.fxml"));
+
             // Load the new scene from the FXML file
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("UMLCreator.fxml")));
             // Create the scene with the loaded parent
