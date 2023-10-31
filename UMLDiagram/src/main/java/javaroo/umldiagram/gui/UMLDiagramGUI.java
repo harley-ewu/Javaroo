@@ -1,4 +1,4 @@
-package javaroo.umldiagram;
+package javaroo.umldiagram.gui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +14,6 @@ public class UMLDiagramGUI extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(UMLDiagramGUI.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-
         Image appIcon = new Image(Objects.requireNonNull(UMLDiagramGUI.class.getResourceAsStream("icon.png")));
         stage.getIcons().add(appIcon);
         stage.setTitle("UML Diagram Builder");

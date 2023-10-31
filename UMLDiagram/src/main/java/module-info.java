@@ -2,15 +2,18 @@ module javaroo.umldiagram {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
+    requires javafx.base;
 
+    opens javaroo.cmd to javafx.fxml, javafx.graphics;
+    opens javaroo.umldiagram to javafx.fxml, javafx.graphics;
+    opens javaroo.umldiagram.controller to javafx.fxml, javafx.graphics;
 
-
-    opens javaroo.umldiagram to javafx.fxml;
-    //exports javaroo.umldiagram;
-    exports javaroo.umldiagram to javafx.graphics;
-    exports javaroo.umldiagram.model; // Export the package
-    exports javaroo.umldiagram.controller to javafx.graphics;
-    opens javaroo.umldiagram.controller to javafx.fxml;
+    exports javaroo.cmd;
+    exports javaroo.umldiagram.gui;
+    exports javaroo.umldiagram.controller;
+    opens javaroo.umldiagram.gui to javafx.fxml, javafx.graphics;
 }
+
+
 
 

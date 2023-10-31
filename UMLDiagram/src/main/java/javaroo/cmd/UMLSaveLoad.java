@@ -12,7 +12,7 @@ import java.io.IOException;
 public class UMLSaveLoad {
     private static final Gson GSON = new Gson();
 
-    static void saveData(String saveFilePath) {
+    public static void saveData(String saveFilePath) {
         try (FileWriter fileWriter = new FileWriter(saveFilePath + ".json")) {
             JsonObject data = new JsonObject();
             data.add("classes", createClassesJsonArray());
@@ -63,7 +63,7 @@ public class UMLSaveLoad {
         return relationshipObject;
     }
 
-    static void loadData(String saveFilePath) {
+    public static void loadData(String saveFilePath) {
         try (FileReader fileReader = new FileReader(saveFilePath + ".json")) {
             JsonObject data = GSON.fromJson(fileReader, JsonObject.class);
             if (data == null) {

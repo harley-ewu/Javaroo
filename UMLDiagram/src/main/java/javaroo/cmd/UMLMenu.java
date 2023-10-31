@@ -1,17 +1,36 @@
 package javaroo.cmd;
 
+
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.stage.Stage;
+
 import java.util.*;
 
-public class UMLMenu {
-    private UMLDiagram diagram;
-
+public class UMLMenu extends Application {
+    private CMDController cmdController;
+    private  UMLDiagram diagram;
     public UMLMenu() {
+        this.cmdController = new CMDController();
         this.diagram = new UMLDiagram();
+    }
+
+
+    @Override
+    public void start(Stage primaryStage) {
+        // Define your JavaFX UI and functionality here
+        // You can trigger button click events or perform other UI-related tasks
     }
 
     public void displayMenu() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
+        ActionEvent e = new ActionEvent();
+        UMLMenu umlMenu = new UMLMenu();
+
+
+
 
         while (!exit) {
             System.out.println("UML Diagram Menu:");
@@ -20,7 +39,7 @@ public class UMLMenu {
             System.out.println("3: Relationship options");
             System.out.println("4: Save/Load options");
             System.out.println("5: Exit");
-            
+
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
 
@@ -53,10 +72,16 @@ public class UMLMenu {
                     System.out.println("Invalid choice. Please try again.");
             }
         }
-        scanner.close();
+        scanner.close(); Platform.runLater(() -> {
+            launch();
+            cmdController.addClassGui();
+        });
     }
-    
+
     private void displayClassMenu(Scanner scanner) {
+
+
+
         boolean back = false;
 
         while (!back) {
@@ -68,10 +93,10 @@ public class UMLMenu {
             System.out.println("5: List Specific Class Contents");
             System.out.println("6: Help");
             System.out.println("7: Back to Main Menu");
-            
+
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
-            
+
             switch (choice) {
                 case "1":
                     System.out.print("Enter the class name to be added: ");
@@ -98,7 +123,7 @@ public class UMLMenu {
                 case "5":
                     System.out.print("Enter the class name: ");
                     String className = scanner.nextLine();
-                    diagram.listClassContents(className); 
+                    diagram.listClassContents(className);
                     break;
                 case "6":
                     System.out.println("Help with class operations:");
@@ -119,7 +144,7 @@ public class UMLMenu {
 
     private void displayAttributeMenu(Scanner scanner) {
         boolean back = false;
-        
+
         while (!back) {
             System.out.println("Attribute Operations:");
             System.out.println("1. Add Attribute");
@@ -127,10 +152,10 @@ public class UMLMenu {
             System.out.println("3. Rename Attribute");
             System.out.println("4. Help");
             System.out.println("5. Back to Main Menu");
-    
+
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
-    
+
             switch (choice) {
                 case "1":
                     // Add attribute logic
@@ -158,7 +183,7 @@ public class UMLMenu {
                         System.out.println("Enter the attribute name to be deleted: ");
                         String deleteAttributeName = scanner.nextLine();
                         UMLAttributes.removeAttribute(cl, deleteAttributeName);
-                    }                   
+                    }
                     break;
                 case "3":
                     // Rename attribute logic
@@ -202,10 +227,10 @@ public class UMLMenu {
             }
         }
     }
-    
+
     private void displayRelationshipMenu(Scanner scanner) {
         boolean back = false;
-        
+
         while (!back) {
             System.out.println("\nRelationship Operations:");
             System.out.println("1: Add Relationship");
@@ -213,10 +238,10 @@ public class UMLMenu {
             System.out.println("3: List Relationships");
             System.out.println("4: Help");
             System.out.println("5: Back to Main Menu");
-            
+
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
-    
+
             switch (choice) {
                 case "1":
                     // Add relationship logic
@@ -241,7 +266,7 @@ public class UMLMenu {
                         System.out.println("Class " + sourceClassName + " does not exist.");
                     }
                     break;
-    
+
                 case "2":
                     // Delete relationship logic
                     System.out.print("Enter the source class name: ");
@@ -273,11 +298,11 @@ public class UMLMenu {
                         System.out.println("Class " + "sourceClassName"  + " does not exist.");
                     }
                     break;
-    
+
                 case "3":
                     diagram.listRelationships();
                     break;
-    
+
                 case "4":
                     // Help logic for relationship operations
                     System.out.println("Help with relationship operations:");
@@ -285,18 +310,18 @@ public class UMLMenu {
                     System.out.println("[2: Delete Relationship] To delete a relationship, select option '2' and provide source class and destination class.");
                     System.out.println("[3: List Relationships] To list all relationships, select option '3'.");
                     break;
-    
+
                 case "5":
                     // Back to main menu
                     back = true;
                     break;
-    
+
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
         }
     }
-    
+
 
     private void displaySaveLoadMenu(Scanner scanner) {
         boolean back = false;
@@ -305,7 +330,7 @@ public class UMLMenu {
             System.out.println("1: Save Diagram");
             System.out.println("2: Load Diagram");
             System.out.println("3: Back to Main Menu");
-            
+
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
             switch(choice)
@@ -328,7 +353,7 @@ public class UMLMenu {
             }
         }
     }
-    
+
 
     public static void main(String[] args) {
         // Create an instance of UMLMenu

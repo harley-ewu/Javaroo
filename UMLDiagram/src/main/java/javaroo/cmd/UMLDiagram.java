@@ -41,7 +41,7 @@ public class UMLDiagram {
     }
 
     //Method to see if a specific class exists in the UML diagram.
-    public UMLClass classExists(String name)
+    public static UMLClass classExists(String name)
     {
         for(UMLClass c : classes.values())
         {
@@ -85,7 +85,7 @@ public class UMLDiagram {
     }
 
     // Method to list all classes and their details present in the UML diagram.
-    void listClassContents(String className) {
+    public void listClassContents(String className) {
         // Check if the provided className exists in the classes map.
         UMLClass UMLClassEntity = classExists(className);
         if (UMLClassEntity != null) {
@@ -101,7 +101,7 @@ public class UMLDiagram {
 
 
     // Method to list all relationships defined in the UML diagram.
-    void listRelationships() {
+    public void listRelationships() {
         // Check if the relationships list is empty, implying no relationships have been defined.
         if (relationships.isEmpty()) {
             System.out.println("No relationships defined.");
