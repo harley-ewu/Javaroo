@@ -1,36 +1,17 @@
 package javaroo.cmd;
 
-
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.stage.Stage;
-
 import java.util.*;
 
-public class UMLMenu extends Application {
-    private CMDController cmdController;
+public class UMLMenu{
     private  UMLDiagram diagram;
     public UMLMenu() {
-        this.cmdController = new CMDController();
         this.diagram = new UMLDiagram();
     }
 
 
-    @Override
-    public void start(Stage primaryStage) {
-        // Define your JavaFX UI and functionality here
-        // You can trigger button click events or perform other UI-related tasks
-    }
-
     public void displayMenu() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
-        ActionEvent e = new ActionEvent();
-        UMLMenu umlMenu = new UMLMenu();
-
-
-
 
         while (!exit) {
             System.out.println("UML Diagram Menu:");
@@ -72,10 +53,7 @@ public class UMLMenu extends Application {
                     System.out.println("Invalid choice. Please try again.");
             }
         }
-        scanner.close(); Platform.runLater(() -> {
-            launch();
-            cmdController.addClassGui();
-        });
+        scanner.close();
     }
 
     private void displayClassMenu(Scanner scanner) {

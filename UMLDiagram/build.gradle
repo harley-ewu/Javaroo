@@ -24,6 +24,8 @@ tasks.withType(JavaCompile).configureEach {
 
 application {
     mainClassName = 'javaroo.cmd.UMLMenu'
+    mainModule = 'javaroo.umldiagram.gui'
+    mainClass = 'javaroo.umldiagram.gui.UMLDiagramGUI'
 }
 
 tasks.register('runMain2', JavaExec) {
@@ -31,8 +33,7 @@ tasks.register('runMain2', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     jvmArgs = [
-            '--module-path', configurations.runtimeClasspath.asPath,
-            '--add-modules', 'javafx.controls,javafx.fxml'
+            '--module-path', configurations.runtimeClasspath.asPath
     ]
 }
 
