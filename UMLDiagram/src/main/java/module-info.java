@@ -1,4 +1,4 @@
-module javaroo.umldiagram.gui {
+module javaroo.umldiagram {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
@@ -8,9 +8,9 @@ module javaroo.umldiagram.gui {
     opens javaroo.umldiagram.controller to javafx.fxml, javafx.graphics;
 
     exports javaroo.cmd;
-    exports javaroo.umldiagram.gui;
     exports javaroo.umldiagram.controller;
-    opens javaroo.umldiagram.gui to javafx.fxml, javafx.graphics;
+    exports javaroo.umldiagram;
+    opens javaroo.umldiagram to javafx.fxml, javafx.graphics;
 }
 
 

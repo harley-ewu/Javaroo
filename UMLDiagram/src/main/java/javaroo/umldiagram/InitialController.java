@@ -1,4 +1,4 @@
-package javaroo.umldiagram.controller;
+package javaroo.umldiagram;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

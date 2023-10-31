@@ -1,4 +1,4 @@
-package javaroo.umldiagram.gui;
+package javaroo.umldiagram;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
