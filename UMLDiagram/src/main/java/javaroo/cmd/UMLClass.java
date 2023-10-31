@@ -1,5 +1,7 @@
 package javaroo.cmd;
 
+import javafx.scene.Node;
+
 import java.util.ArrayList;
 import java.lang.StringBuilder;
 
@@ -9,6 +11,7 @@ public class UMLClass {
     private ArrayList<UMLAttributes> attributes;
 
     // constructor
+
     public UMLClass(String name) {
         this.name = name;
         this.attributes = new ArrayList<>();
@@ -95,7 +98,5 @@ public class UMLClass {
         return sb.toString();
 
 }
-
-
 }
 

@@ -1,15 +1,16 @@
-package javaroo.umldiagram.controller;
+package javaroo.umldiagram;
 
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javaroo.cmd.UMLClass;
-import javaroo.cmd.UMLDiagram;
-import javaroo.cmd.UMLRelationships;
-import javaroo.cmd.UMLSaveLoad;
+import javaroo.cmd.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UMLController {
@@ -22,6 +23,7 @@ public class UMLController {
 
     @FXML
     private VBox attributes;
+
 
     @FXML
     private Label className;
@@ -46,33 +48,104 @@ public class UMLController {
 
     @FXML
     private VBox umlClass;
+    private List<UMLClass> diagramClasses = new ArrayList<>();
 
+
+    public void setClassName(Label className) {
+        this.className = className;
+    }
     @FXML
     void addClassGui(ActionEvent event) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Add Class");
-        dialog.setHeaderText("Enter the name for the new class:");
-        dialog.setContentText("Class Name:");
+        TextInputDialog classDialog = new TextInputDialog();
+        classDialog.setTitle("Add Class");
+        classDialog.setHeaderText("Enter the name for the new class:");
+        classDialog.setContentText("Class Name:");
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(className -> {
-            try {
-                UMLClass.addClass(className);
-                // Display success alert to the user
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Success");
-                successAlert.setHeaderText(null);
-                successAlert.setContentText("Class '" + className + "' successfully added!");
-                successAlert.showAndWait();
-            } catch (Exception e) {
-                // Handle any exceptions or issues
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Error");
-                errorAlert.setHeaderText("Add Class Error");
-                errorAlert.setContentText("There was an error while adding the class. Please try again.");
-                errorAlert.showAndWait();
+        Optional<String> classResult = classDialog.showAndWait();
+        classResult.ifPresent(className -> {
+            if (diagramClasses.stream().anyMatch(c -> c.getName().equalsIgnoreCase(className))) {
+                showAlert("Duplicate Class Error", "A class with the name '" + className + "' already exists.");
+                return;
             }
+
+            UMLClass newUMLClass = new UMLClass(className);
+            diagramClasses.add(newUMLClass); // Add the new class to the model
+
+            // Now, ask for attributes to add to this new class.
+            while (true) {
+                TextInputDialog attributeDialog = new TextInputDialog();
+                attributeDialog.setTitle("Add Attribute");
+                attributeDialog.setHeaderText("Enter an attribute name for " + className + " (or leave blank and press OK to finish):");
+                attributeDialog.setContentText("Attribute Name:");
+
+                Optional<String> attributeResult = attributeDialog.showAndWait();
+                if (!attributeResult.isPresent() || attributeResult.get().isEmpty()) {
+                    break; // Exit the loop if the user presses cancel or submits an empty name
+                }
+
+                String attributeName = attributeResult.get();
+                if (newUMLClass.getAttributes().stream().noneMatch(a -> a.getName().equalsIgnoreCase(attributeName))) {
+                    UMLAttributes.addAttribute(newUMLClass, attributeName); // Use the static method to add the attribute
+                } else {
+                    showAlert("Duplicate Attribute Error", "An attribute with the name '" + attributeName + "' already exists in class '" + className + "'.");
+                }
+            }
+
+            updateDiagramView(); // Update the diagram view
+            showAlert("Success", "Class '" + className + "' successfully added with its attributes!");
         });
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+
+
+    private HBox umlClassVBox = new HBox(); // A VBox to hold the UMLClass visual representation.
+
+// ...
+
+    private void updateDiagramView() {
+        // Clear existing diagram representation
+        umlClassVBox.getChildren().clear();
+
+        umlClassVBox.setSpacing(20);
+
+        // Loop through all classes in the diagram and create their visual representation
+        for (UMLClass umlClass : diagramClasses) {
+            VBox classVBox = createClassVBox(umlClass);
+            umlClassVBox.getChildren().add(classVBox);
+        }
+
+        // Set the updated diagram in the scroll pane
+        scrollPane.setContent(umlClassVBox);
+    }
+
+    // This helper method creates a VBox for a UMLClass instance
+    private VBox createClassVBox(UMLClass umlClass) {
+        VBox classVBox = new VBox();
+        classVBox.setPadding(new Insets(5));
+        classVBox.setStyle("-fx-border-color: black; -fx-background-color: lightgray;");
+
+        Label classNameLabel = new Label(umlClass.getName());
+        classNameLabel.setStyle("-fx-font-weight: bold;");
+        classVBox.getChildren().add(classNameLabel);
+
+        VBox attributesVBox = new VBox();
+        for (UMLAttributes attribute : umlClass.getAttributes()) {
+            Label attributeLabel = new Label("- " + attribute.toString()); // Assuming UMLAttributes has a proper toString() method
+            attributesVBox.getChildren().add(attributeLabel);
+        }
+        classVBox.getChildren().add(attributesVBox);
+
+        // Repeat similar logic for methods if required
+
+        return classVBox;
     }
 
     @FXML
