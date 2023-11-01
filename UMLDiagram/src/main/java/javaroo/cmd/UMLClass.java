@@ -33,21 +33,6 @@ public class UMLClass {
     }
 
 
-    public static void renameClass(String oldName, String newName) {
-        if (UMLDiagram.getClasses().containsKey(oldName)) {
-            if (!UMLDiagram.getClasses().containsKey(newName)) {
-                UMLDiagram.getClasses().remove(oldName);
-                addClass(newName);
-                System.out.println("Class '" + oldName + "' renamed to '" + newName + "'.");
-            } else {
-                System.out.println("Class '" + newName + "' already exists.");
-            }
-        } else {
-            System.out.println("Class '" + oldName + "' does not exist.");
-        }
-    }
-
-
     // method to check if a field exists
     public UMLFields fieldExists(String name)
     {
