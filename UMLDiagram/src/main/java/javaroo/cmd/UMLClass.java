@@ -125,6 +125,19 @@ public class UMLClass {
         }
     }
 
+    // renameField method
+    public void renameField(String oldName, String newName) {
+        // statement to check if field exists
+        if(fieldExists(oldName) == null) {
+            System.out.println("Field is not found");
+            return;
+        }
+        // if field exists, fields will be fetched and removed
+        fieldExists(oldName).setName(newName);
+        System.out.println("Field renamed from: " + oldName + " to " + newName);
+
+    }
+
     //Method to check if a UMLMethods object exists in the methods ArrayList
     public UMLMethods methodExists(String name, ArrayList<String> parameters)
     {
@@ -174,6 +187,8 @@ public class UMLClass {
         this.methods.remove(index - 1);
         System.out.println("Method removed");
     }
+
+    
 
     // toString method
     public String toString() {
