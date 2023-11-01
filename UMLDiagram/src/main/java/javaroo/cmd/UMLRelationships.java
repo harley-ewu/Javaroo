@@ -3,11 +3,18 @@ public class UMLRelationships {
     final private UMLClass dest;
     final private UMLClass source;
     final private String id;
+    private String type;
 
-    public UMLRelationships(final UMLClass source, final UMLClass dest) {
+    public UMLRelationships(final UMLClass source, final UMLClass dest, final String type) {
+        //check each parameter is not null
+        if (source == null || dest == null || type == null) {
+            System.out.println("Sorry but we could not find a valid source, destination or type for this relationship");
+            return;
+        }
         this.source = source;
         this.dest = dest;
         this.id = source.getName() + dest.getName();
+        this.type = type;
     }
 
     public UMLClass getDest() {
