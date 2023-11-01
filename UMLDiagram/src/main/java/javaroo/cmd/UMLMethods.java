@@ -54,7 +54,7 @@ public class UMLMethods
     public void addParameters(String parameter)
     {
         //check for null or empty and prints out a message then returns
-        if(parameter == null || parameter.isEmpty())
+        if(parameter == null || parameter.trim().isEmpty())
         {
             System.out.println("Parameter cannot be null or empty");
             return;
