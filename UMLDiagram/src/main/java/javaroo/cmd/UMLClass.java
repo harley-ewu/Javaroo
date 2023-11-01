@@ -171,7 +171,7 @@ public class UMLClass {
         }
         
         //remove method at index
-        this.methods.remove(index);
+        this.methods.remove(index - 1);
         System.out.println("Method removed");
     }
 
