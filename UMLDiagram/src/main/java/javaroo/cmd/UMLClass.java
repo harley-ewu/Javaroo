@@ -128,8 +128,8 @@ public class UMLClass {
     // renameField method
     public void renameField(String oldName, String newName) {
         // statement to check if field exists
-        if(fieldExists(oldName) == null) {
-            System.out.println("Field is not found");
+        if(fieldExists(oldName) == null || newName.trim().isEmpty()) {
+            System.out.println("Field does not exist or name is empty");
             return;
         }
         // if field exists, fields will be fetched and removed
@@ -190,9 +190,9 @@ public class UMLClass {
 
       // rename method that will rename an UMLMethod from a class at a given index
     public void renameMethod(int index, String newName) {
-        // check if index is out of bounds
-        if (index < 0 || index >= this.methods.size()) {
-            System.out.println("Invalid index");
+        // check if index is out of bounds or empty string
+        if (index < 0 || index >= this.methods.size() || newName.trim().isEmpty()) {
+            System.out.println("Invalid index or empty name");
             return;
         }
         // rename method at index
