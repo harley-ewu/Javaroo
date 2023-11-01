@@ -30,6 +30,13 @@ public class UMLDiagram {
     //Method to see if a specific class exists in the UML diagram.
     public UMLClass classExists(String name)
     {
+        //check if name is null
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return null;
+        }
+
         for(UMLClass c : classes.values())
         {
             if(c.getName().equals(name))
@@ -44,6 +51,13 @@ public class UMLDiagram {
     //Method to see if a specific relationship exists in the UML diagram.
     public UMLRelationships relationshipExists(String id)
     {
+        //check if id is null
+        if(id == null)
+        {
+            System.out.println("Sorry but we could not find a valid id for this relationship");
+            return null;
+        }
+
         for(UMLRelationships r : relationships)
         {
             if(r.getId().equals(id))
@@ -52,6 +66,44 @@ public class UMLDiagram {
             }
         }
         return null;
+    }
+
+    //Method to create a UMLRelationships object and add it to the relationships list.
+    public void addRelationship(UMLClass src, UMLClass dest, UMLRelationships.RelationshipType type)
+    {
+        //Check if the source and destination classes exist.
+        if(classExists(src) == null || classExists(dest) == null)
+        {
+            System.out.println("Sorry but we could not find a valid source or destination for this diagram");
+            return;
+        }
+        //Check if the relationship type is valid.
+        if(type == null)
+        {
+            System.out.println("Sorry but we could not find a valid type for this relationship");
+            return;
+        }
+        //Check if the relationship already exists.
+        if(relationshipExists(src.getName() + dest.getName()) != null)
+        {
+            System.out.println("Sorry but this relationship already exists");
+            return;
+        }
+        //Create a new UMLRelationships object and add it to the relationships list.
+        relationships.add(new UMLRelationships(src, dest, type));
+    }
+
+    //Method to remove a UMLRelationships object from the relationships list via its index.
+    public void removeRelationship(int index)
+    {
+        //Check if the index is valid.
+        if(index < 0 || index >= relationships.size())
+        {
+            System.out.println("Sorry but we could not find a valid index for this relationship");
+            return;
+        }
+        //Remove the UMLRelationships object from the relationships list.
+        relationships.remove(index);
     }
 
     public void listClasses() {
