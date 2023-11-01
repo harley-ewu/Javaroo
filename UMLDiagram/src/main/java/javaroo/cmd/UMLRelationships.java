@@ -33,17 +33,5 @@ public class UMLRelationships {
         return id;
     }
 
-    
-    public static void deleteRelationship(final UMLDiagram diagram, final UMLRelationships rel) {
-        
-        if (rel == null) {
-            System.out.println("Sorry but we could not find a valid relationship for this diagram");
-            return;
-        }
-            
-        diagram.getRelationships().remove(rel);
-        
-    }
-
 
 }

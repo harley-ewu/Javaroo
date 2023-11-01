@@ -36,7 +36,7 @@ public class UMLDiagram {
             System.out.println("Sorry but we could not find a valid name for this class");
             return null;
         }
-        
+
         for(UMLClass c : classes.values())
         {
             if(c.getName().equals(name))
@@ -91,6 +91,19 @@ public class UMLDiagram {
         }
         //Create a new UMLRelationships object and add it to the relationships list.
         relationships.add(new UMLRelationships(src, dest, type));
+    }
+
+    //Method to remove a UMLRelationships object from the relationships list via its index.
+    public void removeRelationship(int index)
+    {
+        //Check if the index is valid.
+        if(index < 0 || index >= relationships.size())
+        {
+            System.out.println("Sorry but we could not find a valid index for this relationship");
+            return;
+        }
+        //Remove the UMLRelationships object from the relationships list.
+        relationships.remove(index);
     }
 
     public void listClasses() {
