@@ -175,6 +175,18 @@ public class UMLClass {
         System.out.println("Method removed");
     }
 
+    // rename method that will rename an UMLMethod from a class at a given index
+    public void renameMethod(int index, String newName) {
+        // check if index is out of bounds
+        if (index < 0 || index >= this.methods.size()) {
+            System.out.println("Invalid index");
+            return;
+        }
+        // rename method at index
+        this.methods.get(index - 1).setName(newName);
+        System.out.println("Method renamed to: " + newName);
+    }
+    
     // toString method
     public String toString() {
         StringBuilder sb = new StringBuilder();
