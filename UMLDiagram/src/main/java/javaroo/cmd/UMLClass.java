@@ -160,6 +160,21 @@ public class UMLClass {
         }
     }
 
+    //Method that takes an int as a parameter and removes the UMLMethods object at that index from the methods ArrayList
+    public void removeMethod(int index)
+    {
+        //check if index is out of bounds
+        if(index < 0 || index >= this.methods.size())
+        {
+            System.out.println("Invalid index");
+            return;
+        }
+        
+        //remove method at index
+        this.methods.remove(index - 1);
+        System.out.println("Method removed");
+    }
+
     // toString method
     public String toString() {
         StringBuilder sb = new StringBuilder();
