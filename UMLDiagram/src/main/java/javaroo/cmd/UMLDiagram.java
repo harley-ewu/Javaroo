@@ -68,7 +68,25 @@ public class UMLDiagram {
         System.out.println("Class added: " + name);
     }
 
-    
+    //Method to remove a UMLClass object from the classes map via its name.
+    public void removeClass(String name)
+    {
+        //check if name is null
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return;
+        }
+        //Check if the class exists.
+        if(classExists(name) == null)
+        {
+            System.out.println("Sorry but this class does not exist");
+            return;
+        }
+        //Remove the UMLClass object from the classes map.
+        this.classes.remove(name);
+        System.out.println("Class deleted: " + name);
+    }
 
     //Method to see if a specific relationship exists in the UML diagram.
     public UMLRelationships relationshipExists(String id)

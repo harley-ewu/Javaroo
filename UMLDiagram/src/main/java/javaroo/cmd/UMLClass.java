@@ -47,17 +47,6 @@ public class UMLClass {
         }
     }
 
-    public static void deleteClass(UMLClass c, UMLDiagram diagram) {
-        // statement to check if class exists
-        if(c == null) {
-            System.out.println("Class not found");
-            return;
-        }
-        // if class exists, classes will be fetched and removed
-        diagram.getClasses().remove(c.getName());
-        System.out.println("Class deleted: " + c.getName());
-
-    }
 
     // method to check if a field exists
     public UMLFields fieldExists(String name)
