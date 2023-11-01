@@ -103,6 +103,28 @@ public class UMLClass {
         }
     }
 
+    //Method to remove a UMLFields object from the fields ArrayList with a name parameter
+    public void removeField(String name)
+    {
+        //check for the empty string in paramters or if input contains only spaces
+        if(name.trim().isEmpty())
+        {
+            System.out.println("Invalid input");
+            return;
+        }
+        
+        //check if field exists
+        if(fieldExists(name) != null)
+        {
+            this.fields.remove(fieldExists(name));
+            System.out.println("Field removed: " + name);
+        }
+        else
+        {
+            System.out.println("Field does not exist");
+        }
+    }
+
     //Method to check if a UMLMethods object exists in the methods ArrayList
     public UMLMethods methodExists(String name, ArrayList<String> parameters)
     {
@@ -137,8 +159,6 @@ public class UMLClass {
             System.out.println("Method with that name and those parameters already exists");
         }
     }
-
-
 
     // toString method
     public String toString() {
