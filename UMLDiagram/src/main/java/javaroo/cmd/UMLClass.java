@@ -32,40 +32,6 @@ public class UMLClass {
         this.name = name;
     }
 
-     public static void addClass(String name) {
-        if(!UMLDiagram.getClasses().containsKey(name)){
-            UMLDiagram.getClasses().put(name, new UMLClass(name));
-            System.out.println("Class added: " + name);
-        } else {
-            System.out.println("Class" + name +" exits");
-        }
-    }
-
-    public static void renameClass(String oldName, String newName) {
-        if (UMLDiagram.getClasses().containsKey(oldName)) {
-            if (!UMLDiagram.getClasses().containsKey(newName)) {
-                UMLDiagram.getClasses().remove(oldName);
-                addClass(newName);
-                System.out.println("Class '" + oldName + "' renamed to '" + newName + "'.");
-            } else {
-                System.out.println("Class '" + newName + "' already exists.");
-            }
-        } else {
-            System.out.println("Class '" + oldName + "' does not exist.");
-        }
-    }
-
-    public static void deleteClass(UMLClass c, UMLDiagram diagram) {
-        // statement to check if class exists
-        if(c == null) {
-            System.out.println("Class not found");
-            return;
-        }
-        // if class exists, classes will be fetched and removed
-        diagram.getClasses().remove(c.getName());
-        System.out.println("Class deleted: " + c.getName());
-
-    }
 
     // method to check if a field exists
     public UMLFields fieldExists(String name)

@@ -48,6 +48,75 @@ public class UMLDiagram {
 
     }
 
+    //Method to create a UMLClass object and add it to the classes map.
+    public void addClass(String name)
+    {
+        //Check if the name is null.
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return;
+        }
+        //Check if the class already exists.
+        if(classExists(name) != null)
+        {
+            System.out.println("Sorry but this class already exists");
+            return;
+        }
+        //Create a new UMLClass object and add it to the classes map.
+        this.classes.put(name, new UMLClass(name));
+        System.out.println("Class added: " + name);
+    }
+
+    //Method to remove a UMLClass object from the classes map via its name.
+    public void removeClass(String name)
+    {
+        //check if name is null
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return;
+        }
+        //Check if the class exists.
+        if(classExists(name) == null)
+        {
+            System.out.println("Sorry but this class does not exist");
+            return;
+        }
+        //Remove the UMLClass object from the classes map.
+        this.classes.remove(name);
+        System.out.println("Class deleted: " + name);
+    }
+
+    //Method to rename a UMLClass object in the classes map via its name.
+    public void renameClass(String oldName, String newName)
+    {
+        //Check if the oldName and newName are null.
+        if(oldName == null || newName == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return;
+        }
+        //Check if the class exists.
+        if(classExists(oldName) == null)
+        {
+            System.out.println("Sorry but this class does not exist");
+            return;
+        }
+        //Check if the newName already exists.
+        if(classExists(newName) != null)
+        {
+            System.out.println("Sorry but this class already exists");
+            return;
+        }
+        //Rename the UMLClass object in the classes map.
+        UMLClass c = classExists(oldName);
+        c.setName(newName);
+        this.classes.remove(oldName);
+        this.classes.put(newName, c);
+        System.out.println("Class renamed: " + oldName + " to " + newName);
+    }
+
     //Method to see if a specific relationship exists in the UML diagram.
     public UMLRelationships relationshipExists(String id)
     {
