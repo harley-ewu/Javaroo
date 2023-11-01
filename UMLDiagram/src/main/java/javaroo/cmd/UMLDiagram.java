@@ -48,6 +48,28 @@ public class UMLDiagram {
 
     }
 
+    //Method to create a UMLClass object and add it to the classes map.
+    public void addClass(String name)
+    {
+        //Check if the name is null.
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return;
+        }
+        //Check if the class already exists.
+        if(classExists(name) != null)
+        {
+            System.out.println("Sorry but this class already exists");
+            return;
+        }
+        //Create a new UMLClass object and add it to the classes map.
+        this.classes.put(name, new UMLClass(name));
+        System.out.println("Class added: " + name);
+    }
+
+    
+
     //Method to see if a specific relationship exists in the UML diagram.
     public UMLRelationships relationshipExists(String id)
     {

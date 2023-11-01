@@ -32,14 +32,6 @@ public class UMLClass {
         this.name = name;
     }
 
-     public static void addClass(String name) {
-        if(!UMLDiagram.getClasses().containsKey(name)){
-            UMLDiagram.getClasses().put(name, new UMLClass(name));
-            System.out.println("Class added: " + name);
-        } else {
-            System.out.println("Class" + name +" exits");
-        }
-    }
 
     public static void renameClass(String oldName, String newName) {
         if (UMLDiagram.getClasses().containsKey(oldName)) {
