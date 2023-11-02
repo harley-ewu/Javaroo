@@ -252,9 +252,6 @@ public class UMLMenu {
                     System.out.println("[4: Field and Method Options] To access field and methods options, select option '4'.");
                     break;
 
-                case "6":
-                    back = true;
-                    break;
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
             }
@@ -319,11 +316,7 @@ public class UMLMenu {
                     System.out.println("[2: Delete Relationship] To delete a relationship, select option '2' and provide source class and destination class.");
                     System.out.println("[3: Rename Relationships] To rename a relationship, select option '3' and provide the old and new relationship names.");
                     break;
-                    
-                case "5":
-                    back = true;
-                    break;
-    
+                
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
             }
