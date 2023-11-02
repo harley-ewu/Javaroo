@@ -27,6 +27,10 @@ public class UMLClass {
         return this.fields;
     }
 
+    public ArrayList<UMLMethods> getMethods() {
+        return this.methods;
+    }
+
     // setters
     public void setName(String name) {
         this.name = name;
