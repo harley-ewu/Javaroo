@@ -157,10 +157,90 @@ public class UMLMenu {
 
                     System.out.print("Enter your choice: ");
                     String choice2 = scanner.nextLine();
+                    
+                     if (choice2.equals("r")) {
+                        break; // Return to the main menu
+                    }
+                    // switch statement for field and method options
+                    switch (choice2) {
+                        
+                        case "1":
+                            // add field logic
+                            System.out.print("\nEnter the class name: ");
+                            String addFieldClassName = scanner.nextLine();
+                            System.out.print("\nEnter the field name: ");
+                            String addFieldName = scanner.nextLine();
+                            System.out.print("\nEnter the field type: ");
+                            String addFieldType = scanner.nextLine();
+                            UMLClass.addField(addClassName, addFieldName, addFieldType);
+                            System.out.println("\nField added.");
+                            returnToMainMenu();
+                           
+                        case "2":
+                            // remove field logic
+                            System.out.print("\nEnter the class name: ");
+                            String removeFieldClassName = scanner.nextLine();
+                            System.out.print("\nEnter the field name: ");
+                            String removeFieldName = scanner.nextLine();
+                            System.out.println("\nField removed.");
+                            returnToMainMenu();
+                        
+                        case "3":
+                            // rename field logic
+                            System.out.print("\nEnter the class name: ");
+                            String renameFieldClassName = scanner.nextLine();
+                            System.out.print("\nEnter the old field name: ");
+                            String oldFieldName = scanner.nextLine();
+                            System.out.print("\nEnter the new field name: ");
+                            String newFieldName = scanner.nextLine();
+                            System.out.println("\nField renamed from: " + oldFieldName + " to " + newFieldName);
+                            returnToMainMenu();
+                        
+                        case "4":
+                            // add method logic
+                            System.out.print("\nEnter the class name: ");
+                            String addMethodClassName = scanner.nextLine();
+                            System.out.print("\nEnter the method name: ");
+                            String addMethodName = scanner.nextLine();
+                            System.out.print("\nEnter the method type: ");
+                            String addMethodType = scanner.nextLine();
+                            UMLClass.addMethod(addClassName, addMethodName, addMethodType);
+                            System.out.println("\nMethod added.");
+                            returnToMainMenu();
+                        
+                        case "5":
+                            // remove method logic
+                            System.out.print("\nEnter the class name: ");
+                            String removeMethodClassName = scanner.nextLine();
+                            System.out.print("\nEnter the method name: ");
+                            String removeMethodName = scanner.nextLine();
+                            System.out.println("\nMethod removed.");
+                            returnToMainMenu();
+                            
+                        case "6":
+                            // rename method logic
+                            System.out.print("\nEnter the class name: ");
+                            String renameMethodClassName = scanner.nextLine();
+                            System.out.print("\nEnter the old method name: ");
+                            String oldMethodName = scanner.nextLine();
+                            System.out.print("\nEnter the new method name: ");
+                            String newMethodName = scanner.nextLine();
+                            System.out.println("\nMethod renamed from: " + oldMethodName + " to " + newMethodName);
+                            returnToMainMenu();
+                        
+                        case "7":
+                            // help with field and method options
+                            System.out.println("\nHelp with field and method options:");
+                            System.out.println("[1: Add Field] To add a field, select option '1' and provide the class name, field name, and field type.");
+                            System.out.println("[2: Remove Field] To remove a field, select option '2' and provide the class name and field name.");
+                            System.out.println("[3: Rename Field] To rename a field, select option '3' and provide the class name, old field name, and new field name.");
+                            System.out.println("[4: Add Method] To add a method, select option '4' and provide the class name, method name, and method type.");
+                            System.out.println("[5: Remove Method] To remove a method, select option '5' and provide the class name and method name.");
+                            System.out.println("[6: Rename Method] To rename a method, select option '6' and provide the class name, old method name, and new method name.");
+                            returnToMainMenu();
 
-                    switch(choice2)
-
-
+                    }
+                    break;
                     
             }
 
@@ -188,7 +268,7 @@ public class UMLMenu {
         while (!back) {
             System.out.println("\n_______Relationship Operations:_______");
             System.out.println("1: Add Relationship");
-            System.out.println("2: Delete Relationship");
+            System.out.println("2: Remove Relationship");
             System.out.println("3: Rename Relationships");
             System.out.println("4: Help");
             
@@ -204,62 +284,34 @@ public class UMLMenu {
                     // Add relationship logic
                     System.out.print("\nEnter the source class name: ");
                     String sourceClassName = scanner.nextLine();
-                    UMLClass a = diagram.classExists(sourceClassName);
-                    if(a != null)
-                    {
-                        System.out.print("\nEnter the destination class name: ");
-                        String destinationClassName = scanner.nextLine();
-                        UMLClass b = diagram.classExists(destinationClassName);
-                        if(b != null)
-                        {
-                            UMLRelationships.addRelationship( a, b);
-                            System.out.println("\nRelationship added.");
-                        }
-                        else{
-                            System.out.println("\nClass " + destinationClassName + " does not exist.");
-                        }
-                    }
-                    else {
-                        System.out.println("\nClass " + sourceClassName + " does not exist.");
-                    }
+                    System.out.print("\nEnter the destination class name: ");
+                    String destinationClassName = scanner.nextLine();
+                    System.out.print("\nEnter the relationship type: ");
+                    String relationshipType = scanner.nextLine();
+                    UMLRelationship.addRelationship(sourceClassName, destinationClassName, relationshipType);
+                    System.out.println("\nRelationship added.");
                     returnToMainMenu();
-                    break;
-    
+                    
                 case "2":
-                    // Delete relationship logic
+                    // Remove relationship logic
                     System.out.print("\nEnter the source class name: ");
-                    String deleteSourceClassName = scanner.nextLine();
-                    UMLClass al = diagram.classExists(deleteSourceClassName);
-                    if(al != null)
-                    {
-                        System.out.print("\nEnter the destination class name: ");
-                        String deleteDestinationClassName = scanner.nextLine();
-                        UMLClass b = diagram.classExists(deleteDestinationClassName);
-                        if(b != null)
-                        {
-                            String id = deleteSourceClassName + deleteDestinationClassName;
-                            UMLRelationships rel = diagram.relationshipExists(id);
-                            if(rel != null)
-                            {
-                                UMLRelationships.deleteRelationship(diagram, rel);
-                                System.out.println("\nRelationship deleted.");
-                            }
-                            else{
-                                System.out.println("\nRelationship does not exist.");
-                            }
-                        }
-                        else{
-                            System.out.println("\nClass " + "destinationClassName "+ " does not exist.");
-                        }
-                    }
-                    else {
-                        System.out.println("\nClass " + "sourceClassName"  + " does not exist.");
-                    }
+                    String sourceClassName2 = scanner.nextLine();
+                    System.out.print("\nEnter the destination class name: ");
+                    String destinationClassName2 = scanner.nextLine();
+                    UMLRelationship.removeRelationship(sourceClassName2, destinationClassName2);
+                    System.out.println("\nRelationship removed.");
                     returnToMainMenu();
-                    break;
+                    
     
                 case "3":
                     // Rename relationship logic
+                    System.out.print("\nEnter the old relationship name: ");
+                    String oldRelationshipName = scanner.nextLine();
+                    System.out.print("\nEnter the new relationship name: ");
+                    String newRelationshipName = scanner.nextLine();
+                    UMLRelationship.renameRelationship(oldRelationshipName, newRelationshipName);
+                    System.out.println("\nRelationship renamed from: " + oldRelationshipName + " to " + newRelationshipName);
+                    returnToMainMenu();
     
                 case "4":
                     System.out.println("\nHelp with relationship operations:");
