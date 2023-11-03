@@ -12,9 +12,8 @@ import java.util.Objects;
 public class UMLDiagramGUI extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(UMLDiagramGUI.class.getResource("main-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(UMLDiagramGUI.class.getResource("UMLCreator.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-
         Image appIcon = new Image(Objects.requireNonNull(UMLDiagramGUI.class.getResourceAsStream("icon.png")));
         stage.getIcons().add(appIcon);
         stage.setTitle("UML Diagram Builder");
