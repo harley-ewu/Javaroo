@@ -199,15 +199,30 @@ public class UMLClass {
         System.out.println("Method renamed to: " + newName);
     }
 
-    
+    // method that lists all the methods in a class
+    public void listMethods() {
+        // check if methods is empty
+        if (this.methods.isEmpty()) {
+            System.out.println("No methods found");
+            return;
+        }
+        // print out all methods
+        for (int i = 0; i < this.methods.size(); i++) {
+            System.out.println((i + 1) + ". " + this.methods.get(i) + "\n")); 
+        }
+    }
 
     // toString method
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Class: ").append(this.name).append("\n");
-        sb.append("Attributes:\n");
-        for (UMLAttributes attribute : this.attributes) {
-            sb.append(" • ").append(attribute).append("\n");
+        sb.append("Fields :\n");
+        for (UMLFields field : this.fields) {
+            sb.append(" - ").append(field).append("\n");
+        }
+        sb.append("Methods :\n");
+        for (UMLMethods method : this.methods) {
+            sb.append(" - ").append(method).append("\n");
         }
         return sb.toString();
 
