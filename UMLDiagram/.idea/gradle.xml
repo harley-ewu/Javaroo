@@ -4,10 +4,12 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/UMLDiagram" />
+        <option name="gradleHome" value="$USER_HOME$/Documents/gradle/gradle-8.4-all/gradle-8.4" />
+        <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/UMLDiagram" />
           </set>
         </option>
       </GradleProjectSettings>

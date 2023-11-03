@@ -10,11 +10,24 @@ public class UMLClass {
     private String name;
     private ArrayList<UMLAttributes> attributes;
 
+    // Make sure to have the corresponding fields in your UMLClass class
+    private double x;
+    private double y;
+    private double width;
+    private double height;
+
     // constructor
 
     public UMLClass(String name) {
         this.name = name;
         this.attributes = new ArrayList<>();
+    }
+
+    public UMLClass(String name, double x, double y) {
+        this.name = name;
+        this.attributes = new ArrayList<>();
+        this.x = x;
+        this.y = y;
     }
     // getters method that will work as a rename method
     public String getName() {
@@ -43,6 +56,17 @@ public class UMLClass {
             UMLDiagram.setSaved(false);
         } else {
             System.out.println("Class" + name +" exits");
+        }
+    }
+
+    public static void addClassWithCoordinates(String name, double x, double y) {
+        if (!UMLDiagram.getClasses().containsKey(name)) {
+            UMLClass newClass = new UMLClass(name, x, y);
+            UMLDiagram.getClasses().put(name, newClass);
+            System.out.println("Class added: " + name);
+            UMLDiagram.setSaved(false);
+        } else {
+            System.out.println("Class '" + name + "' already exists.");
         }
     }
 
@@ -97,6 +121,30 @@ public class UMLClass {
         }
         return sb.toString();
 
-}
+    }
+
+    public void setPosition(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    // Also, add getters for x, y, width, and height
+    public double getX() {
+        return this.x;
+    }
+
+    public double getY() {
+        return this.y;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+
 }
 
