@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
@@ -10,8 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="746.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaroo.umldiagram.UMLController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaroo.umldiagram.UMLController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -19,7 +19,7 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#saveDiagramGui" text="Save Diagram" />
                   <MenuItem mnemonicParsing="false" onAction="#loadDiagramGui" text="Load Diagram" />
-              <MenuItem mnemonicParsing="false" text="Close" />
+              <MenuItem mnemonicParsing="false" onAction="#closeDiagramGui" text="Close" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="View">
@@ -35,13 +35,6 @@
         </menus>
       </MenuBar>
    </top>
-   <center>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
-        </content>
-      </ScrollPane>
-   </center>
    <left>
       <Accordion BorderPane.alignment="CENTER">
         <panes>
@@ -78,4 +71,17 @@
         </panes>
       </Accordion>
    </left>
+   <right>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </right>
+   <bottom>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <ScrollPane fx:id="centerScrollPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+            <Canvas fx:id="centerContent" height="2000.0" width="2000.0" />
+         </content>
+      </ScrollPane>
+   </center>
 </BorderPane>
