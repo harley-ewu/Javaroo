@@ -1,3 +1,7 @@
+package javaroo.cmd;
+
+import java.util.ArrayList;
+
 public class UMLMethods
 {
     private String name;
