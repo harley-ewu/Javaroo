@@ -27,7 +27,8 @@ public class UMLClass {
 
     public UMLClass(String name, double x, double y) {
         this.name = name;
-        this.attributes = new ArrayList<>();
+        this.fields = new ArrayList<>();
+        this.methods = new ArrayList<>();
         this.x = x;
         this.y = y;
     }
@@ -60,7 +61,6 @@ public class UMLClass {
             UMLClass newClass = new UMLClass(name, x, y);
             UMLDiagram.getClasses().put(name, newClass);
             System.out.println("Class added: " + name);
-            UMLDiagram.setSaved(false);
         } else {
             System.out.println("Class '" + name + "' already exists.");
         }
@@ -208,7 +208,7 @@ public class UMLClass {
         }
         // print out all methods
         for (int i = 0; i < this.methods.size(); i++) {
-            System.out.println((i + 1) + ". " + this.methods.get(i) + "\n")); 
+            System.out.println((i + 1) + ". " + this.methods.get(i) + "\n");
         }
     }
 
@@ -218,7 +218,7 @@ public class UMLClass {
         sb.append("Class: ").append(this.name).append("\n");
         sb.append("Fields :\n");
         for (UMLFields field : this.fields) {
-            sb.append(" - ").append(field).append("\n");
+            sb.append(field).append("\n");
         }
         sb.append("Methods :\n");
         for (UMLMethods method : this.methods) {

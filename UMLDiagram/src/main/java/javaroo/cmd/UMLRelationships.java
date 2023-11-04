@@ -1,9 +1,11 @@
+package javaroo.cmd;
+
 public class UMLRelationships {
 
-    final private UMLClass dest;
-    final private UMLClass source;
-    final private String id;
-    private RelationshipType type;
+    private UMLClass dest;
+    private UMLClass source;
+    private String id;
+    RelationshipType type;
 
     public enum RelationshipType {
         AGGREGATION, COMPOSITION, INHERITANCE, REALIZATION
@@ -33,5 +35,7 @@ public class UMLRelationships {
         return id;
     }
 
-
+    public RelationshipType getType() {
+        return type;
+    }
 }
