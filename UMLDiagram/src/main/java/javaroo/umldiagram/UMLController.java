@@ -20,11 +20,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javaroo.cmd.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -93,13 +93,15 @@ public class UMLController {
             UMLClass newUMLClass = new UMLClass(className);
 
             // Prompt the user for fields
+
+            diagram.addClass(newUMLClass.getName());
             addFieldsToClass(newUMLClass);
 
             // Prompt the user for methods
             addMethodsToClass(newUMLClass);
 
             // Add the new class to the UMLDiagram
-            diagram.addClass(newUMLClass.getName());
+           // diagram.addClass(newUMLClass.getName());
 
             // Update the visual representation
             // Assuming you have methods to handle the visual representation of the UML class
@@ -160,7 +162,7 @@ public class UMLController {
             String fieldVisibility = fieldVisibilityResult.get();
 
             // Add the field to the class
-            umlClass.addField(fieldName, fieldType, fieldVisibility);
+            diagram.classExists(umlClass.getName()).addField(fieldName, fieldType, fieldVisibility);
         }
     }
 
@@ -198,7 +200,7 @@ public class UMLController {
             }
 
             // Add the method to the class
-            umlClass.addMethod(methodName, methodType, paramsList);
+            diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
         }
     }
 
@@ -216,8 +218,8 @@ public class UMLController {
 
         // Get the class name, fields, and methods
         String className = umlClass.getName();
-        List<UMLFields> fields = umlClass.getFields();
-        List<UMLMethods> methods = umlClass.getMethods();
+        List<UMLFields> fields = diagram.classExists(umlClass.getName()).getFields();
+        List<UMLMethods> methods = diagram.classExists(umlClass.getName()).getMethods();
 
         // Calculate the width and height based on text size
         double boxWidth = 0;
@@ -711,12 +713,6 @@ public class UMLController {
     void deleteRelationshipGui(ActionEvent event) {
 
     }
-
-    @FXML
-    void loadDiagramGui(ActionEvent event) {
-
-    }
-
     @FXML
     void renameAttributeGui(ActionEvent event) {
     }
@@ -772,8 +768,83 @@ public class UMLController {
 
     @FXML
     void saveDiagramGui(ActionEvent event) {
+        // Create a TextInputDialog to get the file name
+        TextInputDialog saveDialog = new TextInputDialog();
+        saveDialog.setTitle("Save Diagram");
+        saveDialog.setHeaderText("Enter a file name to save the diagram:");
+        saveDialog.setContentText("File Name:");
 
+        // Show the dialog and capture the result
+        Optional<String> fileNameResult = saveDialog.showAndWait();
+
+        if (fileNameResult.isPresent() && !fileNameResult.get().isEmpty()) {
+            String fileName = fileNameResult.get();
+
+            // Create an instance of UMLSaveLoad
+            UMLSaveLoad saveLoad = new UMLSaveLoad(diagram);
+
+            // Call the saveData method of UMLSaveLoad to save the diagram
+            saveLoad.saveData(fileName);
+
+            showAlert("Success", "Diagram saved successfully.");
+        } else {
+            showAlert("Error", "Please enter a valid file name.");
+        }
     }
+
+    @FXML
+    void loadDiagramGui(ActionEvent event) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Load Diagram");
+        dialog.setHeaderText("Enter the file path (without '.json' extension):");
+        dialog.setContentText("File Path:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        // Check if the user entered a file path
+        if (result.isPresent()) {
+            String filePath = result.get(); // Add the ".json" extension
+
+            // Attempt to load data from the JSON file
+            try {
+                UMLSaveLoad saveLoad = new UMLSaveLoad(diagram); // You might need to pass a diagram instance here
+                saveLoad.loadData(filePath); // Update the 'diagram' variable with the loaded data
+
+                // Assuming you have access to 'gc' and 'centerContent'
+                GraphicsContext gc = centerContent.getGraphicsContext2D();
+
+                // Clear the canvas
+                gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
+
+                // Draw the UML classes from the loaded diagram
+                for (UMLClass umlClass : diagram.getClasses().values()) {
+                    drawUMLClass(umlClass);
+                }
+
+                // Display a success message
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Load Successful");
+                alert.setHeaderText(null);
+                alert.setContentText("Diagram loaded successfully.");
+                alert.showAndWait();
+            } catch (Exception e) {
+                // Handle other exceptions
+                showErrorDialog("Error loading diagram: " + e.getMessage());
+            }
+        }
+    }
+
+
+
+    private void showErrorDialog(String errorMessage) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(errorMessage);
+        alert.showAndWait();
+    }
+
+
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

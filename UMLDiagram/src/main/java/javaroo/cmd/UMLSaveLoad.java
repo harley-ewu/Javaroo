@@ -120,6 +120,8 @@ public class UMLSaveLoad {
         }
     }
 
+
+
     private void deserializeUMLClass(JsonObject classObject) {
         String name = classObject.get("name").getAsString();
         UMLClass umlClass = new UMLClass(name);
