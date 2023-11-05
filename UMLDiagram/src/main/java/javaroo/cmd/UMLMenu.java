@@ -104,7 +104,7 @@ public class UMLMenu {
                         if (addClassName.isEmpty()) {
                             System.out.println("The class name cannot be empty. Please try again.");
                         } else {
-                            this.diagram.addClass(addClassName);
+                            diagram.addClass(addClassName);
                             classAdded = true; // Set flag to true to exit the loop
                         }
 
@@ -112,12 +112,22 @@ public class UMLMenu {
                             System.out.print("\nEnter the class name to be added: ");
                         }
                     }
+
                     System.out.println("\nWould you also like to add fields and methods to the class? (y/n)");
                     String addFieldsMethods = scanner.nextLine();
                     if (addFieldsMethods.equals("y")) {
                         System.out.println("\nHow many fields would you like to add?");
-                        int numFields = scanner.nextInt();
-                        scanner.nextLine();
+                        int numFields = 0;
+                        boolean validNumFields = false;
+                        while (!validNumFields) {
+                            try {
+                                numFields = Integer.parseInt(scanner.nextLine());
+                                validNumFields = true; // Set flag to true to exit the loop
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid input for the number of fields. Please enter a valid integer.");
+                            }
+                        }
+
                         for (int i = 0; i < numFields; i++) {
                             System.out.println("\nEnter the field name: ");
                             String fieldName = scanner.nextLine();
@@ -128,9 +138,19 @@ public class UMLMenu {
                             diagram.classExists(addClassName).addField(fieldName, fieldType, visibility);
                             System.out.println("\nField added.");
                         }
+
                         System.out.println("\nHow many methods would you like to add?");
-                        int numMethods = scanner.nextInt();
-                        scanner.nextLine();
+                        int numMethods = 0;
+                        boolean validNumMethods = false;
+                        while (!validNumMethods) {
+                            try {
+                                numMethods = Integer.parseInt(scanner.nextLine());
+                                validNumMethods = true; // Set flag to true to exit the loop
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid input for the number of methods. Please enter a valid integer.");
+                            }
+                        }
+
                         for (int i = 0; i < numMethods; i++) {
                             System.out.println("\nEnter the method name: ");
                             String methodName = scanner.nextLine();
@@ -140,13 +160,12 @@ public class UMLMenu {
                             String parameters = scanner.nextLine();
                             // if empty string, then no parameters
                             ArrayList<String> parametersList;
-                            if (!parameters.equals("")) {
-                                parametersList = new ArrayList<String>(Arrays.asList(parameters.split(", ")));
+                            if (!parameters.isEmpty()) {
+                                parametersList = new ArrayList<>(Arrays.asList(parameters.split(", ")));
+                            } else {
+                                parametersList = new ArrayList<>();
                             }
-                            else {
-                                parametersList = new ArrayList<String>();
-                            }
-                            // parse parameters into an string array list on the commas
+                            // parse parameters into a string array list on the commas
                             diagram.classExists(addClassName).addMethod(methodName, methodType, parametersList);
                             System.out.println("\nMethod added.");
                         }
