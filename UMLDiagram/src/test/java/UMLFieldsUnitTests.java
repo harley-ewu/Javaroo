@@ -95,5 +95,10 @@ class UMLFieldsUnitTests
         assertEquals(test.getFields().size(), 0);
     }
 
-    
+    @Test
+    void testAddFieldEmpty()
+    {
+        test.addField("", "", "");
+        assertEquals(test.getFields().size(), 0);
+    }
 }
