@@ -618,7 +618,7 @@ public class UMLController {
         Platform.exit();
     }
 
-    @FXML
+   @FXML
     void deleteClassGui(ActionEvent event) {
         // Get all class names from the UML diagram
         List<String> classNames = new ArrayList<>(diagram.getClasses().keySet());
@@ -638,12 +638,46 @@ public class UMLController {
             if (umlClass != null) {
                 // Remove the class from the diagram
                 diagram.removeClass(className);
-                // Update the canvas
-                updateCanvas(umlClass);
+                // Update the canvas by removing the specified class
+                updateCanvasRemoveClass(umlClass.getName());
                 showAlert("Success", "Class '" + className + "' has been removed.");
             } else {
                 showAlert("Error", "Class '" + className + "' does not exist.");
             }
+        }
+    }
+private void updateCanvasRemoveClass(String className) {
+        UMLClass umlClassToRemove = null;
+
+        // Find the specified class in the drawnUMLClasses list
+        for (UMLClass umlClass : drawnUMLClasses) {
+            if (umlClass.getName().equals(className)) {
+                umlClassToRemove = umlClass;
+                break;
+            }
+        }
+
+        if (umlClassToRemove != null) {
+            GraphicsContext gc = centerContent.getGraphicsContext2D();
+
+            // Remove the specified class from the drawnUMLClasses list
+            drawnUMLClasses.remove(umlClassToRemove);
+
+            // Clear the entire region occupied by the class and its relationships on the canvas
+            gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
+
+            // Redraw all remaining classes (excluding the removed class)
+            for (UMLClass existingClass : drawnUMLClasses) {
+                if (!existingClass.getName().equals(className)) {
+                    drawUMLClass(existingClass);
+                }
+            }
+
+            // Remove the class from the diagram
+            diagram.removeClass(className);
+
+            // Notify the user of a successful class removal
+            showAlert("Success", "Class '" + className + "' has been removed.");
         }
     }
 
