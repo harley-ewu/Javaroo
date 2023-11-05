@@ -472,6 +472,8 @@ public class UMLController {
         return false;
     }
 
+
+
     private void drawUMLRelationship(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType relationshipType) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.setLineWidth(1.0);
@@ -594,89 +596,6 @@ public class UMLController {
                 gc.fillPolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
                 break;
         }
-    }
-
-    private void adjustCoordinatesToAvoidCollision(UMLRelationships existingRelationship, UMLRelationships newRelationship) {
-        // Calculate the angle between the existing and new relationships
-        double angle = Math.atan2(newRelationship.getEndY() - newRelationship.getStartY(), newRelationship.getEndX() - newRelationship.getStartX());
-
-        // Define an offset to move the new relationship away from the existing relationship
-        double offset = 20; // Adjust this value based on your preferences
-
-        // Calculate the new coordinates for the end point of the new relationship
-        double newX = newRelationship.getEndX() + offset * Math.cos(angle);
-        double newY = newRelationship.getEndY() + offset * Math.sin(angle);
-
-        // Update the coordinates of the new relationship to avoid collision
-        newRelationship.setEndX(newX);
-        newRelationship.setEndY(newY);
-    }
-
-    private boolean relationshipIntersects(UMLRelationships relationship1, UMLRelationships relationship2) {
-        // Check if the two relationships intersect by comparing their bounding boxes
-        double x1Start = relationship1.getStartX();
-        double y1Start = relationship1.getStartY();
-        double x1End = relationship1.getEndX();
-        double y1End = relationship1.getEndY();
-
-        double x2Start = relationship2.getStartX();
-        double y2Start = relationship2.getStartY();
-        double x2End = relationship2.getEndX();
-        double y2End = relationship2.getEndY();
-
-        // Check for intersection between the bounding boxes of the relationships
-        return doLineSegmentsIntersect(x1Start, y1Start, x1End, y1End, x2Start, y2Start, x2End, y2End);
-    }
-
-    private boolean doLineSegmentsIntersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
-        // Calculate the direction vectors of the two line segments
-        double dx1 = x2 - x1;
-        double dy1 = y2 - y1;
-        double dx2 = x4 - x3;
-        double dy2 = y4 - y3;
-
-        // Calculate the determinants
-        double determinant = dx1 * dy2 - dx2 * dy1;
-
-        if (determinant == 0) {
-            // The lines are parallel, and we consider them non-intersecting
-            return false;
-        } else {
-            // Calculate the parameters (u, v) for the intersection point
-            double u = ((x3 - x1) * dy2 - (y3 - y1) * dx2) / determinant;
-            double v = ((x3 - x1) * dy1 - (y3 - y1) * dx1) / determinant;
-
-            // Check if the intersection point is within both line segments
-            return (u >= 0 && u <= 1) && (v >= 0 && v <= 1);
-        }
-    }
-
-
-
-
-    private void drawDiamondArrow(GraphicsContext gc, double x, double y) {
-        // Customize the drawing of a diamond arrow as needed
-        // Example:
-        gc.setFill(Color.BLACK);
-        gc.fillPolygon(new double[]{x - 10, x, x + 10, x},
-                new double[]{y, y - 10, y, y + 10}, 4);
-    }
-
-    private void drawFilledDiamond(GraphicsContext gc, double x, double y) {
-        // Customize the drawing of a filled diamond as needed
-        // Example:
-        gc.setFill(Color.BLACK);
-        gc.fillPolygon(new double[]{x - 10, x, x + 10, x},
-                new double[]{y, y - 10, y, y + 10}, 4);
-    }
-
-    private void drawOpenArrow(GraphicsContext gc, double x, double y) {
-        // Customize the drawing of an open arrow as needed
-        // Example:
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2); // Adjust line width as needed
-        gc.strokeLine(x - 10, y - 10, x, y);
-        gc.strokeLine(x, y, x + 10, y + 10);
     }
 
 
