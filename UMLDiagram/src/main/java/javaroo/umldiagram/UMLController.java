@@ -65,6 +65,9 @@ public class UMLController {
     // List to store the drawn UML classes
     private List<UMLClass> drawnUMLClasses = new ArrayList<>();
 
+    private final ArrayList<UMLRelationships> drawnUMLRelationships = new ArrayList();
+
+
     private UMLDiagram diagram = new UMLDiagram();
 
     @FXML
@@ -413,6 +416,12 @@ public class UMLController {
             return;
         }
 
+        // Check if a relationship already exists between the same classes in either direction
+        if (relationshipExists(sourceClass, destinationClass) || relationshipExists(destinationClass, sourceClass)) {
+            showAlert("Error", "A relationship already exists between '" + sourceClassName + "' and '" + destinationClassName + "'.");
+            return;
+        }
+
         // Prompt the user to select the type of relationship
         ChoiceDialog<UMLRelationships.RelationshipType> relationshipTypeDialog = new ChoiceDialog<>(UMLRelationships.RelationshipType.AGGREGATION);
         relationshipTypeDialog.setTitle("Add Relationship");
@@ -430,131 +439,161 @@ public class UMLController {
 
         UMLRelationships.RelationshipType selectedRelationshipType = relationshipTypeResult.get();
 
+        double startX = 0;
+        double startY = 0;
+        double endX = 0;
+        double endY = 0;
+
         // Create the UMLRelationship object with the selected relationship type
         UMLRelationships relationship = new UMLRelationships(sourceClass, destinationClass, selectedRelationshipType);
 
+        // Use the same information but for creating the relationship on the GUI
+        UMLRelationships relationshipWithCoordinates = new UMLRelationships(sourceClass, destinationClass, selectedRelationshipType, startX, startY, endX, endY);
+
         // Now, draw the relationship on the canvas based on the type
         drawUMLRelationship(sourceClass, destinationClass, selectedRelationshipType);
+
+        // Add the created relationship to the controller's list of relationships
+        drawnUMLRelationships.add(relationshipWithCoordinates);
+
+        // Add the created relationship to the diagram's list of relationships
+        diagram.addRelationship(sourceClass, destinationClass, relationship.getType());
 
         // Notify the user of a successful relationship creation
         showAlert("Success", "Relationship created successfully: " + sourceClassName + " " + selectedRelationshipType + " " + destinationClassName);
     }
 
-    private void drawUMLRelationship(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType type) {
+    private boolean relationshipExists(UMLClass sourceClass, UMLClass destinationClass) {
+        for (UMLRelationships relationship : drawnUMLRelationships) {
+            if (relationship.getSource().equals(sourceClass) && relationship.getDest().equals(destinationClass)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void drawUMLRelationship(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType relationshipType) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.setLineWidth(1.0);
 
-        // Calculate the center coordinates of the source and destination classes
-        double sourceX = sourceClass.getX() + sourceClass.getWidth() / 2;
-        double sourceY = sourceClass.getY() + sourceClass.getHeight() / 2;
-        double destX = destinationClass.getX() + destinationClass.getWidth() / 2;
-        double destY = destinationClass.getY() + destinationClass.getHeight() / 2;
+        // Get coordinates of source and destination classes
+        double sourceX = sourceClass.getX();
+        double sourceY = sourceClass.getY();
+        double destX = destinationClass.getX();
+        double destY = destinationClass.getY();
 
-        // Set line attributes for different relationship types
-        gc.setLineWidth(2); // Set the line width as needed
+        // Calculate the start and end points of the relationship lines
+        double startX = sourceX + sourceClass.getWidth() / 2;
+        double startY = sourceY + sourceClass.getHeight() / 2;
+        double endX = destX + destinationClass.getWidth() / 2;
+        double endY = destY + destinationClass.getHeight() / 2;
 
-        double offsetSourceX, offsetSourceY, offsetDestX, offsetDestY;
+        // Calculate the triangle points at the end of the line
+        double triangleHalfWidth = 20; // Half the width of the triangle
+        double triangleHeight = 15; // Height of the triangle
 
-        // Determine whether to draw the relationship vertically or horizontally based on the shorter distance
-        double dx = Math.abs(destX - sourceX);
-        double dy = Math.abs(destY - sourceY);
+        // Set line colors and styles based on the relationship type
+        gc.setStroke(Color.BLACK); // Default color
+        gc.setLineDashes(0); // Reset line style
 
-        if (dx < dy) {
-            // Draw vertically
-            offsetSourceX = sourceX;
-            offsetSourceY = sourceY + sourceClass.getHeight() / 2;
-            offsetDestX = destX;
-            offsetDestY = destinationClass.getY() + destinationClass.getHeight() / 2;
-        } else {
-            // Draw horizontally
-            offsetSourceX = sourceX + sourceClass.getWidth() / 2;
-            offsetSourceY = sourceY;
-            offsetDestX = destinationClass.getX() + destinationClass.getWidth() / 2;
-            offsetDestY = destY;
-        }
-
-        // Check for collisions with existing relationships
-        for (UMLRelationships relationship : diagram.getRelationships()) {
-            if (relationship.getSource() == sourceClass || relationship.getDest() == sourceClass ||
-                    relationship.getSource() == destinationClass || relationship.getDest() == destinationClass) {
-                // Skip relationships involving the same source or destination class
-                continue;
-            }
-
-            double collisionX = 0;
-            double collisionY = 0;
-
-            if (lineSegmentsIntersect(offsetSourceX, offsetSourceY, offsetDestX, offsetDestY,
-                    relationship.getStartX(), relationship.getStartY(), relationship.getEndX(), relationship.getEndY(),
-                    collisionX, collisionY)) {
-                // A collision has been detected, adjust the offset points
-                offsetSourceX = collisionX;
-                offsetSourceY = collisionY;
-            }
-        }
-
-        switch (type) {
+        // Draw the relationship line based on the relationship type
+        switch (relationshipType) {
             case AGGREGATION:
-                gc.setStroke(Color.BLACK);
-                gc.strokeLine(offsetSourceX, offsetSourceY, offsetDestX, offsetDestY);
-                // Draw a diamond arrow symbol at the destination class
-                drawDiamondArrow(gc, offsetDestX, offsetDestY);
-                break;
-
-            case COMPOSITION:
-                gc.setStroke(Color.BLACK);
-                gc.strokeLine(offsetSourceX, offsetSourceY, offsetDestX, offsetDestY);
-                // Draw a filled diamond symbol at the destination class
-                drawFilledDiamond(gc, offsetDestX, offsetDestY);
-                break;
-
-            case REALIZATION:
-                gc.setStroke(Color.BLACK);
-                gc.setLineDashes(5, 5); // Dotted line for inheritance
-                gc.strokeLine(offsetSourceX, offsetSourceY, offsetDestX, offsetDestY);
-                gc.setLineDashes(); // Reset line dashes
+                // Vertical line from source to a little below destination
+                gc.strokeLine(startX, startY, startX, endY + 20);
+                // Horizontal line from startX to endX at the same Y-coordinate
+                gc.strokeLine(startX, endY + 20, endX, endY + 20);
+                // Draw the diamond shape at the end of the line
+                gc.strokePolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
                 break;
 
             case INHERITANCE:
-                gc.setStroke(Color.BLACK);
-                gc.setLineWidth(1); // Adjust line width as needed
-                // Draw an open arrow symbol at the destination class
-                drawOpenArrow(gc, offsetDestX, offsetDestY);
+                // Calculate the triangle position based on the direction of the relationship
+                if (startX < endX) {
+                    // Inheritance arrow points right
+                    double arrowX = endX;
+                    double arrowY = endY;
+                    double x1 = arrowX - triangleHalfWidth;
+                    double y1 = arrowY - triangleHeight;
+                    double x2 = arrowX - triangleHalfWidth;
+                    double y2 = arrowY + triangleHeight;
+                    double x3 = arrowX;
+                    double y3 = arrowY;
+                    gc.setFill(Color.WHITE); // Set fill color to white
+                    gc.setStroke(Color.BLACK); // Set stroke color to black
+                    gc.strokeLine(startX, startY, startX, endY);
+                    gc.strokeLine(startX, endY, endX, endY);
+                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                } else {
+                    // Inheritance arrow points left
+                    double arrowX = endX;
+                    double arrowY = endY;
+                    double x1 = arrowX + triangleHalfWidth;
+                    double y1 = arrowY - triangleHeight;
+                    double x2 = arrowX + triangleHalfWidth;
+                    double y2 = arrowY + triangleHeight;
+                    double x3 = arrowX;
+                    double y3 = arrowY;
+                    gc.setFill(Color.WHITE); // Set fill color to white
+                    gc.setStroke(Color.BLACK); // Set stroke color to black
+                    gc.strokeLine(startX, startY, startX, endY);
+                    gc.strokeLine(startX, endY, endX, endY);
+                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                }
                 break;
 
-            default:
-                // Handle any other cases if needed
+
+            case REALIZATION:
+                // Vertical line from source to the same Y-coordinate as destination
+                gc.setLineDashes(5);
+                gc.strokeLine(startX, startY, startX, endY);
+                // Horizontal dashed line from startX to endX at the same Y-coordinate
+                gc.setLineDashes(5); // Set line style to dashed
+                gc.strokeLine(startX, endY, endX, endY);
+
+                // Adjust the triangle position based on the direction of the relationship
+                if (startX < endX) {
+                    // Triangle points right
+                    double arrowX = endX;
+                    double arrowY = endY;
+                    double x1 = arrowX - triangleHalfWidth;
+                    double y1 = arrowY - triangleHeight;
+                    double x2 = arrowX - triangleHalfWidth;
+                    double y2 = arrowY + triangleHeight;
+                    double x3 = arrowX;
+                    double y3 = arrowY;
+                    gc.setFill(Color.WHITE); // Set fill color to white
+                    gc.setStroke(Color.BLACK); // Set stroke color to black
+                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                } else {
+                    // Triangle points left
+                    double arrowX = endX;
+                    double arrowY = endY;
+                    double x1 = arrowX + triangleHalfWidth;
+                    double y1 = arrowY - triangleHeight;
+                    double x2 = arrowX + triangleHalfWidth;
+                    double y2 = arrowY + triangleHeight;
+                    double x3 = arrowX;
+                    double y3 = arrowY;
+                    gc.setFill(Color.WHITE); // Set fill color to white
+                    gc.setStroke(Color.BLACK); // Set stroke color to black
+                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                }
+                break;
+
+            case COMPOSITION:
+                // Vertical line from source to a little below destination
+                gc.strokeLine(startX, startY, startX, endY + 20);
+                // Horizontal line from startX to endX at the same Y-coordinate
+                gc.strokeLine(startX, endY + 20, endX, endY + 20);
+                // Draw the filled diamond shape at the end of the line
+                gc.fillPolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
+                break;
         }
-    }
-
-
-    private boolean lineSegmentsIntersect(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double intersectionX, double intersectionY) {
-        // Calculate the direction vectors of the two line segments
-        double dx1 = x2 - x1;
-        double dy1 = y2 - y1;
-        double dx2 = x4 - x3;
-        double dy2 = y4 - y3;
-
-        // Calculate the determinant of the direction vectors
-        double determinant = dx1 * dy2 - dx2 * dy1;
-
-        if (determinant == 0) {
-            // The lines are parallel, no intersection
-            return false;
-        }
-
-        // Calculate the parameters for the parametric equations of the lines
-        double t1 = ((x3 - x1) * dy2 - (y3 - y1) * dx2) / determinant;
-        double t2 = ((x3 - x1) * dy1 - (y3 - y1) * dx1) / determinant;
-
-        // Check if the intersection point is within the line segments
-        if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1) {
-            intersectionX = x1 + t1 * dx1;
-            intersectionY = y1 + t1 * dy1;
-            return true;
-        }
-
-        // No intersection
-        return false;
     }
 
     private void adjustCoordinatesToAvoidCollision(UMLRelationships existingRelationship, UMLRelationships newRelationship) {
