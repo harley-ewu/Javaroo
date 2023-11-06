@@ -1,3 +1,4 @@
+
 import javaroo.cmd.UMLClass;
 import javaroo.cmd.UMLDiagram;
 //import org.junit.*;
