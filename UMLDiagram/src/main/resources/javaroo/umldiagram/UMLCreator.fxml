@@ -43,7 +43,9 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="addClassButton" layoutX="71.0" layoutY="14.0" mnemonicParsing="false" onAction="#addClassGui" text="Add Class" />
-                        <Button fx:id="addRelButton" layoutX="51.0" layoutY="53.0" mnemonicParsing="false" onAction="#addRelationshipGui" prefHeight="25.0" prefWidth="108.0" text="Add Relationship" />
+                        <Button fx:id="addRelButton" layoutX="51.0" layoutY="147.0" mnemonicParsing="false" onAction="#addRelationshipGui" prefHeight="25.0" prefWidth="108.0" text="Add Relationship" />
+                        <Button fx:id="addFieldButton" layoutX="72.0" layoutY="58.0" mnemonicParsing="false" onAction="#addClassFieldGui" text="Add Field" />
+                        <Button fx:id="addMethodButton" layoutX="64.0" layoutY="103.0" mnemonicParsing="false" onAction="#addClassMethodGui" text="Add Method" />
                      </children>
                   </AnchorPane>
             </content>
@@ -53,7 +55,9 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="deleteClassButton" layoutX="60.0" layoutY="14.0" mnemonicParsing="false" onAction="#deleteClassGui" text="Delete Class" />
-                        <Button fx:id="deleteRelButton" layoutX="41.0" layoutY="55.0" mnemonicParsing="false" onAction="#deleteRelationshipGui" prefHeight="25.0" prefWidth="119.0" text="Delete Relationship" />
+                        <Button fx:id="deleteRelButton" layoutX="41.0" layoutY="146.0" mnemonicParsing="false" onAction="#deleteRelationshipGui" prefHeight="25.0" prefWidth="119.0" text="Delete Relationship" />
+                        <Button fx:id="deleteFieldButton" layoutX="61.0" layoutY="55.0" mnemonicParsing="false" onAction="#deleteClassFieldGui" text="Delete Field" />
+                        <Button fx:id="deleteMethodButton" layoutX="53.0" layoutY="100.0" mnemonicParsing="false" onAction="#deleteClassMethodGui" text="Delete Method" />
                      </children>
                   </AnchorPane>
             </content>
@@ -63,7 +67,9 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="renameClassButton" layoutX="56.0" layoutY="14.0" mnemonicParsing="false" onAction="#renameClassGui" text="Rename Class" />
-                        <Button fx:id="renameAttrButton" layoutX="46.0" layoutY="55.0" mnemonicParsing="false" onAction="#renameAttributeGui" text="Rename Attribute" />
+                        <Button fx:id="renameFieldButton" layoutX="57.0" layoutY="54.0" mnemonicParsing="false" onAction="#renameClassFieldGui" text="Rename Field" />
+                        <Button fx:id="renameMethodButton" layoutX="48.0" layoutY="96.0" mnemonicParsing="false" onAction="#renameClassMethodGui" text="Rename Method" />
+                        <Button fx:id="changeRelButton" layoutX="24.0" layoutY="138.0" mnemonicParsing="false" onAction="#changeRelTypeGui" text="Change Relationship Type" />
                      </children>
                   </AnchorPane>
             </content>

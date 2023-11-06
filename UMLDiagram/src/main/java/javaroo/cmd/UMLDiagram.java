@@ -1,3 +1,5 @@
+package javaroo.cmd;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +33,11 @@ public class UMLDiagram {
     public UMLClass classExists(String name)
     {
         //check if name is null
-        if(name == null)
-        {
-            System.out.println("Sorry but we could not find a valid name for this class");
-            return null;
-        }
+//        if(name == null)
+//        {
+//            System.out.println("Sorry but we could not find a valid name for this class");
+//            return null;
+//        }
 
         for(UMLClass c : classes.values())
         {
@@ -51,21 +53,24 @@ public class UMLDiagram {
     //Method to create a UMLClass object and add it to the classes map.
     public void addClass(String name)
     {
-        //Check if the name is null.
-        if(name == null)
+        // Remove all spaces and tabs from the name for the checks
+        String processedName = name.replaceAll("\\s+", "");
+
+        // Check if the name is null or empty after removing spaces/tabs
+        if(processedName == null || processedName.isEmpty())
         {
             System.out.println("Sorry but we could not find a valid name for this class");
             return;
         }
-        //Check if the class already exists.
-        if(classExists(name) != null)
+        // Check if the class already exists.
+        if(classExists(processedName) != null)
         {
             System.out.println("Sorry but this class already exists");
             return;
         }
-        //Create a new UMLClass object and add it to the classes map.
-        this.classes.put(name, new UMLClass(name));
-        System.out.println("Class added: " + name);
+        // Create a new UMLClass object and add it to the classes map.
+        getClasses().put(processedName, new UMLClass(processedName));
+        System.out.println("Class added: " + processedName);
     }
 
     //Method to remove a UMLClass object from the classes map via its name.
@@ -84,7 +89,7 @@ public class UMLDiagram {
             return;
         }
         //Remove the UMLClass object from the classes map.
-        this.classes.remove(name);
+        getClasses().remove(name);
         System.out.println("Class deleted: " + name);
     }
 
@@ -112,8 +117,8 @@ public class UMLDiagram {
         //Rename the UMLClass object in the classes map.
         UMLClass c = classExists(oldName);
         c.setName(newName);
-        this.classes.remove(oldName);
-        this.classes.put(newName, c);
+        getClasses().remove(oldName);
+        getClasses().put(newName, c);
         System.out.println("Class renamed: " + oldName + " to " + newName);
     }
 
@@ -141,7 +146,7 @@ public class UMLDiagram {
     public void addRelationship(UMLClass src, UMLClass dest, UMLRelationships.RelationshipType type)
     {
         //Check if the source and destination classes exist.
-        if(classExists(src) == null || classExists(dest) == null)
+        if(src == null || dest == null)
         {
             System.out.println("Sorry but we could not find a valid source or destination for this diagram");
             return;
@@ -160,6 +165,7 @@ public class UMLDiagram {
         }
         //Create a new UMLRelationships object and add it to the relationships list.
         relationships.add(new UMLRelationships(src, dest, type));
+        System.out.println("\nRelationship added.");
     }
 
     //Method to remove a UMLRelationships object from the relationships list via its index.
@@ -210,6 +216,7 @@ public class UMLDiagram {
 
     // Method to list all relationships defined in the UML diagram.
     void listRelationships() {
+        int index = 0;
         // Check if the relationships list is empty, implying no relationships have been defined.
         if (relationships.isEmpty()) {
             System.out.println("No relationships defined.");
@@ -219,7 +226,9 @@ public class UMLDiagram {
             // This loop will run once for each UMLRelationship object stored in the list.
             for (UMLRelationships relationship : relationships) {
                 // Print each relationship, showcasing the source class and destination class.
-                System.out.println("- " + relationship.getSource().getName() + " --> " + relationship.getDest().getName());
+                System.out.println(index + ":"+ relationship.getSource().getName() + " --> " +
+                        relationship.getDest().getName() + "::"+ relationship.getType());
+                index ++;
             }
         }
     }

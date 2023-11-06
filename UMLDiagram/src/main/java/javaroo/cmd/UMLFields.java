@@ -1,3 +1,5 @@
+package javaroo.cmd;
+
 public class UMLFields {
 
     private String name;
@@ -32,6 +34,10 @@ public class UMLFields {
 
     public String getVisibility() {
         return visibility;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String toString() {
