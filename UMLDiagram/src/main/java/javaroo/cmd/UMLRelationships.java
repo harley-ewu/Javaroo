@@ -91,4 +91,9 @@ public class UMLRelationships {
     public void setEndY(double endY) {
         this.endY = endY;
     }
+
+    public boolean containsClass(UMLClass umlClass) {
+        return source.equals(umlClass) || dest.equals(umlClass);
+    }
+
 }

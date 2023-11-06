@@ -2,74 +2,71 @@ package javaroo.umldiagram;
 
 
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javaroo.cmd.*;
-
-import java.io.*;
-import java.net.URL;
 import java.util.*;
 
 public class UMLController {
 
-    @FXML // ResourceBundle that was given to the FXMLLoader
-    private ResourceBundle resources;
+    @FXML
+    private Button addClassButton;
 
-    @FXML // URL location of the FXML file that was given to the FXMLLoader
-    private URL location;
+    @FXML
+    private Button addFieldButton;
 
-    @FXML // fx:id="addClassButton"
-    private Button addClassButton; // Value injected by FXMLLoader
+    @FXML
+    private Button addMethodButton;
 
-    @FXML // fx:id="addRelButton"
-    private Button addRelButton; // Value injected by FXMLLoader
+    @FXML
+    private Button addRelButton;
 
-    @FXML // fx:id="centerContent"
-    private Canvas centerContent; // Value injected by FXMLLoader
-    @FXML //
+    @FXML
+    private Canvas centerContent;
+
+    @FXML
     private ScrollPane centerScrollPane;
 
-    //private double xOffset = 0;
-    //private double yOffset = 0;
+    @FXML
+    private Button changeRelButton;
 
-    @FXML // fx:id="deleteClassButton"
-    private Button deleteClassButton; // Value injected by FXMLLoader
+    @FXML
+    private Button deleteClassButton;
 
-    @FXML // fx:id="deleteRelButton"
-    private Button deleteRelButton; // Value injected by FXMLLoader
+    @FXML
+    private Button deleteFieldButton;
 
-    @FXML // fx:id="renameAttrButton"
-    private Button renameAttrButton; // Value injected by FXMLLoader
+    @FXML
+    private Button deleteMethodButton;
 
-    @FXML // fx:id="renameClassButton"
-    private Button renameClassButton; // Value injected by FXMLLoader
+    @FXML
+    private Button deleteRelButton;
+
+    @FXML
+    private Button renameClassButton;
+
+    @FXML
+    private Button renameFieldButton;
+
+    @FXML
+    private Button renameMethodButton;
 
     // List to store the drawn UML classes
     private List<UMLClass> drawnUMLClasses = new ArrayList<>();
 
-    private final ArrayList<UMLRelationships> drawnUMLRelationships = new ArrayList();
-
+    // List to store the drawn UML relationships
+    private final List<UMLRelationships> drawnUMLRelationships = new ArrayList();
 
     private UMLDiagram diagram = new UMLDiagram();
 
+    // Prompts the user to enter class name, fields, and methods
     @FXML
     void addClassGui(ActionEvent event) {
         try {
@@ -96,18 +93,13 @@ public class UMLController {
             UMLClass newUMLClass = new UMLClass(className);
 
             // Prompt the user for fields
-
             diagram.addClass(newUMLClass.getName());
             addFieldsToClass(newUMLClass);
 
             // Prompt the user for methods
             addMethodsToClass(newUMLClass);
 
-            // Add the new class to the UMLDiagram
-           // diagram.addClass(newUMLClass.getName());
-
             // Update the visual representation
-            // Assuming you have methods to handle the visual representation of the UML class
             autoAssignCoordinates(newUMLClass); // This method should set the coordinates for the new class
             drawnUMLClasses.add(newUMLClass); // This should be a collection of UMLClass objects that are currently drawn
             drawUMLClass(newUMLClass); // This method should handle the actual drawing of the class on the canvas or pane
@@ -134,6 +126,7 @@ public class UMLController {
         }
     }
 
+    // Helper method to add fields to the class
     private void addFieldsToClass(UMLClass umlClass) {
         while (true) {
             TextInputDialog fieldDialog = new TextInputDialog();
@@ -169,6 +162,7 @@ public class UMLController {
         }
     }
 
+    // Helper method to add methods to the class
     private void addMethodsToClass(UMLClass umlClass) {
         while (true) {
             TextInputDialog methodDialog = new TextInputDialog();
@@ -207,6 +201,7 @@ public class UMLController {
         }
     }
 
+    // Helper method to draw the created class and its contents on the gui in random spot
     private void drawUMLClass(UMLClass umlClass) {
         double x = umlClass.getX(); // Get the X-coordinate from the UMLClass
         double y = umlClass.getY(); // Get the Y-coordinate from the UMLClass
@@ -297,6 +292,7 @@ public class UMLController {
             contentY += textPadding; // Add padding after each method
         }
     }
+
     // Helper method to format the visibility symbol for fields
     private String formatVisibility(String visibility) {
         switch (visibility.toLowerCase()) {
@@ -309,8 +305,7 @@ public class UMLController {
         }
     }
 
-
-
+    // Helper method to check for class collisions, ensures each class is not touching or overlapping
     private void autoAssignCoordinates(UMLClass umlClass) {
         double xPadding = 80; // Horizontal padding between classes
         double yPadding = 80; // Vertical padding between classes
@@ -371,6 +366,21 @@ public class UMLController {
         }
     }
 
+
+    // To be implemented
+    @FXML
+    void addClassFieldGui(ActionEvent event) {
+
+    }
+
+
+
+    // To be implemented
+    @FXML
+    void addClassMethodGui(ActionEvent event) {
+
+    }
+
     @FXML
     void addRelationshipGui(ActionEvent event) {
         if (drawnUMLClasses.isEmpty()) {
@@ -378,47 +388,45 @@ public class UMLController {
             return;
         }
 
-        TextInputDialog sourceClassDialog = new TextInputDialog();
+        // Create a ChoiceDialog to select the source class
+        ChoiceDialog<UMLClass> sourceClassDialog = new ChoiceDialog<>(null, drawnUMLClasses);
         sourceClassDialog.setTitle("Add Relationship");
-        sourceClassDialog.setHeaderText("Enter the source class name:");
+        sourceClassDialog.setHeaderText("Select the source class:");
         sourceClassDialog.setContentText("Source Class:");
 
-        Optional<String> sourceClassResult = sourceClassDialog.showAndWait();
-        if (!sourceClassResult.isPresent() || sourceClassResult.get().isEmpty()) {
-            showAlert("Error", "Source class name is required.");
-            return;
+        Optional<UMLClass> sourceClassResult = sourceClassDialog.showAndWait();
+        if (!sourceClassResult.isPresent()) {
+            return; // The user canceled the source class selection
         }
 
-        String sourceClassName = sourceClassResult.get();
-        UMLClass sourceClass = findUMLClass(sourceClassName);
+        UMLClass sourceClass = sourceClassResult.get();
 
-        if (sourceClass == null) {
-            showAlert("Error", "Source class '" + sourceClassName + "' does not exist.");
-            return;
-        }
-
-        TextInputDialog destinationClassDialog = new TextInputDialog();
+        // Create a ChoiceDialog to select the destination class
+        ChoiceDialog<UMLClass> destinationClassDialog = new ChoiceDialog<>(null, drawnUMLClasses);
         destinationClassDialog.setTitle("Add Relationship");
-        destinationClassDialog.setHeaderText("Enter the destination class name:");
+        destinationClassDialog.setHeaderText("Select the destination class:");
         destinationClassDialog.setContentText("Destination Class:");
 
-        Optional<String> destinationClassResult = destinationClassDialog.showAndWait();
-        if (!destinationClassResult.isPresent() || destinationClassResult.get().isEmpty()) {
-            showAlert("Error", "Destination class name is required.");
+        Optional<UMLClass> destinationClassResult = destinationClassDialog.showAndWait();
+        if (!destinationClassResult.isPresent()) {
+            return; // The user canceled the destination class selection
+        }
+
+        UMLClass destinationClass = destinationClassResult.get();
+
+        if (destinationClass == null) {
+            showAlert("Error", "Destination class '" + destinationClass.getName() + "' does not exist.");
             return;
         }
 
-        String destinationClassName = destinationClassResult.get();
-        UMLClass destinationClass = findUMLClass(destinationClassName);
-
-        if (destinationClass == null) {
-            showAlert("Error", "Destination class '" + destinationClassName + "' does not exist.");
+        if (sourceClass.equals(destinationClass)) {
+            showAlert("Error", "Source and destination classes cannot be the same.");
             return;
         }
 
         // Check if a relationship already exists between the same classes in either direction
         if (relationshipExists(sourceClass, destinationClass) || relationshipExists(destinationClass, sourceClass)) {
-            showAlert("Error", "A relationship already exists between '" + sourceClassName + "' and '" + destinationClassName + "'.");
+            showAlert("Error", "A relationship already exists between '" + sourceClass.getName() + "' and '" + destinationClass.getName() + "'.");
             return;
         }
 
@@ -460,9 +468,10 @@ public class UMLController {
         diagram.addRelationship(sourceClass, destinationClass, relationship.getType());
 
         // Notify the user of a successful relationship creation
-        showAlert("Success", "Relationship created successfully: " + sourceClassName + " " + selectedRelationshipType + " " + destinationClassName);
+        showAlert("Success", "Relationship created successfully: " + sourceClass.getName() + " " + selectedRelationshipType + " " + destinationClass.getName());
     }
 
+    // Helper method for addRelationshipGui which checks for existing relationships
     private boolean relationshipExists(UMLClass sourceClass, UMLClass destinationClass) {
         for (UMLRelationships relationship : drawnUMLRelationships) {
             if (relationship.getSource().equals(sourceClass) && relationship.getDest().equals(destinationClass)) {
@@ -472,8 +481,7 @@ public class UMLController {
         return false;
     }
 
-
-
+    // Helper method for addRelationshipGui to draw the relationship between two classes and appropriate type
     private void drawUMLRelationship(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType relationshipType) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.setLineWidth(1.0);
@@ -546,7 +554,6 @@ public class UMLController {
                 }
                 break;
 
-
             case REALIZATION:
                 // Vertical line from source to the same Y-coordinate as destination
                 gc.setLineDashes(5);
@@ -598,9 +605,7 @@ public class UMLController {
         }
     }
 
-
-
-
+    // Helper method to check for the existing class
     private UMLClass findUMLClass(String className) {
         for (UMLClass umlClass : drawnUMLClasses) {
             if (umlClass.getName().equalsIgnoreCase(className)) {
@@ -611,14 +616,14 @@ public class UMLController {
     }
 
 
-
-
+    // Allows the user to close the program from the file dropdown tab
     @FXML
     void closeDiagramGui(ActionEvent event) {
         Platform.exit();
     }
 
-   @FXML
+    // Method to allow user to delete a class that is not in a relationship
+    @FXML
     void deleteClassGui(ActionEvent event) {
         // Get all class names from the UML diagram
         List<String> classNames = new ArrayList<>(diagram.getClasses().keySet());
@@ -635,19 +640,39 @@ public class UMLController {
         if (result.isPresent()) {
             String className = result.get();
             UMLClass umlClass = diagram.classExists(className);
+
             if (umlClass != null) {
-                // Remove the class from the diagram
-                diagram.removeClass(className);
-                // Update the canvas by removing the specified class
-                updateCanvasRemoveClass(umlClass.getName());
-                showAlert("Success", "Class '" + className + "' has been removed.");
+                // Check if the class is part of any relationship
+                if (isClassInRelationship(umlClass)) {
+                    showAlert("Error", "Class '" + className + "' is part of a relationship and cannot be deleted.");
+                } else {
+                    // Remove the class from the diagram
+                    diagram.removeClass(className);
+
+                    // Update the canvas by removing the specified class
+                    updateCanvasRemoveClass(umlClass.getName());
+                    showAlert("Success", "Class '" + className + "' has been removed.");
+                }
             } else {
                 showAlert("Error", "Class '" + className + "' does not exist.");
             }
         }
     }
-private void updateCanvasRemoveClass(String className) {
+
+    // Checks if the chosen class is in a relationship
+    private boolean isClassInRelationship(UMLClass umlClass) {
+        for (UMLRelationships relationship : drawnUMLRelationships) {
+            if (relationship.getSource().getName().equals(umlClass.getName()) || relationship.getDest().getName().equals(umlClass.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Helper method to redraw the canvas to remove the selected class
+    private void updateCanvasRemoveClass(String className) {
         UMLClass umlClassToRemove = null;
+        List<UMLRelationships> relationshipsToRemove = new ArrayList<>();
 
         // Find the specified class in the drawnUMLClasses list
         for (UMLClass umlClass : drawnUMLClasses) {
@@ -659,6 +684,13 @@ private void updateCanvasRemoveClass(String className) {
 
         if (umlClassToRemove != null) {
             GraphicsContext gc = centerContent.getGraphicsContext2D();
+
+            // Identify and remove the relationships involving the deleted class
+            for (UMLRelationships relationship : drawnUMLRelationships) {
+                if (relationship.getSource() == umlClassToRemove || relationship.getDest() == umlClassToRemove) {
+                    relationshipsToRemove.add(relationship);
+                }
+            }
 
             // Remove the specified class from the drawnUMLClasses list
             drawnUMLClasses.remove(umlClassToRemove);
@@ -673,14 +705,21 @@ private void updateCanvasRemoveClass(String className) {
                 }
             }
 
+            // Remove the relationships involving the deleted class from the list
+            drawnUMLRelationships.removeAll(relationshipsToRemove);
+
+            // Redraw the remaining relationships
+            for (UMLRelationships relationship : drawnUMLRelationships) {
+                drawExistingRelationships();
+            }
+
             // Remove the class from the diagram
             diagram.removeClass(className);
-
-            // Notify the user of a successful class removal
-            showAlert("Success", "Class '" + className + "' has been removed.");
         }
     }
 
+
+    // Helper method to updated the contents of the screen
     private void updateCanvas(UMLClass umlClass) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
 
@@ -698,17 +737,242 @@ private void updateCanvasRemoveClass(String className) {
         drawUMLClass(umlClass);
     }
 
-
-
-
+    // Method to allow the user to delete any chosen existing relationship
     @FXML
     void deleteRelationshipGui(ActionEvent event) {
+        if (drawnUMLRelationships.isEmpty()) {
+            showAlert("Error", "No relationships have been created to delete.");
+            return;
+        }
 
+        // Create a ChoiceDialog to select a relationship
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(null);
+        dialog.setTitle("Delete Relationship");
+        dialog.setHeaderText("Select a Relationship to Delete");
+        dialog.setContentText("Relationship:");
+
+        // Populate the dialog with the relationship labels
+        for (UMLRelationships relationship : drawnUMLRelationships) {
+            String relationshipLabel = relationship.getType() + " from " + relationship.getSource().getName() + " to " + relationship.getDest().getName();
+            dialog.getItems().add(relationshipLabel);
+        }
+
+        // Show the dialog and capture the result
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(selectedRelationshipLabel -> {
+            // Find the selected relationship
+            UMLRelationships selectedRelationship = findRelationshipByLabel(selectedRelationshipLabel);
+
+            if (selectedRelationship != null) {
+                // Remove the relationship from the list
+                drawnUMLRelationships.remove(selectedRelationship);
+
+                // Clear the relationship from the canvas
+                clearRelationshipFromCanvas(event, selectedRelationship);
+
+                showAlert("Success", "Relationship has been removed: " + selectedRelationshipLabel);
+            } else {
+                showAlert("Error", "Failed to find the selected relationship.");
+            }
+        });
     }
+
+    // Helper method to list the relationships for the user to choose
+    private UMLRelationships findRelationshipByLabel(String label) {
+        for (UMLRelationships relationship : drawnUMLRelationships) {
+            String relationshipLabel = relationship.getType() + " from " + relationship.getSource().getName() + " to " + relationship.getDest().getName();
+            if (relationshipLabel.equals(label)) {
+                return relationship;
+            }
+        }
+        return null; // Relationship not found
+    }
+
+    // helper method to remove the content from the screen
     @FXML
-    void renameAttributeGui(ActionEvent event) {
+    void clearRelationshipFromCanvas(ActionEvent event, UMLRelationships relationshipToRemove) {
+        // Clear the entire canvas
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
+
+        // Redraw all remaining classes
+        for (UMLClass umlClass : drawnUMLClasses) {
+            drawUMLClass(umlClass);
+        }
+
+        // Redraw the remaining relationships, excluding the one to be removed
+        for (UMLRelationships relationship : drawnUMLRelationships) {
+            if (relationship != relationshipToRemove) {
+                drawExistingRelationships();
+            }
+        }
+
+        // Notify the user of a successful relationship removal
+        showAlert("Success", "Relationship deleted.");
     }
 
+    // Helper method which keeps existing relationships on screen
+    private void drawExistingRelationships() {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.setLineWidth(1.0);
+
+        for (UMLRelationships relationship : drawnUMLRelationships) {
+            UMLClass sourceClass = relationship.getSource();
+            UMLClass destinationClass = relationship.getDest();
+            UMLRelationships.RelationshipType relationshipType = relationship.getType();
+
+            // Get coordinates of source and destination classes
+            double sourceX = sourceClass.getX();
+            double sourceY = sourceClass.getY();
+            double destX = destinationClass.getX();
+            double destY = destinationClass.getY();
+
+            // Calculate the start and end points of the relationship lines
+            double startX = sourceX + sourceClass.getWidth() / 2;
+            double startY = sourceY + sourceClass.getHeight() / 2;
+            double endX = destX + destinationClass.getWidth() / 2;
+            double endY = destY + destinationClass.getHeight() / 2;
+
+            // Calculate the triangle points at the end of the line
+            double triangleHalfWidth = 20; // Half the width of the triangle
+            double triangleHeight = 15; // Height of the triangle
+
+            // Set line colors and styles based on the relationship type
+            gc.setStroke(Color.BLACK); // Default color
+            gc.setLineDashes(0); // Reset line style
+
+            // Draw the relationship line based on the relationship type
+            switch (relationshipType) {
+                case AGGREGATION:
+                    // Vertical line from source to a little below destination
+                    gc.strokeLine(startX, startY, startX, endY + 20);
+                    // Horizontal line from startX to endX at the same Y-coordinate
+                    gc.strokeLine(startX, endY + 20, endX, endY + 20);
+                    // Draw the diamond shape at the end of the line
+                    gc.strokePolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
+                    break;
+
+                case INHERITANCE:
+                    // Calculate the triangle position based on the direction of the relationship
+                    if (startX < endX) {
+                        // Inheritance arrow points right
+                        double arrowX = endX;
+                        double arrowY = endY;
+                        double x1 = arrowX - triangleHalfWidth;
+                        double y1 = arrowY - triangleHeight;
+                        double x2 = arrowX - triangleHalfWidth;
+                        double y2 = arrowY + triangleHeight;
+                        double x3 = arrowX;
+                        double y3 = arrowY;
+                        gc.setFill(Color.WHITE); // Set fill color to white
+                        gc.setStroke(Color.BLACK); // Set stroke color to black
+                        gc.strokeLine(startX, startY, startX, endY);
+                        gc.strokeLine(startX, endY, endX, endY);
+                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    } else {
+                        // Inheritance arrow points left
+                        double arrowX = endX;
+                        double arrowY = endY;
+                        double x1 = arrowX + triangleHalfWidth;
+                        double y1 = arrowY - triangleHeight;
+                        double x2 = arrowX + triangleHalfWidth;
+                        double y2 = arrowY + triangleHeight;
+                        double x3 = arrowX;
+                        double y3 = arrowY;
+                        gc.setFill(Color.WHITE); // Set fill color to white
+                        gc.setStroke(Color.BLACK); // Set stroke color to black
+                        gc.strokeLine(startX, startY, startX, endY);
+                        gc.strokeLine(startX, endY, endX, endY);
+                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    }
+                    break;
+
+                case REALIZATION:
+                    // Vertical line from source to the same Y-coordinate as destination
+                    gc.setLineDashes(5);
+                    gc.strokeLine(startX, startY, startX, endY);
+                    // Horizontal dashed line from startX to endX at the same Y-coordinate
+                    gc.setLineDashes(5); // Set line style to dashed
+                    gc.strokeLine(startX, endY, endX, endY);
+
+                    // Adjust the triangle position based on the direction of the relationship
+                    if (startX < endX) {
+                        // Triangle points right
+                        double arrowX = endX;
+                        double arrowY = endY;
+                        double x1 = arrowX - triangleHalfWidth;
+                        double y1 = arrowY - triangleHeight;
+                        double x2 = arrowX - triangleHalfWidth;
+                        double y2 = arrowY + triangleHeight;
+                        double x3 = arrowX;
+                        double y3 = arrowY;
+                        gc.setFill(Color.WHITE); // Set fill color to white
+                        gc.setStroke(Color.BLACK); // Set stroke color to black
+                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    } else {
+                        // Triangle points left
+                        double arrowX = endX;
+                        double arrowY = endY;
+                        double x1 = arrowX + triangleHalfWidth;
+                        double y1 = arrowY - triangleHeight;
+                        double x2 = arrowX + triangleHalfWidth;
+                        double y2 = arrowY + triangleHeight;
+                        double x3 = arrowX;
+                        double y3 = arrowY;
+                        gc.setFill(Color.WHITE); // Set fill color to white
+                        gc.setStroke(Color.BLACK); // Set stroke color to black
+                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                    }
+                    break;
+
+                case COMPOSITION:
+                    // Vertical line from source to a little below destination
+                    gc.strokeLine(startX, startY, startX, endY + 20);
+                    // Horizontal line from startX to endX at the same Y-coordinate
+                    gc.strokeLine(startX, endY + 20, endX, endY + 20);
+                    // Draw the filled diamond shape at the end of the line
+                    gc.fillPolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
+                    break;
+            }
+        }
+    }
+
+    // Unfinished
+    @FXML
+    void deleteClassFieldGui(ActionEvent event) {
+
+    }
+
+    // Unfinished
+    @FXML
+    void deleteClassMethodGui(ActionEvent event) {
+
+    }
+
+    // Unfinished
+    @FXML
+    void renameClassFieldGui(ActionEvent event) {
+
+    }
+
+    // Unfinished
+    @FXML
+    void renameClassMethodGui(ActionEvent event) {
+
+    }
+
+    // Unfinished
+    @FXML
+    void changeRelTypeGui(ActionEvent event) {
+
+    }
+
+    // Unifinished
     @FXML
     void renameClassGui(ActionEvent event) {
         // Get all class names from the UML diagram
@@ -758,6 +1022,7 @@ private void updateCanvasRemoveClass(String className) {
 
 
 
+    // Save diagram option found in the file drop down menu allowing the user to save diagram and its contents
     @FXML
     void saveDiagramGui(ActionEvent event) {
         // Create a TextInputDialog to get the file name
@@ -784,6 +1049,7 @@ private void updateCanvasRemoveClass(String className) {
         }
     }
 
+    // not fully implemented
     @FXML
     void loadDiagramGui(ActionEvent event) {
         TextInputDialog dialog = new TextInputDialog();
@@ -851,15 +1117,20 @@ private void updateCanvasRemoveClass(String className) {
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert addClassButton != null : "fx:id=\"addClassButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert addFieldButton != null : "fx:id=\"addFieldButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert addMethodButton != null : "fx:id=\"addMethodButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert addRelButton != null : "fx:id=\"addRelButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert centerContent != null : "fx:id=\"centerContent\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert centerScrollPane != null : "fx:id=\"centerScrollPane\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert changeRelButton != null : "fx:id=\"changeRelButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert deleteClassButton != null : "fx:id=\"deleteClassButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert deleteFieldButton != null : "fx:id=\"deleteFieldButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert deleteMethodButton != null : "fx:id=\"deleteMethodButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert deleteRelButton != null : "fx:id=\"deleteRelButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
-        assert renameAttrButton != null : "fx:id=\"renameAttrButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert renameClassButton != null : "fx:id=\"renameClassButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert renameFieldButton != null : "fx:id=\"renameFieldButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
+        assert renameMethodButton != null : "fx:id=\"renameMethodButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
 
     }
-
-
 
 }
