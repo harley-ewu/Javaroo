@@ -16,12 +16,14 @@ To be able to run the program, please follow these steps.
          Note: if using a Mac with Apple Silicon you need to add homebrew to your PATH folder using this
          command: `echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile eval "$(/opt/homebrew/bin/brew
          shellenv)"`
-      2. Install Gradle using this command: `brew install gradle` 
-8. Open your Terminal (Linux or Mac Users) or CMD (Windows)
-9. Navigate to the directory where you saved the repository from github
+      2. Install Gradle using this command: `brew install gradle`
+8. For Windows computer users ensure that you have `JAVA_HOME` added to your system variables
+9. Open your Terminal (Linux or Mac Users) or CMD (Windows)
+10. Navigate to the directory where you saved the repository from github
    using the terminal/CMD commands
-10. Build the project using the `gradlew build` command
-11. Navigate to the build directory using the terminal/CMD commands `.build\libs`
-12. run JAVAROO UML Editor via the `java -jar Project1.2-1.0-SNAPSHOT.jar`
-13. Have fun with the JAVAROO UML Editor :)
-14. After saving a file, you can find them in the `build\libs` directory.
+11. Build the project using the `gradlew build` command
+12. Navigate to the build directory using the terminal/CMD commands `.build\distributions`
+13. Unzip the folder `UMLDiagram-1.0.zip`
+14. Go into the unzipped folder and click into the bin folder
+15. Double click the applictation to run it
+16. Have fun with the JAVAROO UML Editor :)
