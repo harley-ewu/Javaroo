@@ -555,6 +555,12 @@ public class UMLView {
         alert.showAndWait();
     }
 
+    public void drawUpdatedClass(UMLClass updatedClass) {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
+        drawUMLClass(updatedClass);
+    }
+
 
 
 
