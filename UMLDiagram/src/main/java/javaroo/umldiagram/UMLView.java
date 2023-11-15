@@ -1,6 +1,10 @@
 package javaroo.umldiagram;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -42,12 +46,18 @@ public class UMLView {
 
         // Get the class name, fields, and methods
         String className = umlClass.getName();
-        List<UMLFields> fields = controller.diagram.classExists(umlClass.getName()).getFields();
-        List<UMLMethods> methods = controller.diagram.classExists(umlClass.getName()).getMethods();
+        List<UMLFields> fields = umlClass.getFields();
+        List<UMLMethods> methods = umlClass.getMethods();
 
         // Calculate the width and height based on text size
         double boxWidth = 0;
         double boxHeight = 0;
+
+        // Constants for minimum and maximum box sizes
+        final double MIN_BOX_WIDTH = 150;
+        final double MAX_BOX_WIDTH = 300;
+        final double MIN_BOX_HEIGHT = 100;
+        final double MAX_BOX_HEIGHT = 200;
 
         // Calculate width and initial height based on class name
         Text classText = new Text(className);
@@ -76,13 +86,19 @@ public class UMLView {
             boxHeight += methodText.getLayoutBounds().getHeight() + textPadding;
         }
 
+        // Adjust the box width and height to fit within the standardized sizes
+        boxWidth = Math.min(Math.max(boxWidth, MIN_BOX_WIDTH), MAX_BOX_WIDTH);
+        boxHeight = Math.min(Math.max(boxHeight, MIN_BOX_HEIGHT), MAX_BOX_HEIGHT);
+
         // Draw the UML class box with a white fill and black outline
         gc.setFill(Color.WHITE);
         gc.setStroke(Color.BLACK);
         gc.fillRect(x, y, boxWidth, boxHeight);
         gc.strokeRect(x, y, boxWidth, boxHeight);
 
-        // Draw the class name inside the box
+        // Draw the class name, fields, and methods inside the box
+        // ... (rest of the drawing code remains the same) ...
+
         gc.setFont(classFont);
         gc.setFill(Color.BLACK); // Set the text color to black
         double contentY = y + classText.getLayoutBounds().getHeight() + textPadding;
@@ -117,6 +133,14 @@ public class UMLView {
             gc.fillText(methodText.getText(), x + textPadding, contentY);
             contentY += textPadding; // Add padding after each method
         }
+
+
+        //makeClassDraggable(umlClass);
+        //toggleClassDetails(umlClass);
+        //adjustZoomAndCenter();
+        // Adjust the view to center on the class
+        centerOnClass(umlClass, centerScrollPane);
+        // ... (rest of your existing code) ...
     }
 
     // Helper method to format the visibility symbol for fields
@@ -128,66 +152,36 @@ public class UMLView {
         };
     }
 
-    // Helper method to check for class collisions, ensures each class is not touching or overlapping
-    void autoAssignCoordinates(UMLClass umlClass) {
-        double xPadding = 80; // Horizontal padding between classes
-        double yPadding = 80; // Vertical padding between classes
-        double minX = 100; // Minimum X-coordinate
-        double minY = 100; // Minimum Y-coordinate
-        double maxX = centerContent.getWidth() - umlClass.getWidth() - xPadding;
-        double maxY = centerContent.getHeight() - umlClass.getHeight() - yPadding;
+    void autoAssignCoordinatesGrid(UMLClass umlClass) {
+        int totalClasses = controller.drawnUMLClasses.size() + 1;
+        int cols = (int) Math.ceil(Math.sqrt(totalClasses));
+        double gridWidth = centerContent.getWidth() / cols;
+        double gridHeight = centerContent.getHeight() / cols;
 
-        if (controller.drawnUMLClasses.isEmpty()) {
-            // If there are no existing classes, assign a random position within the bounds
-            double x = minX + (maxX - minX) * Math.random();
-            double y = minY + (maxY - minY) * Math.random();
-            umlClass.setPosition(x, y);
-            umlClass.addClassWithCoordinates(umlClass.getName(), umlClass.getX(), umlClass.getY());
-            return;
+        int index = controller.drawnUMLClasses.indexOf(umlClass);
+        if (index == -1) {
+            index = totalClasses - 1; // Position for the new class
         }
 
-        boolean placed = false;
-        double x = 0;
-        double y = 0;
+        // Calculate the top-left corner of the grid cell
+        double cellX = (index % cols) * gridWidth;
+        double cellY = (index / cols) * gridHeight;
 
-        while (!placed) {
-            boolean collision = false;
-            // Randomly select a position within the bounds
-            x = minX + (maxX - minX) * Math.random();
-            y = minY + (maxY - minY) * Math.random();
+        // Center the UMLClass in its grid cell
+        double x = cellX + (gridWidth - umlClass.getWidth()) / 2;
+        double y = cellY + (gridHeight - umlClass.getHeight()) / 2;
 
-            for (UMLClass existingClass : controller.drawnUMLClasses) {
-                if (x + umlClass.getWidth() + xPadding > existingClass.getX() &&
-                        existingClass.getX() + existingClass.getWidth() + xPadding > x &&
-                        y + umlClass.getHeight() + yPadding > existingClass.getY() &&
-                        existingClass.getY() + existingClass.getHeight() + yPadding > y) {
-                    // There's a collision, classes are too close, choose a new random position
-                    collision = true;
-                    break;
-                }
-            }
+        // Adjust for overall centering in the ScrollPane
+        double totalWidth = cols * gridWidth;
+        double totalHeight = (int) Math.ceil((double) totalClasses / cols) * gridHeight;
+        double offsetX = (centerContent.getWidth() - totalWidth) / 2;
+        double offsetY = (centerContent.getHeight() - totalHeight) / 2;
 
-            if (!collision) {
-                // Check if the new class collides with any other class in the drawing
-                boolean classCollision = false;
-                for (UMLClass existingClass : controller.drawnUMLClasses) {
-                    if (x < existingClass.getX() + existingClass.getWidth() + xPadding &&
-                            x + umlClass.getWidth() + xPadding > existingClass.getX() &&
-                            y < existingClass.getY() + existingClass.getHeight() + yPadding &&
-                            y + umlClass.getHeight() + yPadding > existingClass.getY()) {
-                        classCollision = true;
-                        break;
-                    }
-                }
-
-                if (!classCollision) {
-                    // No collision with other classes, place the class at (x, y)
-                    umlClass.setPosition(x, y);
-                    placed = true;
-                }
-            }
-        }
+        umlClass.setPosition(x + offsetX, y + offsetY);
     }
+
+
+
 
     void updateCanvas(UMLDiagram diagram, UMLClass umlClass) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
@@ -554,8 +548,64 @@ public class UMLView {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    public void drawUpdatedClass(UMLClass updatedClass) {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
+        drawUMLClass(updatedClass);
+    }
+
+    public void adjustViewAfterDrawing(UMLClass newUmlClass) {
+        // Calculate the bounding box of all UML diagrams
+        Rectangle2D boundingBox = calculateBoundingBox();
+
+        // Adjust zoom and focus
+        adjustZoomAndFocus(newUmlClass, boundingBox);
+    }
+
+    private Rectangle2D calculateBoundingBox() {
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = 0;
+        double maxY = 0;
+
+        for (UMLClass umlClass : controller.drawnUMLClasses) {
+            minX = Math.min(minX, umlClass.getX());
+            minY = Math.min(minY, umlClass.getY());
+            maxX = Math.max(maxX, umlClass.getX() + umlClass.getWidth());
+            maxY = Math.max(maxY, umlClass.getY() + umlClass.getHeight());
+        }
+
+        return new Rectangle2D(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    private void adjustZoomAndFocus(UMLClass umlClass, Rectangle2D boundingBox) {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+
+        // Calculate zoom factor (this is a simplified example)
+        double zoomFactor = Math.min(centerContent.getWidth() / boundingBox.getWidth(),
+                centerContent.getHeight() / boundingBox.getHeight());
+
+        // Apply zoom factor to graphics context
+        gc.scale(zoomFactor, zoomFactor);
+
+        // Focus on the newly added UML class
+        centerContent.setTranslateX(-umlClass.getX() * zoomFactor);
+        centerContent.setTranslateY(-umlClass.getY() * zoomFactor);
+    }
 
 
+    private void centerOnClass(UMLClass umlClass, ScrollPane scrollPane) {
+        // Calculate the center position of the class
+        double centerX = umlClass.getX() + umlClass.getWidth() / 2.0;
+        double centerY = umlClass.getY() + umlClass.getHeight() / 2.0;
 
+        // Assuming you have a reference to the container (like ScrollPane) holding your classes
+        // Calculate the position to scroll to
+        double hvalue = centerX / scrollPane.getContent().getBoundsInLocal().getWidth();
+        double vvalue = centerY / scrollPane.getContent().getBoundsInLocal().getHeight();
 
+        // Adjust the scrollPane's hvalue and vvalue to center on the new class
+        scrollPane.setHvalue(hvalue);
+        scrollPane.setVvalue(vvalue);
+    }
 }
