@@ -180,25 +180,24 @@ public class UMLView {
         umlClass.setPosition(x + offsetX, y + offsetY);
     }
 
-
-
-
     void updateCanvas(UMLDiagram diagram, UMLClass umlClass) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
 
         // Clear the entire canvas
         gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
 
-        // Redraw all classes in the specified diagram except the renamed class
+        // Redraw all classes in the specified diagram except the updated class
         for (UMLClass existingClass : diagram.getClasses().values()) {
-            if (existingClass != umlClass) {
+            if (!existingClass.getName().equals(umlClass.getName())) {
                 drawUMLClass(existingClass);
             }
         }
 
-        // Redraw the renamed class with its updated name
+        // Redraw the updated class
         drawUMLClass(umlClass);
     }
+
+
 
     void drawUMLRelationship(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType relationshipType) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();

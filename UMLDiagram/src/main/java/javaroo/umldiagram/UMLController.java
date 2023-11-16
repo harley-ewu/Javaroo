@@ -282,7 +282,7 @@ public class UMLController {
             selectedClass.addField(fieldName, fieldType, fieldVisibility);
 
             // Redraw the updated class on the canvas
-            umlView.drawUpdatedClass(selectedClass);
+            umlView.updateCanvas(selectedClass);
         }
     }
 
