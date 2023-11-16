@@ -2,6 +2,7 @@ package javaroo.umldiagram;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -9,6 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.Light;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -17,6 +19,8 @@ import javaroo.cmd.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Point;
+
 
 public class UMLView {
     private final UMLController controller;
@@ -197,8 +201,6 @@ public class UMLView {
         drawUMLClass(umlClass);
     }
 
-
-
     void drawUMLRelationship(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType relationshipType) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.setLineWidth(1.0);
@@ -322,6 +324,19 @@ public class UMLView {
         }
     }
 
+
+// Other relationship drawing methods remain the same
+
+
+
+
+
+
+
+
+// Methods for drawing arrow heads as before...
+
+
     void updateCanvasRemoveClass(String className) {
         UMLClass umlClassToRemove = null;
         List<UMLRelationships> relationshipsToRemove = new ArrayList<>();
@@ -389,7 +404,7 @@ public class UMLView {
         drawUMLClass(umlClass);
     }
 
-    private void drawExistingRelationships() {
+    void drawExistingRelationships() {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.setLineWidth(1.0);
 

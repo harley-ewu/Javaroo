@@ -76,6 +76,7 @@ public class UMLController {
     UMLDiagram diagram = new UMLDiagram();
 
     // Prompts the user to enter class name, fields, and methods
+
     @FXML
     void addClassGui(ActionEvent event) {
         try {
@@ -101,20 +102,32 @@ public class UMLController {
             // Create the UMLClass object
             UMLClass newUMLClass = new UMLClass(className);
 
-            // Prompt the user for fields
-            diagram.addClass(newUMLClass.getName());
-            addFieldsToClass(newUMLClass);
+            // Ask the user if they want to add fields and methods
+            ChoiceDialog<String> choiceDialog = new ChoiceDialog<>("Add Fields and Methods", "Skip");
+            choiceDialog.setTitle("Add Fields and Methods?");
+            choiceDialog.setHeaderText("Do you want to add fields and methods to the class?");
+            choiceDialog.setContentText("Choose an option:");
 
-            // Prompt the user for methods
-            addMethodsToClass(newUMLClass);
+            Optional<String> choiceResult = choiceDialog.showAndWait();
 
+            if (choiceResult.isPresent()) {
+                if (choiceResult.get().equals("Add Fields and Methods")) {
+                    diagram.addClass(newUMLClass.getName());
+                    addFieldsToClass(newUMLClass);
+                    addMethodsToClass(newUMLClass);
+                    showAlert("Success", "Class '" + className + "' added with fields and methods.");
+                } else {
+                    diagram.addClass(newUMLClass.getName());
+                    showAlert("Success", "Class '" + className + "' added.");
+                    // User chose to skip adding fields and methods
+                    // You can add any additional logic here if needed
+                }
+            }
 
             // Update the visual representation
             umlView.autoAssignCoordinatesGrid(newUMLClass); // This method should set the coordinates for the new class
             drawnUMLClasses.add(newUMLClass); // This should be a collection of UMLClass objects that are currently drawn
-            umlView.drawUMLClass(newUMLClass);// This method should handle the actual drawing of the class on the canvas or pane
-
-            showAlert("Success", "Class '" + className + "' added with fields and methods.");
+            umlView.drawUMLClass(newUMLClass); // This method should handle the actual drawing of the class on the canvas or pane
         } catch (Exception e) {
             // Log the stack trace along with the message
             logException(e);
@@ -138,39 +151,78 @@ public class UMLController {
 
     // Helper method to add fields to the class
     private void addFieldsToClass(UMLClass umlClass) {
-        while (true) {
-            TextInputDialog fieldDialog = new TextInputDialog();
-            fieldDialog.setTitle("Add Field");
-            fieldDialog.setHeaderText("Enter field details (or press Cancel to finish):");
-            fieldDialog.setContentText("Field Name:");
+        // Define the list of available field types
+        List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean");
 
-            Optional<String> fieldNameResult = fieldDialog.showAndWait();
+        while (true) {
+            TextInputDialog fieldNameDialog = new TextInputDialog();
+            fieldNameDialog.setTitle("Add Field");
+            fieldNameDialog.setHeaderText("Enter field details (or press Cancel to finish):");
+            fieldNameDialog.setContentText("Field Name:");
+
+            Optional<String> fieldNameResult = fieldNameDialog.showAndWait();
             if (!fieldNameResult.isPresent() || fieldNameResult.get().isEmpty()) {
                 // User finished adding fields or canceled
                 break;
             }
             String fieldName = fieldNameResult.get();
 
-            fieldDialog.setContentText("Field Type:");
-            Optional<String> fieldTypeResult = fieldDialog.showAndWait();
-            if (!fieldTypeResult.isPresent() || fieldTypeResult.get().isEmpty()) {
-                showAlert("Error", "Field type is required.");
-                continue;
+            // Clear the input text field
+            fieldNameDialog.getEditor().clear();
+
+            // Create a choice dialog for selecting field type
+            ChoiceDialog<String> fieldTypeDialog = new ChoiceDialog<>("String", fieldTypes);
+            fieldTypeDialog.setTitle("Field Type");
+            fieldTypeDialog.setHeaderText("Select Field Type:");
+            fieldTypeDialog.setContentText("Field Type:");
+
+            Optional<String> fieldTypeResult = fieldTypeDialog.showAndWait();
+            if (!fieldTypeResult.isPresent()) {
+                // User canceled field type selection
+                continue; // Go back to entering field details
             }
             String fieldType = fieldTypeResult.get();
 
-            fieldDialog.setContentText("Field Visibility (public or private):");
-            Optional<String> fieldVisibilityResult = fieldDialog.showAndWait();
+            // Clear the input text field
+            fieldTypeDialog.getDialogPane().lookupButton(ButtonType.OK).addEventFilter(ActionEvent.ACTION, event -> {
+                ((Button) fieldTypeDialog.getDialogPane().lookupButton(ButtonType.OK)).setDefaultButton(false);
+                event.consume();
+            });
+
+            // Create a new ChoiceDialog for field visibility
+            ChoiceDialog<String> visibilityDialog = new ChoiceDialog<>("public", "private");
+            visibilityDialog.setTitle("Field Visibility");
+            visibilityDialog.setHeaderText("Select Field Visibility:");
+            visibilityDialog.setContentText("Visibility:");
+
+            Optional<String> fieldVisibilityResult = visibilityDialog.showAndWait();
             if (!fieldVisibilityResult.isPresent() || fieldVisibilityResult.get().isEmpty()) {
                 showAlert("Error", "Field visibility is required.");
                 continue;
             }
             String fieldVisibility = fieldVisibilityResult.get();
 
+            // Clear the input text field
+            visibilityDialog.getDialogPane().lookupButton(ButtonType.OK).addEventFilter(ActionEvent.ACTION, event -> {
+                ((Button) visibilityDialog.getDialogPane().lookupButton(ButtonType.OK)).setDefaultButton(false);
+                event.consume();
+            });
+
             // Add the field to the class
             umlClass.addField(fieldName, fieldType, fieldVisibility);
+            diagram.classExists(umlClass.getName()).addField(fieldName, fieldType, fieldVisibility);
         }
     }
+
+
+    // Utility method to clear a text field
+    private void clearTextField(TextField textField) {
+        Platform.runLater(() -> textField.setText(""));
+    }
+
+
+
+
 
     // Helper method to add methods to the class
     private void addMethodsToClass(UMLClass umlClass) {
@@ -187,13 +239,21 @@ public class UMLController {
             }
             String methodName = methodNameResult.get().trim(); // Trim the input
 
-            methodDialog.setContentText("Method Return Type:");
-            Optional<String> methodTypeResult = methodDialog.showAndWait();
+            // Create a custom dialog for selecting the method return type
+            ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", "int", "double", "char", "void", "float", "boolean");
+            returnTypeDialog.setTitle("Select Method Return Type");
+            returnTypeDialog.setHeaderText("Choose the method return type:");
+            returnTypeDialog.setContentText("Method Return Type:");
+
+            Optional<String> methodTypeResult = returnTypeDialog.showAndWait();
             if (!methodTypeResult.isPresent() || methodTypeResult.get().isEmpty()) {
                 showAlert("Error", "Method return type is required.");
                 continue;
             }
-            String methodType = methodTypeResult.get().trim(); // Trim the input
+            String methodType = methodTypeResult.get().trim(); // Selected return type
+
+            // Clear the input text before showing the next dialog
+            methodDialog.getEditor().clear();
 
             methodDialog.setContentText("Method Parameters (e.g., int param1, String param2):");
             Optional<String> methodParamsResult = methodDialog.showAndWait();
@@ -207,9 +267,11 @@ public class UMLController {
             }
 
             // Add the method to the class
+            umlClass.addMethod(methodName, methodType, paramsList);
             diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
         }
     }
+
 
     // Helper method to draw the created class and its contents on the gui in random spot
     // To be implemented
@@ -242,47 +304,56 @@ public class UMLController {
             return;
         }
 
+        // Define the list of available field types
+        List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean");
+
         // Now proceed with adding fields to the selected class using the diagram
         while (true) {
-            TextInputDialog fieldDialog = new TextInputDialog();
-            fieldDialog.setTitle("Add Field");
-            fieldDialog.setHeaderText("Enter field details (or press Cancel to finish):");
-            fieldDialog.setContentText("Field Name:");
+            TextInputDialog fieldNameDialog = new TextInputDialog();
+            fieldNameDialog.setTitle("Add Field");
+            fieldNameDialog.setHeaderText("Enter field name (or press Cancel to finish):");
+            fieldNameDialog.setContentText("Field Name:");
 
-            Optional<String> fieldNameResult = fieldDialog.showAndWait();
+            Optional<String> fieldNameResult = fieldNameDialog.showAndWait();
             if (!fieldNameResult.isPresent() || fieldNameResult.get().isEmpty()) {
                 // User finished adding fields or canceled
                 break;
             }
             String fieldName = fieldNameResult.get();
 
-            fieldDialog.setContentText("Field Type:");
-            Optional<String> fieldTypeResult = fieldDialog.showAndWait();
-            if (!fieldTypeResult.isPresent() || fieldTypeResult.get().isEmpty()) {
-                showAlert("Error", "Field type is required.");
-                continue;
+            // Create a choice dialog for selecting field type
+            ChoiceDialog<String> fieldTypeDialog = new ChoiceDialog<>("String", fieldTypes);
+            fieldTypeDialog.setTitle("Field Type");
+            fieldTypeDialog.setHeaderText("Select Field Type:");
+            fieldTypeDialog.setContentText("Field Type:");
+
+            Optional<String> fieldTypeResult = fieldTypeDialog.showAndWait();
+            if (!fieldTypeResult.isPresent()) {
+                // User canceled field type selection
+                continue; // Go back to entering field details
             }
             String fieldType = fieldTypeResult.get();
 
-            fieldDialog.setContentText("Field Visibility (public or private):");
-            Optional<String> fieldVisibilityResult = fieldDialog.showAndWait();
-            if (!fieldVisibilityResult.isPresent() || fieldVisibilityResult.get().isEmpty()) {
-                showAlert("Error", "Field visibility is required.");
-                continue;
-            }
-            String fieldVisibility = fieldVisibilityResult.get().toLowerCase(); // Convert to lowercase for case-insensitive comparison
+            // Create a choice dialog for selecting field visibility (public or private)
+            ChoiceDialog<String> visibilityDialog = new ChoiceDialog<>("public", "public", "private");
+            visibilityDialog.setTitle("Field Visibility");
+            visibilityDialog.setHeaderText("Select Field Visibility:");
+            visibilityDialog.setContentText("Visibility:");
 
-            // Validate field visibility
-            if (!fieldVisibility.equals("public") && !fieldVisibility.equals("private")) {
-                showAlert("Error", "Invalid field visibility. Use 'public' or 'private'.");
-                continue;
+            Optional<String> fieldVisibilityResult = visibilityDialog.showAndWait();
+            if (!fieldVisibilityResult.isPresent()) {
+                // User canceled field visibility selection
+                continue; // Go back to entering field details
             }
+            String fieldVisibility = fieldVisibilityResult.get();
 
             // Create the new field and add it to the selected class using the diagram
             selectedClass.addField(fieldName, fieldType, fieldVisibility);
+            diagram.classExists(selectedClass.getName()).addField(fieldName, fieldType, fieldVisibility);
 
             // Redraw the updated class on the canvas
             umlView.updateCanvas(selectedClass);
+            umlView.drawExistingRelationships();
         }
     }
 
@@ -561,6 +632,7 @@ public class UMLController {
 
         // Update GUI
         umlView.updateCanvas(diagram,selectedClass);
+        umlView.drawExistingRelationships();
     }
 
 
@@ -671,44 +743,39 @@ public class UMLController {
     void loadDiagramGui(ActionEvent event) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Load Diagram");
-        dialog.setHeaderText("Enter the file path (without '.json' extension):");
-        dialog.setContentText("File Path:");
-
+        dialog.setHeaderText("Load UML Diagram");
+        dialog.setContentText("Enter the file path or name:");
         Optional<String> result = dialog.showAndWait();
 
-        // Check if the user entered a file path
-        if (result.isPresent()) {
-            String filePath = result.get(); // Add the ".json" extension
-
-            // Attempt to load data from the JSON file
+        result.ifPresent(filePath -> {
             try {
-                UMLSaveLoad saveLoad = new UMLSaveLoad(diagram); // You might need to pass a diagram instance here
-                saveLoad.loadData(filePath); // Update the 'diagram' variable with the loaded data
+                UMLSaveLoad saveLoad = new UMLSaveLoad(diagram);
+                saveLoad.loadData(filePath);
 
-                // Assuming you have access to 'gc' and 'centerContent'
                 GraphicsContext gc = centerContent.getGraphicsContext2D();
-
-                // Clear the canvas
                 gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
 
-                // Draw the UML classes from the loaded diagram
+                drawnUMLClasses.clear();
+                drawnUMLRelationships.clear();
+
+                // Assign coordinates to each UMLClass using autoAssignCoordinatesGrid
                 for (UMLClass umlClass : diagram.getClasses().values()) {
-                    umlView.drawUMLClass(umlClass);
+                    umlView.autoAssignCoordinatesGrid(umlClass); // Assign coordinates
+                    drawnUMLClasses.add(umlClass);       // Add to list
+                    umlView.drawUMLClass(umlClass);      // Draw the class
                 }
 
-                // Display a success message
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Load Successful");
-                alert.setHeaderText(null);
-                alert.setContentText("Diagram loaded successfully.");
-                alert.showAndWait();
-            } catch (Exception e) {
-                // Handle other exceptions
-                showErrorDialog("Error loading diagram: " + e.getMessage());
-            }
-        }
-    }
+                for (UMLRelationships relationship : diagram.getRelationships()) {
+                    drawnUMLRelationships.add(relationship);
+                    umlView.drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
+                }
 
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to load the diagram: " + e.getMessage());
+            }
+        });
+    }
 
 
     private void showErrorDialog(String errorMessage) {
