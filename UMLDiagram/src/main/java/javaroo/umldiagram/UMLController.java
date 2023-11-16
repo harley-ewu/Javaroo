@@ -169,6 +169,7 @@ public class UMLController {
 
             // Add the field to the class
             umlClass.addField(fieldName, fieldType, fieldVisibility);
+            diagram.classExists(umlClass.getName()).addField(fieldName, fieldType, fieldVisibility);
         }
     }
 
@@ -207,6 +208,7 @@ public class UMLController {
             }
 
             // Add the method to the class
+            umlClass.addMethod(methodName, methodType, paramsList);
             diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
         }
     }
@@ -280,9 +282,11 @@ public class UMLController {
 
             // Create the new field and add it to the selected class using the diagram
             selectedClass.addField(fieldName, fieldType, fieldVisibility);
+            diagram.classExists(selectedClass.getName()).addField(fieldName, fieldType, fieldVisibility);
 
             // Redraw the updated class on the canvas
             umlView.updateCanvas(selectedClass);
+            umlView.drawExistingRelationships();
         }
     }
 
@@ -561,6 +565,7 @@ public class UMLController {
 
         // Update GUI
         umlView.updateCanvas(diagram,selectedClass);
+        umlView.drawExistingRelationships();
     }
 
 
@@ -671,44 +676,39 @@ public class UMLController {
     void loadDiagramGui(ActionEvent event) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Load Diagram");
-        dialog.setHeaderText("Enter the file path (without '.json' extension):");
-        dialog.setContentText("File Path:");
-
+        dialog.setHeaderText("Load UML Diagram");
+        dialog.setContentText("Enter the file path or name:");
         Optional<String> result = dialog.showAndWait();
 
-        // Check if the user entered a file path
-        if (result.isPresent()) {
-            String filePath = result.get(); // Add the ".json" extension
-
-            // Attempt to load data from the JSON file
+        result.ifPresent(filePath -> {
             try {
-                UMLSaveLoad saveLoad = new UMLSaveLoad(diagram); // You might need to pass a diagram instance here
-                saveLoad.loadData(filePath); // Update the 'diagram' variable with the loaded data
+                UMLSaveLoad saveLoad = new UMLSaveLoad(diagram);
+                saveLoad.loadData(filePath);
 
-                // Assuming you have access to 'gc' and 'centerContent'
                 GraphicsContext gc = centerContent.getGraphicsContext2D();
-
-                // Clear the canvas
                 gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
 
-                // Draw the UML classes from the loaded diagram
+                drawnUMLClasses.clear();
+                drawnUMLRelationships.clear();
+
+                // Assign coordinates to each UMLClass using autoAssignCoordinatesGrid
                 for (UMLClass umlClass : diagram.getClasses().values()) {
-                    umlView.drawUMLClass(umlClass);
+                    umlView.autoAssignCoordinatesGrid(umlClass); // Assign coordinates
+                    drawnUMLClasses.add(umlClass);       // Add to list
+                    umlView.drawUMLClass(umlClass);      // Draw the class
                 }
 
-                // Display a success message
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Load Successful");
-                alert.setHeaderText(null);
-                alert.setContentText("Diagram loaded successfully.");
-                alert.showAndWait();
-            } catch (Exception e) {
-                // Handle other exceptions
-                showErrorDialog("Error loading diagram: " + e.getMessage());
-            }
-        }
-    }
+                for (UMLRelationships relationship : diagram.getRelationships()) {
+                    drawnUMLRelationships.add(relationship);
+                    umlView.drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
+                }
 
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to load the diagram: " + e.getMessage());
+            }
+        });
+    }
 
 
     private void showErrorDialog(String errorMessage) {
