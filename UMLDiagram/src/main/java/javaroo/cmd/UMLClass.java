@@ -1,6 +1,12 @@
 package javaroo.cmd;
 
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.lang.StringBuilder;
@@ -17,6 +23,10 @@ public class UMLClass {
     private double width;
     private double height;
 
+    private Node graphicalRepresentation;
+
+    private boolean detailsVisible;
+
     // constructor
 
     public UMLClass(String name) {
@@ -31,7 +41,11 @@ public class UMLClass {
         this.methods = new ArrayList<>();
         this.x = x;
         this.y = y;
+        this.width = 150;  // Default width, adjust as necessary
+        this.height = 100; // Default height, adjust as necessary
     }
+
+
     // getters method that will work as a rename method
     public String getName() {
         return this.name;
@@ -256,6 +270,14 @@ public class UMLClass {
 
     public void setHeight(double height) {
         this.height = height;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double x) {
+        this.x = x;
     }
 
 

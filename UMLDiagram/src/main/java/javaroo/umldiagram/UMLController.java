@@ -4,6 +4,7 @@ package javaroo.umldiagram;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -107,10 +108,11 @@ public class UMLController {
             // Prompt the user for methods
             addMethodsToClass(newUMLClass);
 
+
             // Update the visual representation
-            umlView.autoAssignCoordinates(newUMLClass); // This method should set the coordinates for the new class
+            umlView.autoAssignCoordinatesGrid(newUMLClass); // This method should set the coordinates for the new class
             drawnUMLClasses.add(newUMLClass); // This should be a collection of UMLClass objects that are currently drawn
-            umlView.drawUMLClass(newUMLClass); // This method should handle the actual drawing of the class on the canvas or pane
+            umlView.drawUMLClass(newUMLClass);// This method should handle the actual drawing of the class on the canvas or pane
 
             showAlert("Success", "Class '" + className + "' added with fields and methods.");
         } catch (Exception e) {
@@ -166,7 +168,7 @@ public class UMLController {
             String fieldVisibility = fieldVisibilityResult.get();
 
             // Add the field to the class
-            diagram.classExists(umlClass.getName()).addField(fieldName, fieldType, fieldVisibility);
+            umlClass.addField(fieldName, fieldType, fieldVisibility);
         }
     }
 
@@ -277,7 +279,7 @@ public class UMLController {
             }
 
             // Create the new field and add it to the selected class using the diagram
-            diagram.classExists(selectedClass.getName()).addField(fieldName, fieldType, fieldVisibility);
+            selectedClass.addField(fieldName, fieldType, fieldVisibility);
 
             // Redraw the updated class on the canvas
             umlView.drawUpdatedClass(selectedClass);
@@ -513,8 +515,55 @@ public class UMLController {
     // Unfinished
     @FXML
     void deleteClassFieldGui(ActionEvent event) {
+        if (drawnUMLClasses.isEmpty()) {
+            showAlert("Error", "No classes to edit. Please add a class first.");
+            return;
+        }
 
+        // Select Class
+        ChoiceDialog<String> classDialog = new ChoiceDialog<>(drawnUMLClasses.get(0).getName(),
+                drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
+        classDialog.setTitle("Select Class");
+        classDialog.setHeaderText("Choose the class to delete fields from:");
+        classDialog.setContentText("Class:");
+        Optional<String> classNameResult = classDialog.showAndWait();
+        if (!classNameResult.isPresent()) {
+            return; // User canceled
+        }
+        String className = classNameResult.get();
+
+        UMLClass selectedClass = findUMLClass(className);
+        if (selectedClass == null) {
+            showAlert("Error", "Class not found.");
+            return;
+        }
+
+        // Select Field to Delete
+        List<String> fieldNames = selectedClass.getFields() != null
+                ? selectedClass.getFields().stream().map(UMLFields::getName).collect(Collectors.toList())
+                : Collections.emptyList();
+
+        if (fieldNames.isEmpty()) {
+            showAlert("Error", "No fields available to delete in the selected class.");
+            return;
+        }
+
+        ChoiceDialog<String> fieldDialog = new ChoiceDialog<>(fieldNames.get(0), fieldNames);
+        fieldDialog.setTitle("Delete Field");
+        fieldDialog.setHeaderText("Select the field to delete:");
+        fieldDialog.setContentText("Field:");
+        Optional<String> fieldNameResult = fieldDialog.showAndWait();
+        if (!fieldNameResult.isPresent()) {
+            return; // User canceled
+        }
+        String fieldName = fieldNameResult.get();
+        selectedClass.removeField(fieldName);
+
+        // Update GUI
+        umlView.updateCanvas(diagram,selectedClass);
     }
+
+
 
     // Unfinished
     @FXML
