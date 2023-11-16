@@ -352,7 +352,7 @@ public class UMLController {
             diagram.classExists(selectedClass.getName()).addField(fieldName, fieldType, fieldVisibility);
 
             // Redraw the updated class on the canvas
-            umlView.updateCanvas(selectedClass);
+            umlView.updateCanvas(diagram,selectedClass);
             umlView.drawExistingRelationships();
         }
     }
