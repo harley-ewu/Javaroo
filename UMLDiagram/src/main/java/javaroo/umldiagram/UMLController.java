@@ -16,6 +16,11 @@ import javaroo.cmd.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javaroo.cmd.UMLMenu.*;
+
+import static javaroo.cmd.UMLMenu.*;
+import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
+
 public class UMLController {
 
     private final UMLView umlView;
@@ -61,6 +66,7 @@ public class UMLController {
 
     @FXML
     private Button renameMethodButton;
+
 
     public UMLController() {
         this.umlView = new UMLView(this);
@@ -210,7 +216,11 @@ public class UMLController {
             diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
         }
     }
-
+    @FXML
+    void refresh(){
+        umlView.updateCanvas(diagram);
+        umlView.drawExistingRelationships();
+    }
     // Helper method to draw the created class and its contents on the gui in random spot
     // To be implemented
     @FXML
@@ -400,13 +410,6 @@ public class UMLController {
             }
         }
         return null; // Class not found
-    }
-
-
-    // Allows the user to close the program from the file dropdown tab
-    @FXML
-    void closeDiagramGui(ActionEvent event) {
-        Platform.exit();
     }
 
     // Method to allow user to delete a class that is not in a relationship
@@ -753,4 +756,10 @@ public class UMLController {
 
     }
 
+    public void restartCLI(ActionEvent actionEvent) {
+        CView = true;
+        umlMenu.displayMenu();
+        Platform.exit();
+        myLaunch(UMLDiagramGUI.class);
+    }
 }

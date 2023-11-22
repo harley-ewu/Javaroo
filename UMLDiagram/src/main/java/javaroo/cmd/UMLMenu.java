@@ -1,32 +1,38 @@
 package javaroo.cmd;
 
 import javaroo.cmd.UMLDiagram;
+import javaroo.umldiagram.UMLDiagramGUI;
 
 import java.util.*;
 
+import static javafx.application.Application.launch;
+import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
+
 public class UMLMenu {
     private UMLDiagram diagram;
-
+    public static boolean GView = false;
+    public static boolean CView = true;
+    public static UMLMenu umlMenu = null;
+    public static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
         UMLMenu menu = new UMLMenu();
+        umlMenu = menu;
         menu.displayMenu();
     }
 
     public UMLMenu() {
         this.diagram = new UMLDiagram();
-
     }
 
     // method to return to main automatically after each operation
-    private void returnToMainMenu() {
+    public void returnToMainMenu() {
         System.out.println("Returning to the main menu...");
     }
 
     public void displayMenu() {
-        Scanner scanner = new Scanner(System.in);
-        boolean exit = false;
+        //scanner = new Scanner(System.in);
 
-        while (!exit) {
+        while (CView) {
             System.out.println("\n___ Welcome to the UML Diagram Menu!😘 ___");
             System.out.println("Type 'r' to return to the main menu at any time.");
             System.out.println(" ");
@@ -34,7 +40,8 @@ public class UMLMenu {
             System.out.println("2: Relationship Options");
             System.out.println("3: Save/Load Options");
             System.out.println("4: Help");
-            System.out.println("5: Exit Program");
+            System.out.println("5: Launch GUI");
+            System.out.println("6: Exit Program");
             
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
@@ -51,13 +58,18 @@ public class UMLMenu {
                     break;
                 case "4":
                     displayHelpMenu(scanner);
+                    break;
                 case "5":
+                    myLaunch(UMLDiagramGUI.class);
+                    break;
+                case "6":
                     System.out.println("\n[Friendly Reminder], have you saved your hard work? (y/n)");
                     String save = scanner.nextLine();
 
                     if (save.equals("y")) {
                         System.out.println("\nExiting the UML Diagram Menu. Have a good day! :3 ");
-                        exit = true;
+                        CView = false;
+                        System.exit(0);
                         break;
                     } else if (save.equals("n")) {
                         System.out.println("\nPlease save your progress before exiting the program.");
@@ -70,7 +82,7 @@ public class UMLMenu {
                     System.out.println("\nInvalid choice. Please try again.");
             }
         }
-        scanner.close();
+        //scanner.close();
 
     }
     
