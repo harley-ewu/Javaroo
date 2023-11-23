@@ -19,7 +19,6 @@ import javaroo.cmd.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Point;
 
 
 public class UMLView {
@@ -156,6 +155,7 @@ public class UMLView {
         };
     }
 
+
     void autoAssignCoordinatesGrid(UMLClass umlClass) {
         int totalClasses = controller.drawnUMLClasses.size() + 1;
         int cols = (int) Math.ceil(Math.sqrt(totalClasses));
@@ -183,7 +183,17 @@ public class UMLView {
 
         umlClass.setPosition(x + offsetX, y + offsetY);
     }
+    void updateCanvas(UMLDiagram diagram) {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
 
+        // Clear the entire canvas
+        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
+
+        // Redraw all classes in the specified diagram except the updated class
+        for (UMLClass existingClass : diagram.getClasses().values()) {
+            drawUMLClass(existingClass);
+        }
+    }
     void updateCanvas(UMLDiagram diagram, UMLClass umlClass) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
 
@@ -606,13 +616,6 @@ public class UMLView {
         centerContent.setTranslateX(-umlClass.getX() * zoomFactor);
         centerContent.setTranslateY(-umlClass.getY() * zoomFactor);
     }
-
-    public void drawUpdatedClass(UMLClass updatedClass) {
-        GraphicsContext gc = centerContent.getGraphicsContext2D();
-        gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
-        drawUMLClass(updatedClass);
-    }
-
 
     private void centerOnClass(UMLClass umlClass, ScrollPane scrollPane) {
         // Calculate the center position of the class
