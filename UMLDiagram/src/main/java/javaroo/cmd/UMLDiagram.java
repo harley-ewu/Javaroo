@@ -181,6 +181,23 @@ public class UMLDiagram {
         relationships.remove(index);
     }
 
+    public void removeRelationship(String sourceName, String destName) {
+        // Create the identifier based on source and destination names
+        String relationshipId = sourceName + destName;
+
+        // Iterate through the relationships to find a match
+        for (int i = 0; i < relationships.size(); i++) {
+            UMLRelationships relationship = relationships.get(i);
+            if (relationship.getId().equals(relationshipId)) {
+                relationships.remove(i);
+                System.out.println("Relationship between " + sourceName + " and " + destName + " removed successfully.");
+                return;
+            }
+        }
+        System.out.println("Sorry, but we could not find a relationship between " + sourceName + " and " + destName + ".");
+    }
+
+
     public void listClasses() {
         // Check if the classes map is empty, meaning no classes have been added.
         if (classes.isEmpty()) {

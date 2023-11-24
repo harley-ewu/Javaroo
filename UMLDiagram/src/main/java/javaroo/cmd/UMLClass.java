@@ -201,6 +201,28 @@ public class UMLClass {
         System.out.println("Method removed");
     }
 
+    public void removeMethod(String methodName) {
+        // Find the index of the method with the given name
+        int index = -1;
+        for (int i = 0; i < this.methods.size(); i++) {
+            if (this.methods.get(i).getName().equals(methodName)) {
+                index = i;
+                break;
+            }
+        }
+
+        // Check if the method was found
+        if (index == -1) {
+            System.out.println("Method not found: " + methodName);
+            return;
+        }
+
+        // Remove the method at the found index
+        this.methods.remove(index);
+        System.out.println("Method removed: " + methodName);
+    }
+
+
     // rename method that will rename an UMLMethod from a class at a given index
     public void renameMethod(int index, String newName) {
         // check if index is out of bounds or empty string
@@ -212,6 +234,28 @@ public class UMLClass {
         this.methods.get(index - 1).setName(newName);
         System.out.println("Method renamed to: " + newName);
     }
+
+    public void renameMethod(String oldName, String newName) {
+        // check if oldName or newName is null or empty
+        if (oldName == null || oldName.trim().isEmpty() || newName == null || newName.trim().isEmpty()) {
+            System.out.println("Invalid old name or empty new name");
+            return;
+        }
+
+        // find the method with the old name
+        for (UMLMethods method : this.methods) {
+            if (method.getName().equals(oldName)) {
+                // rename method
+                method.setName(newName);
+                System.out.println("Method renamed from '" + oldName + "' to '" + newName + "'");
+                return;
+            }
+        }
+
+        // if method with old name is not found
+        System.out.println("Method named '" + oldName + "' not found");
+    }
+
 
     // method that lists all the methods in a class
     public void listMethods() {

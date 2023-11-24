@@ -1,16 +1,9 @@
 package javaroo.umldiagram;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.Light;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -26,6 +19,9 @@ public class UMLView {
     private Canvas centerContent;
     private ScrollPane centerScrollPane;
 
+    private GraphicsContext gc;
+
+
     public UMLView(UMLController controller) {
         this.controller = controller;
     }
@@ -36,10 +32,6 @@ public class UMLView {
     }
 
     void drawUMLClass(UMLClass umlClass) {
-        double x = umlClass.getX(); // Get the X-coordinate from the UMLClass
-        double y = umlClass.getY(); // Get the Y-coordinate from the UMLClass
-        double textPadding = 20; // Padding for text inside the box
-
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.setLineWidth(0.75);
 
@@ -52,99 +44,77 @@ public class UMLView {
         List<UMLFields> fields = umlClass.getFields();
         List<UMLMethods> methods = umlClass.getMethods();
 
-        // Calculate the width and height based on text size
-        double boxWidth = 0;
-        double boxHeight = 0;
+        // Initial box dimensions
+        double boxWidth = 150;
+        double boxHeight = 100;
+        double textPadding = 20;
 
-        // Constants for minimum and maximum box sizes
-        final double MIN_BOX_WIDTH = 150;
-        final double MAX_BOX_WIDTH = 300;
-        final double MIN_BOX_HEIGHT = 100;
-        final double MAX_BOX_HEIGHT = 200;
+        // Calculate box dimensions
+        Text tempText = new Text();
+        tempText.setFont(classFont);
+        tempText.setText(className);
+        boxWidth = Math.max(boxWidth, tempText.getLayoutBounds().getWidth() + 2 * textPadding);
+        boxHeight += tempText.getLayoutBounds().getHeight() + textPadding;
 
-        // Calculate width and initial height based on class name
-        Text classText = new Text(className);
-        classText.setFont(classFont);
-        boxWidth = Math.max(boxWidth, classText.getLayoutBounds().getWidth() + 2 * textPadding);
-        boxHeight += classText.getLayoutBounds().getHeight() + 2 * textPadding;
-
-        // Calculate additional height based on fields
+        tempText.setFont(fieldMethodFont);
         for (UMLFields field : fields) {
-            Text fieldText = new Text(formatVisibility(field.getVisibility()) + " " + field.getName() + " : " + field.getType());
-            fieldText.setFont(fieldMethodFont);
-            boxWidth = Math.max(boxWidth, fieldText.getLayoutBounds().getWidth() + 2 * textPadding);
-            boxHeight += fieldText.getLayoutBounds().getHeight() + textPadding;
+            tempText.setText(field.getName() + " : " + field.getType());
+            boxWidth = Math.max(boxWidth, tempText.getLayoutBounds().getWidth() + 2 * textPadding);
+            boxHeight += tempText.getLayoutBounds().getHeight() + textPadding;
         }
 
-        // Add separator space if both fields and methods are present
         if (!fields.isEmpty() && !methods.isEmpty()) {
             boxHeight += textPadding;
         }
 
-        // Calculate additional height based on methods
         for (UMLMethods method : methods) {
-            Text methodText = new Text(method.getName() + "(" + String.join(", ", method.getParameters()) + ") : " + method.getReturnType());
-            methodText.setFont(fieldMethodFont);
-            boxWidth = Math.max(boxWidth, methodText.getLayoutBounds().getWidth() + 2 * textPadding);
-            boxHeight += methodText.getLayoutBounds().getHeight() + textPadding;
+            tempText.setText(method.getName() + "(" + String.join(", ", method.getParameters()) + ") : " + method.getReturnType());
+            boxWidth = Math.max(boxWidth, tempText.getLayoutBounds().getWidth() + 2 * textPadding);
+            boxHeight += tempText.getLayoutBounds().getHeight() + textPadding;
         }
 
-        // Adjust the box width and height to fit within the standardized sizes
-        boxWidth = Math.min(Math.max(boxWidth, MIN_BOX_WIDTH), MAX_BOX_WIDTH);
-        boxHeight = Math.min(Math.max(boxHeight, MIN_BOX_HEIGHT), MAX_BOX_HEIGHT);
-
-        // Draw the UML class box with a white fill and black outline
+        // Draw the UML class box
+        double x = umlClass.getX();
+        double y = umlClass.getY();
         gc.setFill(Color.WHITE);
         gc.setStroke(Color.BLACK);
         gc.fillRect(x, y, boxWidth, boxHeight);
         gc.strokeRect(x, y, boxWidth, boxHeight);
 
-        // Draw the class name, fields, and methods inside the box
-        // ... (rest of the drawing code remains the same) ...
-
+        // Draw class name
         gc.setFont(classFont);
-        gc.setFill(Color.BLACK); // Set the text color to black
-        double contentY = y + classText.getLayoutBounds().getHeight() + textPadding;
+        gc.setFill(Color.BLACK);
+        double contentY = y + tempText.getLayoutBounds().getHeight() + textPadding;
         gc.fillText(className, x + textPadding, contentY);
 
-        // Draw separator after class name
-        contentY += textPadding / 2; // Adjust for separator
-        gc.strokeLine(x, contentY, x + boxWidth, contentY);
-        contentY += textPadding; // Adjust for space after separator
+        // Draw a line separator between class name and fields
+        gc.strokeLine(x, contentY + textPadding / 2, x + boxWidth, contentY + textPadding / 2);
+        contentY += textPadding;
 
-        // Draw fields
+        // Draw fields and methods
         gc.setFont(fieldMethodFont);
         for (UMLFields field : fields) {
-            Text fieldText = new Text(formatVisibility(field.getVisibility()) + " " + field.getName() + " : " + field.getType());
-            fieldText.setFont(fieldMethodFont);
-            contentY += fieldText.getLayoutBounds().getHeight();
-            gc.fillText(fieldText.getText(), x + textPadding, contentY);
-            contentY += textPadding; // Add padding after each field
+            contentY += tempText.getLayoutBounds().getHeight() + textPadding;
+            gc.fillText(field.getName() + " : " + field.getType(), x + textPadding, contentY);
         }
 
-        // Draw separator between fields and methods if necessary
         if (!fields.isEmpty() && !methods.isEmpty()) {
+            contentY += textPadding;
             gc.strokeLine(x, contentY, x + boxWidth, contentY);
-            contentY += textPadding; // Add padding after the separator
+            contentY += textPadding;
         }
 
-        // Draw methods
         for (UMLMethods method : methods) {
-            Text methodText = new Text(method.getName() + "(" + String.join(", ", method.getParameters()) + ") : " + method.getReturnType());
-            methodText.setFont(fieldMethodFont);
-            contentY += methodText.getLayoutBounds().getHeight();
-            gc.fillText(methodText.getText(), x + textPadding, contentY);
-            contentY += textPadding; // Add padding after each method
+            contentY += tempText.getLayoutBounds().getHeight() + textPadding;
+            gc.fillText(method.getName() + "(" + String.join(", ", method.getParameters()) + ") : " + method.getReturnType(), x + textPadding, contentY);
         }
 
-
-        //makeClassDraggable(umlClass);
-        //toggleClassDetails(umlClass);
-        //adjustZoomAndCenter();
-        // Adjust the view to center on the class
+        // Additional logic for class interactivity (if needed)
+        // ...
         centerOnClass(umlClass, centerScrollPane);
-        // ... (rest of your existing code) ...
     }
+
+
 
     // Helper method to format the visibility symbol for fields
     private String formatVisibility(String visibility) {
@@ -183,17 +153,7 @@ public class UMLView {
 
         umlClass.setPosition(x + offsetX, y + offsetY);
     }
-    void updateCanvas(UMLDiagram diagram) {
-        GraphicsContext gc = centerContent.getGraphicsContext2D();
 
-        // Clear the entire canvas
-        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
-
-        // Redraw all classes in the specified diagram except the updated class
-        for (UMLClass existingClass : diagram.getClasses().values()) {
-            drawUMLClass(existingClass);
-        }
-    }
     void updateCanvas(UMLDiagram diagram, UMLClass umlClass) {
         GraphicsContext gc = centerContent.getGraphicsContext2D();
 
@@ -334,17 +294,31 @@ public class UMLView {
         }
     }
 
+    public void updateRelationType(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType newType) {
+        UMLRelationships relationshipToUpdate = null;
 
-// Other relationship drawing methods remain the same
+        // Find the relationship in your collection
+        for (UMLRelationships relationship : controller.drawnUMLRelationships) {
+            if (relationship.getSource().equals(sourceClass) && relationship.getDest().equals(destinationClass)) {
+                relationshipToUpdate = relationship;
+                break;
+            }
+        }
 
+        if (relationshipToUpdate != null) {
+            // Remove the old representation of the relationship from the canvas
+            clearRelationshipFromCanvas(relationshipToUpdate);
 
+            // Update the relationship type
+            relationshipToUpdate.setType(newType);
 
-
-
-
-
-
-// Methods for drawing arrow heads as before...
+            // Redraw the updated relationship
+            drawUMLRelationship(sourceClass, destinationClass, newType);
+        } else {
+            // Handle the case where the relationship is not found
+            showAlert("Error", "Relationship not found.");
+        }
+    }
 
 
     void updateCanvasRemoveClass(String className) {
@@ -544,7 +518,7 @@ public class UMLView {
     }
 
     @FXML
-    void clearRelationshipFromCanvas(ActionEvent event, UMLRelationships relationshipToRemove) {
+    void clearRelationshipFromCanvas(UMLRelationships relationshipToRemove) {
         // Clear the entire canvas
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
@@ -573,48 +547,10 @@ public class UMLView {
         alert.showAndWait();
     }
     public void drawUpdatedClass(UMLClass updatedClass) {
+
         GraphicsContext gc = centerContent.getGraphicsContext2D();
         gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
         drawUMLClass(updatedClass);
-    }
-
-    public void adjustViewAfterDrawing(UMLClass newUmlClass) {
-        // Calculate the bounding box of all UML diagrams
-        Rectangle2D boundingBox = calculateBoundingBox();
-
-        // Adjust zoom and focus
-        adjustZoomAndFocus(newUmlClass, boundingBox);
-    }
-
-    private Rectangle2D calculateBoundingBox() {
-        double minX = Double.MAX_VALUE;
-        double minY = Double.MAX_VALUE;
-        double maxX = 0;
-        double maxY = 0;
-
-        for (UMLClass umlClass : controller.drawnUMLClasses) {
-            minX = Math.min(minX, umlClass.getX());
-            minY = Math.min(minY, umlClass.getY());
-            maxX = Math.max(maxX, umlClass.getX() + umlClass.getWidth());
-            maxY = Math.max(maxY, umlClass.getY() + umlClass.getHeight());
-        }
-
-        return new Rectangle2D(minX, minY, maxX - minX, maxY - minY);
-    }
-
-    private void adjustZoomAndFocus(UMLClass umlClass, Rectangle2D boundingBox) {
-        GraphicsContext gc = centerContent.getGraphicsContext2D();
-
-        // Calculate zoom factor (this is a simplified example)
-        double zoomFactor = Math.min(centerContent.getWidth() / boundingBox.getWidth(),
-                centerContent.getHeight() / boundingBox.getHeight());
-
-        // Apply zoom factor to graphics context
-        gc.scale(zoomFactor, zoomFactor);
-
-        // Focus on the newly added UML class
-        centerContent.setTranslateX(-umlClass.getX() * zoomFactor);
-        centerContent.setTranslateY(-umlClass.getY() * zoomFactor);
     }
 
     private void centerOnClass(UMLClass umlClass, ScrollPane scrollPane) {
