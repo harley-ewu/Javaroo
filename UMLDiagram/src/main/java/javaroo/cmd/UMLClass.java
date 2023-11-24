@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.lang.StringBuilder;
+import java.util.List;
 
 public class UMLClass {
 
@@ -323,7 +324,6 @@ public class UMLClass {
     public void setY(double x) {
         this.x = x;
     }
-
 
 }
 

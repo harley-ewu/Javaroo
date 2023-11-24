@@ -855,26 +855,54 @@ public class UMLController {
             return;
         }
 
-        List<String> methodNames = selectedClass.getMethods().stream()
-                .map(UMLMethods::getName)
-                .collect(Collectors.toList());
+        List<UMLMethods> methods = selectedClass.getMethods();
 
-        ChoiceDialog<String> methodDialog = new ChoiceDialog<>(methodNames.get(0), methodNames);
+        ChoiceDialog<UMLMethods> methodDialog = new ChoiceDialog<>(methods.get(0), methods);
         methodDialog.setTitle("Delete Method");
         methodDialog.setHeaderText("Select the method to delete:");
         methodDialog.setContentText("Method:");
 
-        Optional<String> methodNameResult = methodDialog.showAndWait();
-        if (!methodNameResult.isPresent()) {
+        Optional<UMLMethods> selectedMethodResult = methodDialog.showAndWait();
+        if (!selectedMethodResult.isPresent()) {
             return; // User canceled
         }
 
-        String methodName = methodNameResult.get();
-        selectedClass.removeMethod(methodName);
+        UMLMethods selectedMethod = selectedMethodResult.get();
 
-        umlView.updateCanvas(diagram,selectedClass);
-        umlView.drawExistingRelationships();
+        // Display method details before deletion
+        showMethodDetails(selectedMethod);
+
+        // Ask for confirmation before deleting the method
+        Alert confirmDeletion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDeletion.setTitle("Confirm Deletion");
+        confirmDeletion.setHeaderText("Confirm Deletion");
+        confirmDeletion.setContentText("Do you really want to delete this method?");
+        Optional<ButtonType> result = confirmDeletion.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            selectedClass.removeMethod(selectedMethod.getName()); // Use the method name for deletion
+            umlView.updateCanvas(diagram, selectedClass);
+            umlView.drawExistingRelationships();
+            showAlert("Info", "Method deleted successfully.");
+        } else {
+            // User canceled the deletion
+            showAlert("Info", "Deletion canceled. The method was not deleted.");
+        }
     }
+
+    // Show method details using an Alert
+    private void showMethodDetails(UMLMethods method) {
+        String methodDetails = "Method Name: " + method.getName() + "\n" +
+                "Return Type: " + method.getReturnType() + "\n" +
+                "Parameters: " + method.getParameters().toString();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Method Details");
+        alert.setHeaderText(null);
+        alert.setContentText(methodDetails);
+        alert.showAndWait();
+    }
+
     // Unfinished
     @FXML
     void renameClassFieldGui(ActionEvent event) {
@@ -963,35 +991,63 @@ public class UMLController {
         }
 
         // Step 2: Select a method
-        ChoiceDialog<String> methodDialog = new ChoiceDialog<>(
-                selectedClass.getMethods().isEmpty() ? "" : selectedClass.getMethods().get(0).getName(),
-                selectedClass.getMethods().stream().map(UMLMethods::getName).collect(Collectors.toList()));
-
+        ChoiceDialog<UMLMethods> methodDialog = new ChoiceDialog<>(
+                selectedClass.getMethods().isEmpty() ? null : selectedClass.getMethods().get(0),
+                selectedClass.getMethods());
         methodDialog.setTitle("Select Method");
         methodDialog.setHeaderText("Select the method to rename:");
         methodDialog.setContentText("Method:");
 
-        Optional<String> methodNameResult = methodDialog.showAndWait();
-        if (!methodNameResult.isPresent()) {
+        Optional<UMLMethods> selectedMethodResult = methodDialog.showAndWait();
+        if (!selectedMethodResult.isPresent()) {
             return; // User canceled method selection
         }
-        String methodName = methodNameResult.get();
 
-        // Step 3: Enter new name
-        TextInputDialog newNameDialog = new TextInputDialog();
-        newNameDialog.setTitle("Rename Method");
-        newNameDialog.setHeaderText("Enter the New Method Name");
-        newNameDialog.setContentText("New Method Name:");
+        UMLMethods selectedMethod = selectedMethodResult.get();
 
-        Optional<String> newNameResult = newNameDialog.showAndWait();
-        newNameResult.ifPresent(newName -> {
-            // Step 4: Rename the method
-            selectedClass.renameMethod(methodName, newName);
-            showAlert("Success", "Method renamed to: " + newName);
-            // Update the view
-            umlView.drawUpdatedClass(selectedClass);
-        });
+        // Step 3: Display method details, including parameters and types
+        StringBuilder methodDetails = new StringBuilder();
+        methodDetails.append("Method Name: ").append(selectedMethod.getName()).append("\n");
+        methodDetails.append("Return Type: ").append(selectedMethod.getReturnType()).append("\n");
+        methodDetails.append("Parameters:\n");
+        for (String parameter : selectedMethod.getParameters()) {
+            methodDetails.append(" - ").append(parameter).append("\n");
+        }
+
+        Alert methodDetailsAlert = new Alert(Alert.AlertType.INFORMATION);
+        methodDetailsAlert.setTitle("Method Details");
+        methodDetailsAlert.setHeaderText("Method Details");
+        methodDetailsAlert.setContentText(methodDetails.toString());
+        methodDetailsAlert.showAndWait();
+
+        // Step 4: Ask for confirmation before renaming the method
+        Alert confirmRename = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmRename.setTitle("Confirm Rename");
+        confirmRename.setHeaderText("Confirm Rename");
+        confirmRename.setContentText("Do you really want to rename this method?");
+        Optional<ButtonType> result = confirmRename.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Step 5: Enter new name
+            TextInputDialog newNameDialog = new TextInputDialog();
+            newNameDialog.setTitle("Rename Method");
+            newNameDialog.setHeaderText("Enter the New Method Name");
+            newNameDialog.setContentText("New Method Name:");
+
+            Optional<String> newNameResult = newNameDialog.showAndWait();
+            newNameResult.ifPresent(newName -> {
+                // Step 6: Rename the method
+                selectedClass.renameMethod(selectedMethod.getName(), newName);
+                showAlert("Success", "Method renamed to: " + newName);
+                // Update the view
+                umlView.drawUpdatedClass(selectedClass);
+            });
+        } else {
+            // User canceled the rename
+            showAlert("Info", "Rename canceled. The method was not renamed.");
+        }
     }
+    
 
 
     // Unfinished
