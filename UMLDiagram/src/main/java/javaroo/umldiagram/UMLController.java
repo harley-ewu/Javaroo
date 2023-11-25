@@ -62,6 +62,15 @@ public class UMLController {
     @FXML
     private Button renameMethodButton;
 
+    private static UMLController controllerInstance;
+
+    // Public method to get the instance
+    public static UMLController getInstance() {
+        if (controllerInstance == null) {
+            controllerInstance = new UMLController();
+        }
+        return controllerInstance;
+    }
 
     public UMLController() {
         this.umlView = new UMLView(this);
@@ -315,7 +324,7 @@ public class UMLController {
     }
   
     @FXML
-    void refresh(){
+    public void refresh(){
 
         drawnUMLClasses.clear();
         drawnUMLRelationships.clear();
@@ -1261,5 +1270,13 @@ public class UMLController {
         umlMenu.displayMenu();
         Platform.exit();
         myLaunch(UMLDiagramGUI.class);
+    }
+
+    public void zoomIn(ActionEvent actionEvent) {
+        umlView.zoomIn();
+    }
+
+    public void zoomOut(ActionEvent actionEvent) {
+        umlView.zoomOut();
     }
 }

@@ -24,10 +24,6 @@ public class UMLClass {
     private double width;
     private double height;
 
-    private Node graphicalRepresentation;
-
-    private boolean detailsVisible;
-
     // constructor
 
     public UMLClass(String name) {
