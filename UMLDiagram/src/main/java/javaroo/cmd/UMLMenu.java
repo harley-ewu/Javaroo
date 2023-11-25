@@ -1,7 +1,7 @@
 package javaroo.cmd;
 
 import javaroo.cmd.UMLDiagram;
-import javaroo.umldiagram.UMLDiagramGUI;
+import javaroo.umldiagram.*;
 
 import java.util.*;
 
@@ -9,12 +9,14 @@ import static javafx.application.Application.launch;
 import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
 
 public class UMLMenu {
+
     private UMLDiagram diagram;
     public static boolean GView = false;
     public static boolean CView = true;
     public static UMLMenu umlMenu = null;
     public static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
+        //UMLController.setControllerInstance(umlController);
         UMLMenu menu = new UMLMenu();
         umlMenu = menu;
         menu.displayMenu();

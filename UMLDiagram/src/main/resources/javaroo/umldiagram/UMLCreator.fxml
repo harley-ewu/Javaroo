@@ -36,6 +36,12 @@
                 <MenuItem mnemonicParsing="false" onAction="#refresh" text="Refresh" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Zoom">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#zoomIn" text="Zoom In" />
+                  <MenuItem mnemonicParsing="false" onAction="#zoomOut" text="Zoom out" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
    </top>

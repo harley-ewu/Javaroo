@@ -1,5 +1,6 @@
 package javaroo.umldiagram;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -8,7 +9,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import javaroo.cmd.*;
+import javafx.geometry.Rectangle2D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +32,22 @@ public class UMLView {
     public void initializeComponents(Canvas centerContent, ScrollPane centerScrollPane) {
         this.centerContent = centerContent;
         this.centerScrollPane = centerScrollPane;
+
     }
 
+
+
     void drawUMLClass(UMLClass umlClass) {
+        double zoomLevel = 0.5;
         GraphicsContext gc = centerContent.getGraphicsContext2D();
-        gc.setLineWidth(0.75);
+
+        double boxWidth = 150 * zoomLevel;
+        double boxHeight = 100 * zoomLevel;
+        double textPadding = 20 * zoomLevel;
+
+// Scale line width
+        gc.setLineWidth(0.75 * zoomLevel);
+        //gc.setLineWidth(0.75);
 
         // Define fonts
         Font classFont = Font.font("Serif", FontWeight.BOLD, 20);
@@ -45,9 +59,9 @@ public class UMLView {
         List<UMLMethods> methods = umlClass.getMethods();
 
         // Initial box dimensions
-        double boxWidth = 150;
-        double boxHeight = 100;
-        double textPadding = 20;
+//        double boxWidth = 150;
+//        double boxHeight = 100;
+//        double textPadding = 20;
 
         // Calculate box dimensions
         Text tempText = new Text();
@@ -73,7 +87,7 @@ public class UMLView {
             boxHeight += tempText.getLayoutBounds().getHeight() + textPadding;
         }
 
-        // Draw the UML class box
+//         Draw the UML class box
         double x = umlClass.getX();
         double y = umlClass.getY();
         gc.setFill(Color.WHITE);
@@ -95,7 +109,8 @@ public class UMLView {
         gc.setFont(fieldMethodFont);
         for (UMLFields field : fields) {
             contentY += tempText.getLayoutBounds().getHeight() + textPadding;
-            gc.fillText(field.getName() + " : " + field.getType(), x + textPadding, contentY);
+            gc.fillText(formatVisibility(field.getVisibility()) + " " + field.getName() + " : " + field.getType(), x + textPadding, contentY);
+
         }
 
         if (!fields.isEmpty() && !methods.isEmpty()) {
@@ -109,11 +124,9 @@ public class UMLView {
             gc.fillText(method.getName() + "(" + String.join(", ", method.getParameters()) + ") : " + method.getReturnType(), x + textPadding, contentY);
         }
 
-        // Additional logic for class interactivity (if needed)
-        // ...
+
         centerOnClass(umlClass, centerScrollPane);
     }
-
 
 
     // Helper method to format the visibility symbol for fields
@@ -126,32 +139,100 @@ public class UMLView {
     }
 
 
+
+
+
+//    void autoAssignCoordinatesGrid(UMLClass umlClass) {
+//        int totalClasses = controller.drawnUMLClasses.size() + 1;
+//        int cols = (int) Math.ceil(Math.sqrt(totalClasses));
+//        double gridWidth = centerContent.getWidth() / cols;
+//        double gridHeight = centerContent.getHeight() / cols;
+//
+//        int index = controller.drawnUMLClasses.indexOf(umlClass);
+//        if (index == -1) {
+//            index = totalClasses - 1; // Position for the new class
+//        }
+//
+//        // Calculate the top-left corner of the grid cell
+//        double cellX = (index % cols) * gridWidth;
+//        double cellY = (index / cols) * gridHeight;
+//
+//        // Center the UMLClass in its grid cell
+//        double x = cellX + (gridWidth - umlClass.getWidth()) / 2;
+//        double y = cellY + (gridHeight - umlClass.getHeight()) / 2;
+//
+//        // Adjust for overall centering in the ScrollPane
+//        double totalWidth = cols * gridWidth;
+//        double totalHeight = (int) Math.ceil((double) totalClasses / cols) * gridHeight;
+//        double offsetX = (centerContent.getWidth() - totalWidth) / 2;
+//        double offsetY = (centerContent.getHeight() - totalHeight) / 2;
+//
+//        umlClass.setPosition(x + offsetX, y + offsetY);
+//    }
+
     void autoAssignCoordinatesGrid(UMLClass umlClass) {
         int totalClasses = controller.drawnUMLClasses.size() + 1;
-        int cols = (int) Math.ceil(Math.sqrt(totalClasses));
-        double gridWidth = centerContent.getWidth() / cols;
-        double gridHeight = centerContent.getHeight() / cols;
+        final int MAX_CLASSES_PER_ROW = 4;
+        int cols = Math.min(MAX_CLASSES_PER_ROW, totalClasses);
 
-        int index = controller.drawnUMLClasses.indexOf(umlClass);
-        if (index == -1) {
-            index = totalClasses - 1; // Position for the new class
+        double maxClassWidth = 0;
+        double maxClassHeight = 0;
+        for (UMLClass cls : controller.drawnUMLClasses) {
+            maxClassWidth = Math.max(maxClassWidth, cls.getWidth());
+            maxClassHeight = Math.max(maxClassHeight, cls.getHeight());
         }
 
-        // Calculate the top-left corner of the grid cell
-        double cellX = (index % cols) * gridWidth;
-        double cellY = (index / cols) * gridHeight;
+        double gridWidth = Math.max(centerContent.getWidth() / cols, maxClassWidth);
+        double gridHeight = Math.max(centerContent.getHeight() / cols, maxClassHeight);
 
-        // Center the UMLClass in its grid cell
-        double x = cellX + (gridWidth - umlClass.getWidth()) / 2;
-        double y = cellY + (gridHeight - umlClass.getHeight()) / 2;
+        // Spacing reduction for rows after the first
+        double verticalSpacingReduction = .4; // Adjust this value as needed
 
-        // Adjust for overall centering in the ScrollPane
-        double totalWidth = cols * gridWidth;
-        double totalHeight = (int) Math.ceil((double) totalClasses / cols) * gridHeight;
-        double offsetX = (centerContent.getWidth() - totalWidth) / 2;
-        double offsetY = (centerContent.getHeight() - totalHeight) / 2;
+        if (!controller.drawnUMLClasses.contains(umlClass)) {
+            controller.drawnUMLClasses.add(umlClass);
+        }
+        int index = controller.drawnUMLClasses.indexOf(umlClass);
 
-        umlClass.setPosition(x + offsetX, y + offsetY);
+        double x, y;
+
+        if (index == 0) {
+            x = (centerContent.getWidth() - umlClass.getWidth()) / 2;
+            y = 0;
+        } else {
+            index--;
+            int row = index / MAX_CLASSES_PER_ROW;
+            int col = index % MAX_CLASSES_PER_ROW;
+
+            double cellX = col * gridWidth;
+            double cellY = row * gridHeight;
+
+            x = cellX + (gridWidth - umlClass.getWidth()) / 2;
+            y = cellY + (gridHeight - umlClass.getHeight()) / 2;
+
+            // Reduce the y-coordinate for classes in rows after the first
+            if (row > 0) {
+                y -= verticalSpacingReduction * row;
+            }
+        }
+
+        umlClass.setPosition(x, y);
+    }
+
+    private double zoomScale = 1.0;
+
+    public void zoomIn() {
+        zoomScale *= 1.1; // Increase scale by 10%
+        applyZoom();
+    }
+
+    public void zoomOut() {
+        zoomScale *= 0.9; // Decrease scale by 10%
+        applyZoom();
+    }
+
+    private void applyZoom() {
+        centerContent.setScaleX(zoomScale);
+        centerContent.setScaleY(zoomScale);
     }
 
     void updateCanvas(UMLDiagram diagram, UMLClass umlClass) {
@@ -191,7 +272,8 @@ public class UMLView {
         double triangleHalfWidth = 20; // Half the width of the triangle
         double triangleHeight = 15; // Height of the triangle
 
-        // Set line colors and styles based on the relationship type
+
+            // Set line colors and styles based on the relationship type
         gc.setStroke(Color.BLACK); // Default color
         gc.setLineDashes(0); // Reset line style
 
@@ -293,6 +375,7 @@ public class UMLView {
                 break;
         }
     }
+
 
     public void updateRelationType(UMLClass sourceClass, UMLClass destinationClass, UMLRelationships.RelationshipType newType) {
         UMLRelationships relationshipToUpdate = null;

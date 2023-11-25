@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.lang.StringBuilder;
+import java.util.List;
 
 public class UMLClass {
 
@@ -22,10 +23,6 @@ public class UMLClass {
     private double y;
     private double width;
     private double height;
-
-    private Node graphicalRepresentation;
-
-    private boolean detailsVisible;
 
     // constructor
 
@@ -323,7 +320,6 @@ public class UMLClass {
     public void setY(double x) {
         this.x = x;
     }
-
 
 }
 
