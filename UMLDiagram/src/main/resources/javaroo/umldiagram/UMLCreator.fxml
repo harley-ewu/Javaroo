@@ -42,6 +42,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#zoomOut" text="Zoom out" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Screenshot">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#screenshot" text="Screenshot" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
    </top>

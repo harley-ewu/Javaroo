@@ -4,19 +4,31 @@ package javaroo.umldiagram;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
+import javafx.scene.robot.Robot;
 import javaroo.cmd.*;
+import javax.imageio.ImageIO;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static javafx.embed.swing.SwingFXUtils.fromFXImage;
 import static javaroo.cmd.UMLMenu.*;
 import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
+import static javaroo.umldiagram.UMLDiagramGUI.stages;
 
 public class UMLController {
+    public static int ssTimes = 0;
 
     private final UMLView umlView;
 
@@ -322,7 +334,23 @@ public class UMLController {
             diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
         }
     }
-  
+
+    @FXML
+    public void screenshot() throws IOException {
+        String filename = "JavarooScreenshot";
+        int i = 0;
+        filename += i;
+        filename += ".png";
+        File file = new File(filename);
+        while(file.exists()){
+            i++;
+            file = new File("JavarooScreenshot"+i+".png");
+        }
+        Robot robot = new Robot();
+        WritableImage imgReturn = robot.getScreenCapture(null, stages.getX(),stages.getY(),stages.getWidth(),stages.getHeight());
+        BufferedImage bI = fromFXImage(imgReturn, null);
+        ImageIO.write(bI, "png", file);
+    }
     @FXML
     public void refresh(){
 

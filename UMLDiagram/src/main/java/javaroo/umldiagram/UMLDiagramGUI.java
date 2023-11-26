@@ -17,6 +17,7 @@ import static javaroo.cmd.UMLMenu.GView;
 public class UMLDiagramGUI extends Application {
     public static boolean first = true;
     public static UMLDiagramGUI x;
+    public static Stage stages;
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(UMLDiagramGUI.class.getResource("UMLCreator.fxml"));
@@ -27,6 +28,7 @@ public class UMLDiagramGUI extends Application {
         stage.setTitle("UML Diagram Builder");
         stage.setScene(scene);
         stage.show();
+        stages = stage;
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
