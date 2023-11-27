@@ -41,7 +41,7 @@ javafx {
 
 
 dependencies {
-
+    implementation 'org.jline:jline:3.24.1'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation 'com.google.code.gson:gson:2.8.9'
