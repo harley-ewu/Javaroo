@@ -635,10 +635,10 @@ public class UMLView {
 //        drawUMLClass(updatedClass);
 //    }
 
-    public void adjustViewAfterDrawing(UMLClass newUmlClass) {
+ //   public void adjustViewAfterDrawing(UMLClass newUmlClass) {
         // Calculate the bounding box of all UML diagrams
-        Rectangle2D boundingBox = calculateBoundingBox();
-    }
+  //      Rectangle2D boundingBox = calculateBoundingBox();
+   // }
     public void drawUpdatedClass(UMLClass updatedClass) {
 
         GraphicsContext gc = centerContent.getGraphicsContext2D();
