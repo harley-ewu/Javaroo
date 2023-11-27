@@ -79,19 +79,17 @@ public class UMLClass {
 
 
     // method to check if a field exists
-    public UMLFields fieldExists(String name)
-    {
-        for(UMLFields a : this.fields)
-        {
-            if(a.getName().equals(name))
-            {
-                return a;
+    public UMLFields fieldExists(String name) {
+        for (UMLFields f : fields) {
+            if (name != null && name.equals(f.getName())) {
+                return f;
             }
         }
         return null;
     }
 
-        //Method to add a UMLFields object to the fields ArrayList with a name parameter
+
+    //Method to add a UMLFields object to the fields ArrayList with a name parameter
     public void addField(String name, String type, String visibility)
     {
         //check for the empty string in paramters or if input contains only spaces
@@ -319,6 +317,14 @@ public class UMLClass {
 
     public void setY(double x) {
         this.x = x;
+    }
+
+    public void setMethods(ArrayList<UMLMethods> methods) {
+        this.methods = methods;
+    }
+
+    public void setFields(ArrayList<UMLFields> fields) {
+        this.fields = fields;
     }
 
 }

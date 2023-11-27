@@ -1,5 +1,4 @@
 package javaroo.cmd;
-
 import javaroo.cmd.UMLDiagram;
 import javaroo.umldiagram.*;
 
@@ -42,6 +41,12 @@ public class UMLMenu {
             System.out.println("2: Relationship Options");
             System.out.println("3: Save/Load Options");
             System.out.println("4: Help");
+            System.out.println("5: Exit Program");
+            System.out.println("6: Undo");
+            System.out.println("7: Redo");
+            System.out.println("8: View Classes");
+
+
             System.out.println("5: Launch GUI");
             System.out.println("6: Exit Program");
             
@@ -80,6 +85,17 @@ public class UMLMenu {
                         System.out.println("\nInvalid choice. Please try again.");
                         break;
                     }
+                case "6":
+                    undo();
+                    System.out.println("Undo");
+                    break;
+                case "7":
+                    redo();
+                    System.out.println("Redo");
+                    break;
+                case "8":
+                    System.out.println("\nExisting Classes:");
+                    diagram.listClasses(); // Call the method in UMLDiagram to view existing classes
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
             }
@@ -87,9 +103,23 @@ public class UMLMenu {
         //scanner.close();
 
     }
-    
+
+    private void undo() {
+        UMLCommandManager.undo();
+        System.out.println("Undo");
+    }
+
+    private void redo() {
+        UMLCommandManager.redo();
+        System.out.println("Redo");
+    }
+
     private void displayClassMenu(Scanner scanner) {
         boolean back = false;
+        UMLClass modifiedClass = null;  // Declare it here and initialize to null
+        String addClassName = null;
+
+
 
         while (!back) {
             System.out.println("\n________Class Operations:________");
@@ -110,7 +140,6 @@ public class UMLMenu {
                 case "1":
                     // here user can add a class, they can also add fields and methods to the class if they wish
                     System.out.print("\nEnter the class name to be added: ");
-                    String addClassName = null;
                     boolean classAdded = false;
 
                     while (!classAdded) {
@@ -118,7 +147,7 @@ public class UMLMenu {
                         if (addClassName.isEmpty()) {
                             System.out.println("The class name cannot be empty. Please try again.");
                         } else {
-                            diagram.addClass(addClassName);
+                            UMLCommandManager.executeCommand(new AddClassCommand(diagram, addClassName));
                             classAdded = true; // Set flag to true to exit the loop
                         }
 
@@ -184,6 +213,10 @@ public class UMLMenu {
                             System.out.println("\nMethod added.");
                         }
                     }
+                    // After adding fields and methods, get the modified class instance
+
+                    modifiedClass = diagram.classExists(addClassName);
+                    UMLCommandManager.executeCommand(new ModifyClassCommand(diagram, modifiedClass));
                     // list added class with its fields and methods
                     diagram.listClasses();
                     returnToMainMenu();
@@ -193,7 +226,7 @@ public class UMLMenu {
                     diagram.listClasses();
                     System.out.print("\nEnter the class name to be removed: ");
                     String removeClassName = scanner.nextLine();
-                    diagram.removeClass(removeClassName);
+                    UMLCommandManager.executeCommand(new RemoveClassCommand(diagram, removeClassName));
                     // print updated list of classes
                     diagram.listClasses();
                     returnToMainMenu();
@@ -205,7 +238,7 @@ public class UMLMenu {
                     String oldClassName = scanner.nextLine();
                     System.out.print("\nEnter the new class name: ");
                     String newClassName = scanner.nextLine();
-                    diagram.renameClass(oldClassName, newClassName);
+                    UMLCommandManager.executeCommand(new RenameClassCommand(diagram, oldClassName, newClassName));
                     // print updated list of classes
                     diagram.listClasses();
                     returnToMainMenu();
@@ -243,6 +276,7 @@ public class UMLMenu {
                             String visibility = scanner.nextLine();
                             diagram.classExists(addFieldClassName).addField(addFieldName, addFieldType, visibility);
                             System.out.println("\nField added.");
+                            UMLCommandManager.executeCommand(new ModifyClassCommand(diagram, modifiedClass));
                             returnToMainMenu();
                             break;
                            
@@ -337,6 +371,11 @@ public class UMLMenu {
                             break;
 
                     }
+
+                    modifiedClass = diagram.classExists(addClassName);
+                    UMLCommandManager.executeCommand(new ModifyClassCommand(diagram, modifiedClass));
+
+                    returnToMainMenu();
                     break;
 
                 case "5":
@@ -397,7 +436,7 @@ public class UMLMenu {
                     }
                     UMLRelationships.RelationshipType type = UMLRelationships.RelationshipType.values()[num - 1];
 
-                    diagram.addRelationship(diagram.classExists(sourceClassName), diagram.classExists(destinationClassName), type);
+                    UMLCommandManager.executeCommand(new AddRelationshipCommand(diagram, diagram.classExists(sourceClassName), diagram.classExists(destinationClassName), type));
 
                     returnToMainMenu();
                     break;
@@ -409,7 +448,7 @@ public class UMLMenu {
                     String removeRelationshipNumber = scanner.nextLine();
                     Integer num2 = Integer.parseInt(removeRelationshipNumber);
                     // check for valid input
-                    diagram.removeRelationship(Integer.parseInt(removeRelationshipNumber));
+                    UMLCommandManager.executeCommand(new RemoveRelationshipCommand(diagram, num2));
                     // print updated list of relationships
                     diagram.listRelationships();
                     returnToMainMenu();
@@ -450,15 +489,13 @@ public class UMLMenu {
                 case "1":
                     System.out.print("\nEnter the file name: ");
                     String fileName = scanner.nextLine();
-                    UMLSaveLoad saveLoad = new UMLSaveLoad(diagram);
-                    saveLoad.saveData(fileName);
+                    UMLCommandManager.executeCommand(new SaveDiagramCommand(new UMLSaveLoad(diagram), fileName));
                     returnToMainMenu();
                     break;
                 case "2":
                     System.out.print("\nEnter the file name: ");
                     String fileNamed = scanner.nextLine();
-                    UMLSaveLoad load = new UMLSaveLoad(diagram);
-                    load.loadData(fileNamed);
+                    UMLCommandManager.executeCommand(new LoadDiagramCommand(new UMLSaveLoad(diagram), fileNamed));
                     returnToMainMenu();
                     break;
                 case "3":
@@ -489,4 +526,3 @@ public class UMLMenu {
     }
 
 }
-

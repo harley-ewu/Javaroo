@@ -448,7 +448,7 @@ public class UMLView {
             }
 
             // Remove the class from the diagram
-            controller.diagram.removeClass(className);
+            controller.diagram.undoRemoveClass(className);
         }
     }
 
@@ -628,6 +628,16 @@ public class UMLView {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+//    public void drawUpdatedClass(UMLClass updatedClass) {
+//        GraphicsContext gc = centerContent.getGraphicsContext2D();
+//        gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
+//        drawUMLClass(updatedClass);
+//    }
+
+    public void adjustViewAfterDrawing(UMLClass newUmlClass) {
+        // Calculate the bounding box of all UML diagrams
+        Rectangle2D boundingBox = calculateBoundingBox();
     }
     public void drawUpdatedClass(UMLClass updatedClass) {
 
