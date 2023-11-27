@@ -24,7 +24,7 @@ tasks.withType(JavaCompile).configureEach {
 
 application {
     mainModule = 'javaroo.umldiagram'
-    mainClass = 'javaroo.umldiagram.UMLDiagramGUI'
+    mainClass = 'javaroo.cmd.UMLMenu'
 }
 
 
@@ -42,6 +42,7 @@ javafx {
 
 dependencies {
 
+    implementation 'org.jline:jline:3.24.1'
     implementation 'junit:junit:4.13.2'
     implementation 'junit:junit-dep:4.11'
     implementation 'junit:junit-dep:4.11'
