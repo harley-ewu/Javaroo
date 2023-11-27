@@ -33,4 +33,4 @@ jobs:
       with:
         arguments: build
         gradle-version: '8.4'
-        build-root-directory: Javaroo/UMLDiagram
+        build-root-directory: /UMLDiagram
