@@ -505,7 +505,7 @@ public class UMLController {
                     showAlert("Error", "Class '" + className + "' is part of a relationship and cannot be deleted.");
                 } else {
                     // Remove the class from the diagram
-                    diagram.removeClass(className);
+                    diagram.undoRemoveClass(className);
 
                     // Update the canvas by removing the specified class
                     umlView.updateCanvasRemoveClass(umlClass.getName());

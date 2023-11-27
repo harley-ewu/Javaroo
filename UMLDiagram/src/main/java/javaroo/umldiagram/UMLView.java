@@ -381,7 +381,7 @@ public class UMLView {
             }
 
             // Remove the class from the diagram
-            controller.diagram.removeClass(className);
+            controller.diagram.undoRemoveClass(className);
         }
     }
 
