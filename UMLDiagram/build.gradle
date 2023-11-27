@@ -41,7 +41,23 @@ javafx {
 
 
 dependencies {
+
     implementation 'org.jline:jline:3.24.1'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit-dep:4.11'
+    implementation 'junit:junit-dep:4.11'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit-dep:4.11'
+    implementation 'org.junit:junit-console:5.0.0-ALPHA'
+    implementation 'org.junit:junit-console:5.0.0-ALPHA'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit:4.13.2'
+    implementation 'junit:junit-dep:4.11'
+    implementation 'junit:junit-dep:4.11'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation 'com.google.code.gson:gson:2.8.9'
