@@ -240,7 +240,18 @@ public class UMLDiagram {
             System.out.println("Invalid originalClass provided for update.");
             return;
         }
+        String className = originalClass.getName();
+        UMLClass existingClass = classExists(className);
+
+        if (existingClass != null) {
+            existingClass.setFields(new ArrayList<>(originalClass.getFields()));
+            existingClass.setMethods(new ArrayList<>(originalClass.getMethods()));
+            System.out.println("Class updated: " + className);
+        } else {
+            System.out.println("Class not found: " + className);
+        }
     }
+    
     public void removeRelationship(String sourceName, String destName) {
         // Create the identifier based on source and destination names
         String relationshipId = sourceName + destName;
@@ -274,17 +285,7 @@ public class UMLDiagram {
             }
         }
 
-        String className = originalClass.getName();
-        UMLClass existingClass = classExists(className);
-
-        if (existingClass != null) {
-            existingClass.setFields(new ArrayList<>(originalClass.getFields()));
-            existingClass.setMethods(new ArrayList<>(originalClass.getMethods()));
-            System.out.println("Class updated: " + className);
-        } else {
-            System.out.println("Class not found: " + className);
-        }
-    }
+        
 
     public UMLCommandManager getCommandManager() {
         return commandManager;
