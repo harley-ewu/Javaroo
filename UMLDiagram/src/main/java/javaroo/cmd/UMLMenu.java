@@ -1,6 +1,6 @@
 package javaroo.cmd;
-
 import javaroo.cmd.UMLDiagram;
+import javaroo.umldiagram.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -9,7 +9,11 @@ import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
+import static javafx.application.Application.launch;
+import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
+
 public class UMLMenu {
+
     private UMLDiagram diagram;
     private static final List<String> CMDS = Arrays.asList("add class ", "add field ", "add method ", "add relationship ", "add parameter ",
             "delete class ", "delete field ", "delete method ", "delete relationship ", "delete parameter ",
@@ -49,7 +53,9 @@ public class UMLMenu {
             "  visualize\n\t-This command opens up the graphical user interface.\n" +
             "  exit";
 
-
+    public static boolean GView = false;
+    public static boolean CView = true;
+  
     public static void main(String[] args) {
         UMLMenu menu = new UMLMenu();
         try {
@@ -82,8 +88,8 @@ public class UMLMenu {
 
     public UMLMenu() {
         this.diagram = new UMLDiagram();
-
     }
+
 
     private void processCommandCLI(String command) {
         String[] parts = command.trim().split("\\s+");
@@ -110,14 +116,17 @@ public class UMLMenu {
             case "undo":
                 System.out.println("Executing 'undo' command");
                 // Add logic for 'undo'
+                undo();
                 break;
             case "redo":
                 System.out.println("Executing 'redo' command");
                 // Add logic for 'redo'
+                redo();
                 break;
             case "visualize":
                 System.out.println("Executing 'visualize' command");
                 // Add logic for 'visualize', this is the command to open the GUI
+                myLaunch(UMLDiagramGUI.class);
                 break;
             case "save":
                 //add logic to save the diagram
@@ -139,6 +148,16 @@ public class UMLMenu {
                 System.out.println("Unknown command: " + action);
         }
     }
+  
+    private void undo() {
+        UMLCommandManager.undo();
+        System.out.println("Undo");
+    }
+
+    private void redo() {
+        UMLCommandManager.redo();
+        System.out.println("Redo");
+    }
 
     private void processAddCommand(String[] parts) {
         if (parts.length < 3) {
@@ -153,7 +172,7 @@ public class UMLMenu {
         switch (type) {
             case "class":
                 // Add logic for 'add class' with the class name (name)
-                diagram.addClass(name);
+                UMLCommandManager.executeCommand(new AddClassCommand(diagram, name));
                 break;
             case "field":
                 // Add logic for 'add field' with the field name (name)
@@ -219,6 +238,7 @@ public class UMLMenu {
         }
     }
 
+
     private void processDeleteCommand(String[] parts) {
         if (parts.length < 3) {
             System.out.println("Invalid 'delete' command format. Usage: delete <type> <name>");
@@ -231,7 +251,7 @@ public class UMLMenu {
         switch (type) {
             case "class":
                 // Add logic for 'delete class' with the class name (name)
-                diagram.removeClass(name);
+                UMLCommandManager.executeCommand(new RemoveClassCommand(diagram, name));
                 break;
             case "field":
                 // Add logic for 'delete field' with the field name (name)
@@ -293,6 +313,7 @@ public class UMLMenu {
         }
     }
 
+
     private void processRenameCommand(String[] parts) {
         if (parts.length < 4) {
             System.out.println("Invalid 'rename' command format. Usage: rename <type> <oldName> <newName>");
@@ -306,7 +327,7 @@ public class UMLMenu {
         switch (type) {
             case "class":
                 // Add logic for 'rename class' with the old and new class names (oldName, newName)
-                diagram.renameClass(oldName, newName);
+                UMLCommandManager.executeCommand(new RenameClassCommand(diagram, oldName, newName));
                 break;
             case "field":
                 // Add logic for 'rename field' with the old and new field names (oldName, newName)
@@ -393,4 +414,3 @@ public class UMLMenu {
 
     
 }
-

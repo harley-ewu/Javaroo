@@ -24,7 +24,7 @@ tasks.withType(JavaCompile).configureEach {
 
 application {
     mainModule = 'javaroo.umldiagram'
-    mainClass = 'javaroo.umldiagram.UMLDiagramGUI'
+    mainClass = 'javaroo.cmd.UMLMenu'
 }
 
 
