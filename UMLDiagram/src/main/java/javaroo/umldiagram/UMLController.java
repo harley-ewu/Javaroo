@@ -1267,7 +1267,6 @@ public class UMLController {
 
     public void restartCLI(ActionEvent actionEvent) {
         CView = true;
-        umlMenu.displayMenu();
         Platform.exit();
         myLaunch(UMLDiagramGUI.class);
     }
