@@ -244,10 +244,43 @@ public class UMLDiagram {
         relationships.remove(index);
     }
 
+
     public void updateClass(UMLClass originalClass) {
         if (originalClass == null) {
             System.out.println("Invalid originalClass provided for update.");
             return;
+
+    public void removeRelationship(String sourceName, String destName) {
+        // Create the identifier based on source and destination names
+        String relationshipId = sourceName + destName;
+
+        // Iterate through the relationships to find a match
+        for (int i = 0; i < relationships.size(); i++) {
+            UMLRelationships relationship = relationships.get(i);
+            if (relationship.getId().equals(relationshipId)) {
+                relationships.remove(i);
+                System.out.println("Relationship between " + sourceName + " and " + destName + " removed successfully.");
+                return;
+            }
+        }
+        System.out.println("Sorry, but we could not find a relationship between " + sourceName + " and " + destName + ".");
+    }
+
+
+    public void listClasses() {
+        // Check if the classes map is empty, meaning no classes have been added.
+        if (classes.isEmpty()) {
+            System.out.println("No classes defined.");
+        } else {
+            // If classes are available, iterate through the key set of the classes map,
+            // which returns all keys (class names). This loop will run once for each class name in the map.
+            for (String className : classes.keySet()) {
+                // Call the listClassContents method to print details about each class.
+                // We pass the className, which serves as a unique identifier for retrieving class information from the map.
+                listClassContents(className);
+                // Print an empty line to separate the printed information of different classes for better readability.
+                System.out.println();
+            }
         }
 
         String className = originalClass.getName();

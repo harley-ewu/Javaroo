@@ -8,13 +8,13 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javaroo.cmd.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static javaroo.cmd.UMLMenu.*;
+import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
 
 public class UMLController {
 
@@ -62,6 +62,16 @@ public class UMLController {
     @FXML
     private Button renameMethodButton;
 
+    private static UMLController controllerInstance;
+
+    // Public method to get the instance
+    public static UMLController getInstance() {
+        if (controllerInstance == null) {
+            controllerInstance = new UMLController();
+        }
+        return controllerInstance;
+    }
+
     public UMLController() {
         this.umlView = new UMLView(this);
     }
@@ -74,6 +84,8 @@ public class UMLController {
     final List<UMLRelationships> drawnUMLRelationships = new ArrayList();
 
     UMLDiagram diagram = new UMLDiagram();
+
+    Map<String, UMLClass> classesMap = UMLDiagram.getClasses();
 
     // Prompts the user to enter class name, fields, and methods
 
@@ -91,7 +103,8 @@ public class UMLController {
                 return;
             }
 
-            String className = classNameResult.get().trim(); // Trim the input to remove any leading or trailing whitespace
+            String className = classNameResult.get().replaceAll("\\s", "").trim();
+            // Trim the input to remove any leading or trailing whitespace
 
             // Check if the class already exists in the UML diagram
             if (diagram.classExists(className) != null) {
@@ -110,18 +123,21 @@ public class UMLController {
 
             Optional<String> choiceResult = choiceDialog.showAndWait();
 
-            if (choiceResult.isPresent()) {
-                if (choiceResult.get().equals("Add Fields and Methods")) {
-                    diagram.addClass(newUMLClass.getName());
-                    addFieldsToClass(newUMLClass);
-                    addMethodsToClass(newUMLClass);
-                    showAlert("Success", "Class '" + className + "' added with fields and methods.");
-                } else {
-                    diagram.addClass(newUMLClass.getName());
-                    showAlert("Success", "Class '" + className + "' added.");
-                    // User chose to skip adding fields and methods
-                    // You can add any additional logic here if needed
-                }
+            if (!choiceResult.isPresent()) {
+                // User pressed "Cancel" in the choice dialog, so do nothing and return
+                return;
+            }
+
+            // If the user made a choice, proceed with the logic
+            if (choiceResult.get().equals("Add Fields and Methods")) {
+                diagram.addClass(newUMLClass.getName());
+                addFieldsToClass(newUMLClass);
+                //addMethodsToClass(newUMLClass);
+                showAlert("Success", "Class '" + className + "' added with fields and methods.");
+            } else {
+                // User chose to skip adding fields and methods or made another choice
+                diagram.addClass(newUMLClass.getName());
+                showAlert("Success", "Class '" + className + "' added.");
             }
 
             // Update the visual representation
@@ -151,24 +167,48 @@ public class UMLController {
 
     // Helper method to add fields to the class
     private void addFieldsToClass(UMLClass umlClass) {
-        // Define the list of available field types
         List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean");
+        AtomicBoolean proceedToAddMethods = new AtomicBoolean(false);
 
         while (true) {
             TextInputDialog fieldNameDialog = new TextInputDialog();
             fieldNameDialog.setTitle("Add Field");
-            fieldNameDialog.setHeaderText("Enter field details (or press Cancel to finish):");
+            fieldNameDialog.setHeaderText("Enter field details:");
             fieldNameDialog.setContentText("Field Name:");
 
+            // Remove the default 'Cancel' button and keep the 'OK' button
+            fieldNameDialog.getDialogPane().getButtonTypes().retainAll(ButtonType.OK);
+
+            // Custom button for 'Proceed to add methods'
+            ButtonType proceedToAddMethodsButtonType = new ButtonType("Proceed to add methods", ButtonBar.ButtonData.CANCEL_CLOSE);
+            fieldNameDialog.getDialogPane().getButtonTypes().add(proceedToAddMethodsButtonType);
+
+            // Handling 'Proceed to add methods' button
+            Node proceedButton = fieldNameDialog.getDialogPane().lookupButton(proceedToAddMethodsButtonType);
+            proceedButton.addEventFilter(ActionEvent.ACTION, event -> {
+                proceedToAddMethods.set(true);
+                event.consume();
+                fieldNameDialog.close();
+            });
+
+            // Custom button for 'Clear Text'
+            ButtonType clearTextButtonType = new ButtonType("Clear Text", ButtonBar.ButtonData.OTHER);
+            fieldNameDialog.getDialogPane().getButtonTypes().add(clearTextButtonType);
+
+            // Handling 'Clear Text' button
+            Node clearTextButton = fieldNameDialog.getDialogPane().lookupButton(clearTextButtonType);
+            clearTextButton.addEventFilter(ActionEvent.ACTION, event -> {
+                fieldNameDialog.getEditor().clear();
+                event.consume();
+            });
+
+            // Show the dialog and wait for response
             Optional<String> fieldNameResult = fieldNameDialog.showAndWait();
-            if (!fieldNameResult.isPresent() || fieldNameResult.get().isEmpty()) {
-                // User finished adding fields or canceled
+            if (proceedToAddMethods.get() || !fieldNameResult.isPresent() || fieldNameResult.get().isEmpty()) {
                 break;
             }
-            String fieldName = fieldNameResult.get();
 
-            // Clear the input text field
-            fieldNameDialog.getEditor().clear();
+            String fieldName = fieldNameResult.get().replaceAll("\\s+", "").trim();
 
             // Create a choice dialog for selecting field type
             ChoiceDialog<String> fieldTypeDialog = new ChoiceDialog<>("String", fieldTypes);
@@ -178,39 +218,30 @@ public class UMLController {
 
             Optional<String> fieldTypeResult = fieldTypeDialog.showAndWait();
             if (!fieldTypeResult.isPresent()) {
-                // User canceled field type selection
-                continue; // Go back to entering field details
+                continue;
             }
             String fieldType = fieldTypeResult.get();
 
-            // Clear the input text field
-            fieldTypeDialog.getDialogPane().lookupButton(ButtonType.OK).addEventFilter(ActionEvent.ACTION, event -> {
-                ((Button) fieldTypeDialog.getDialogPane().lookupButton(ButtonType.OK)).setDefaultButton(false);
-                event.consume();
-            });
-
             // Create a new ChoiceDialog for field visibility
-            ChoiceDialog<String> visibilityDialog = new ChoiceDialog<>("public", "private");
+            ChoiceDialog<String> visibilityDialog = new ChoiceDialog<>("public", Arrays.asList("public", "private"));
             visibilityDialog.setTitle("Field Visibility");
             visibilityDialog.setHeaderText("Select Field Visibility:");
             visibilityDialog.setContentText("Visibility:");
 
             Optional<String> fieldVisibilityResult = visibilityDialog.showAndWait();
-            if (!fieldVisibilityResult.isPresent() || fieldVisibilityResult.get().isEmpty()) {
-                showAlert("Error", "Field visibility is required.");
+            if (!fieldVisibilityResult.isPresent()) {
                 continue;
             }
             String fieldVisibility = fieldVisibilityResult.get();
 
-            // Clear the input text field
-            visibilityDialog.getDialogPane().lookupButton(ButtonType.OK).addEventFilter(ActionEvent.ACTION, event -> {
-                ((Button) visibilityDialog.getDialogPane().lookupButton(ButtonType.OK)).setDefaultButton(false);
-                event.consume();
-            });
-
             // Add the field to the class
             umlClass.addField(fieldName, fieldType, fieldVisibility);
             diagram.classExists(umlClass.getName()).addField(fieldName, fieldType, fieldVisibility);
+        }
+
+        if (proceedToAddMethods.get()) {
+            // Code for adding methods goes here
+            addMethodsToClass(umlClass);
         }
     }
 
@@ -229,15 +260,35 @@ public class UMLController {
         while (true) {
             TextInputDialog methodDialog = new TextInputDialog();
             methodDialog.setTitle("Add Method");
-            methodDialog.setHeaderText("Enter method details (or press Cancel to finish):");
+            methodDialog.setHeaderText("Enter method details (or press 'Finish' to end):");
             methodDialog.setContentText("Method Name:");
 
+            // Remove default button types and add 'OK' and custom buttons
+            methodDialog.getDialogPane().getButtonTypes().clear();
+            methodDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+
+            // Custom 'Finish' button to end method addition
+            ButtonType finishButtonType = new ButtonType("Finish", ButtonBar.ButtonData.CANCEL_CLOSE);
+            methodDialog.getDialogPane().getButtonTypes().add(finishButtonType);
+
+            // Custom 'Clear Text' button to clear the method name
+            ButtonType clearTextButtonType = new ButtonType("Clear Text", ButtonBar.ButtonData.OTHER);
+            methodDialog.getDialogPane().getButtonTypes().add(clearTextButtonType);
+
+            // Event filter for 'Clear Text' button
+            Node clearTextButton = methodDialog.getDialogPane().lookupButton(clearTextButtonType);
+            clearTextButton.addEventFilter(ActionEvent.ACTION, event -> {
+                methodDialog.getEditor().clear();
+                event.consume();
+            });
+
             Optional<String> methodNameResult = methodDialog.showAndWait();
-            if (!methodNameResult.isPresent() || methodNameResult.get().isEmpty()) {
-                // User finished adding methods or canceled
+            if (!methodNameResult.isPresent() || methodNameResult.get().isEmpty() ||
+                    finishButtonType.equals(methodDialog.getResult())) {
+                // User finished adding methods or clicked 'Finish'
                 break;
             }
-            String methodName = methodNameResult.get().trim(); // Trim the input
+            String methodName = methodNameResult.get().replaceAll("\\s", "").trim(); // Trim the input
 
             // Create a custom dialog for selecting the method return type
             ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", "int", "double", "char", "void", "float", "boolean");
@@ -271,10 +322,37 @@ public class UMLController {
             diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
         }
     }
+  
+    @FXML
+    public void refresh(){
 
+        drawnUMLClasses.clear();
+        drawnUMLRelationships.clear();
 
-    // Helper method to draw the created class and its contents on the gui in random spot
-    // To be implemented
+        for (UMLClass umlClass : diagram.getClasses().values()) {
+            drawnUMLClasses.add(umlClass);
+            umlView.autoAssignCoordinatesGrid(umlClass);// Add to list
+            umlView.updateCanvas(diagram, umlClass);      // Draw the class
+        }
+
+//        for (UMLClass umlClass : classesMap.values()) {
+//            drawnUMLClasses.add(umlClass);
+//        }
+//        for (UMLClass umlClass : drawnUMLClasses) {
+//            umlView.autoAssignCoordinatesGrid(umlClass);
+//            umlView.updateCanvas(diagram, umlClass);
+//
+//        }
+
+        for (UMLRelationships relationship : diagram.getRelationships()) {
+            drawnUMLRelationships.add(relationship);
+            umlView.drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
+        }
+
+        // Draw the existing relationships.
+        umlView.drawExistingRelationships();
+    }
+  
     @FXML
     void addClassFieldGui(ActionEvent event) {
         // Check if there are no classes in the list
@@ -311,15 +389,35 @@ public class UMLController {
         while (true) {
             TextInputDialog fieldNameDialog = new TextInputDialog();
             fieldNameDialog.setTitle("Add Field");
-            fieldNameDialog.setHeaderText("Enter field name (or press Cancel to finish):");
+            fieldNameDialog.setHeaderText("Enter field name (or press 'Finish' to end):");
             fieldNameDialog.setContentText("Field Name:");
 
+            // Remove default button types and add 'OK' and custom buttons
+            fieldNameDialog.getDialogPane().getButtonTypes().clear();
+            fieldNameDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+
+            // Custom 'Finish' button to end field addition
+            ButtonType finishButtonType = new ButtonType("Finish", ButtonBar.ButtonData.CANCEL_CLOSE);
+            fieldNameDialog.getDialogPane().getButtonTypes().add(finishButtonType);
+
+            // Custom 'Clear Text' button to clear the field name
+            ButtonType clearTextButtonType = new ButtonType("Clear Text", ButtonBar.ButtonData.OTHER);
+            fieldNameDialog.getDialogPane().getButtonTypes().add(clearTextButtonType);
+
+            // Handling 'Clear Text' button
+            Node clearTextButton = fieldNameDialog.getDialogPane().lookupButton(clearTextButtonType);
+            clearTextButton.addEventFilter(ActionEvent.ACTION, event1 -> {
+                fieldNameDialog.getEditor().setText(""); // Clear the text
+                event1.consume(); // Prevent the dialog from closing
+            });
+
             Optional<String> fieldNameResult = fieldNameDialog.showAndWait();
-            if (!fieldNameResult.isPresent() || fieldNameResult.get().isEmpty()) {
-                // User finished adding fields or canceled
+            if (!fieldNameResult.isPresent() || fieldNameResult.get().isEmpty() ||
+                    finishButtonType.equals(fieldNameDialog.getResult())) {
+                // User finished adding fields or clicked 'Finish'
                 break;
             }
-            String fieldName = fieldNameResult.get();
+            String fieldName = fieldNameResult.get().replaceAll("\\s+", "").trim(); // Trim the input
 
             // Create a choice dialog for selecting field type
             ChoiceDialog<String> fieldTypeDialog = new ChoiceDialog<>("String", fieldTypes);
@@ -352,7 +450,9 @@ public class UMLController {
             diagram.classExists(selectedClass.getName()).addField(fieldName, fieldType, fieldVisibility);
 
             // Redraw the updated class on the canvas
-            umlView.updateCanvas(diagram,selectedClass);
+            //umlView.autoAssignCoordinatesGrid(selectedClass);
+            umlView.drawUpdatedClass(selectedClass);
+            //umlView.drawUpdatedClass(selectedClass);
             umlView.drawExistingRelationships();
         }
     }
@@ -360,8 +460,105 @@ public class UMLController {
     // To be implemented
     @FXML
     void addClassMethodGui(ActionEvent event) {
+        // Check if there are no classes in the list
+        if (drawnUMLClasses.isEmpty()) {
+            showAlert("Error", "No classes found. Please add a class first.");
+            return;
+        }
 
+        ButtonType finishButtonType = new ButtonType("Finish", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+
+        // Create a choice dialog for selecting the class
+        ChoiceDialog<String> classDialog = new ChoiceDialog<>(
+                drawnUMLClasses.get(0).getName(),
+                drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
+        classDialog.setTitle("Select Class");
+        classDialog.setHeaderText("Choose the class to add methods:");
+        classDialog.setContentText("Class:");
+
+        Optional<String> classNameResult = classDialog.showAndWait();
+        if (!classNameResult.isPresent()) {
+            // User canceled class selection
+            return;
+        }
+        String className = classNameResult.get();
+
+        // Find the selected class using the findUMLClass method
+        UMLClass selectedClass = findUMLClass(className);
+        if (selectedClass == null) {
+            showAlert("Error", "Class not found."); // Handle the case where the class is not found
+            return;
+        }
+
+        // Now proceed with adding methods to the selected class
+        while (true) {
+            TextInputDialog methodDialog = new TextInputDialog();
+            methodDialog.setTitle("Add Method");
+            methodDialog.setHeaderText("Enter method details (or press 'Finish' to end):");
+            methodDialog.setContentText("Method Name:");
+
+            // Remove default button types and add 'OK' and custom buttons
+            methodDialog.getDialogPane().getButtonTypes().clear();
+            methodDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, finishButtonType);
+
+            // Custom 'Clear Text' button to clear the method name
+            ButtonType clearTextButtonType = new ButtonType("Clear Text", ButtonBar.ButtonData.OTHER);
+            methodDialog.getDialogPane().getButtonTypes().add(clearTextButtonType);
+
+            // Event filter for 'Clear Text' button
+            Node clearTextButton = methodDialog.getDialogPane().lookupButton(clearTextButtonType);
+            clearTextButton.addEventFilter(ActionEvent.ACTION, event1 -> {
+                methodDialog.getEditor().clear();
+                event1.consume(); // Prevent the dialog from closing
+            });
+
+            Optional<String> methodNameResult = methodDialog.showAndWait();
+            if (!methodNameResult.isPresent() || methodNameResult.get().isEmpty() ||
+                    finishButtonType.equals(methodDialog.getResult())) {
+                // User finished adding methods or clicked 'Finish'
+                break;
+            }
+            String methodName = methodNameResult.get().replaceAll("\\s+", "").trim(); // Trim the input
+
+            // Choice dialog for method return type
+            ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", "int", "double", "char", "void", "float", "boolean");
+            returnTypeDialog.setTitle("Select Method Return Type");
+            returnTypeDialog.setHeaderText("Choose the method return type:");
+            returnTypeDialog.setContentText("Method Return Type:");
+
+            Optional<String> methodTypeResult = returnTypeDialog.showAndWait();
+            if (!methodTypeResult.isPresent() || methodTypeResult.get().isEmpty()) {
+                showAlert("Error", "Method return type is required.");
+                continue;
+            }
+            String methodType = methodTypeResult.get().trim(); // Selected return type
+
+            // Clear the input text before showing the next dialog
+            methodDialog.getEditor().clear();
+
+            // Dialog for entering method parameters
+            methodDialog.setContentText("Method Parameters (e.g., int param1, String param2):");
+            Optional<String> methodParamsResult = methodDialog.showAndWait();
+            String methodParams = methodParamsResult.orElse("");
+
+            // Split the parameters string into an ArrayList<String>
+            ArrayList<String> paramsList = new ArrayList<>();
+            if (!methodParams.isEmpty()) {
+                String[] paramsArray = methodParams.split(",\\s*");
+                Collections.addAll(paramsList, paramsArray);
+            }
+
+            // Add the method to the selected class and update the diagram
+            selectedClass.addMethod(methodName, methodType, paramsList);
+            diagram.classExists(selectedClass.getName()).addMethod(methodName, methodType, paramsList);
+
+            // Redraw the updated class on the canvas
+            umlView.drawUpdatedClass(selectedClass);
+            umlView.drawExistingRelationships();
+        }
     }
+
 
     @FXML
     void addRelationshipGui(ActionEvent event) {
@@ -473,13 +670,6 @@ public class UMLController {
         return null; // Class not found
     }
 
-
-    // Allows the user to close the program from the file dropdown tab
-    @FXML
-    void closeDiagramGui(ActionEvent event) {
-        Platform.exit();
-    }
-
     // Method to allow user to delete a class that is not in a relationship
     @FXML
     void deleteClassGui(ActionEvent event) {
@@ -559,9 +749,10 @@ public class UMLController {
             if (selectedRelationship != null) {
                 // Remove the relationship from the list
                 drawnUMLRelationships.remove(selectedRelationship);
+                diagram.removeRelationship(selectedRelationship.getSource().getName(), selectedRelationship.getDest().getName());
 
                 // Clear the relationship from the canvas
-                umlView.clearRelationshipFromCanvas(event, selectedRelationship);
+                umlView.clearRelationshipFromCanvas(selectedRelationship);
 
                 showAlert("Success", "Relationship has been removed: " + selectedRelationshipLabel);
             } else {
@@ -640,73 +831,326 @@ public class UMLController {
     // Unfinished
     @FXML
     void deleteClassMethodGui(ActionEvent event) {
+        // Check if there are no classes in the list
+        if (drawnUMLClasses.isEmpty()) {
+            showAlert("Error", "No classes found. Please add a class first.");
+            return;
+        }
 
+        // Create a choice dialog for selecting the class
+        ChoiceDialog<String> classDialog = new ChoiceDialog<>(
+                drawnUMLClasses.get(0).getName(),
+                drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
+        classDialog.setTitle("Select Class");
+        classDialog.setHeaderText("Choose the class to delete methods from:");
+        classDialog.setContentText("Class:");
+
+        Optional<String> classNameResult = classDialog.showAndWait();
+        if (!classNameResult.isPresent()) {
+            return; // User canceled class selection
+        }
+        String className = classNameResult.get();
+
+        // Find the selected class using the findUMLClass method
+        UMLClass selectedClass = findUMLClass(className);
+        if (selectedClass == null) {
+            showAlert("Error", "Class not found.");
+            return;
+        }
+
+        // Check if there are methods to delete
+        if (selectedClass.getMethods() == null || selectedClass.getMethods().isEmpty()) {
+            showAlert("Error", "No methods available to delete in the selected class.");
+            return;
+        }
+
+        List<UMLMethods> methods = selectedClass.getMethods();
+
+        ChoiceDialog<UMLMethods> methodDialog = new ChoiceDialog<>(methods.get(0), methods);
+        methodDialog.setTitle("Delete Method");
+        methodDialog.setHeaderText("Select the method to delete:");
+        methodDialog.setContentText("Method:");
+
+        Optional<UMLMethods> selectedMethodResult = methodDialog.showAndWait();
+        if (!selectedMethodResult.isPresent()) {
+            return; // User canceled
+        }
+
+        UMLMethods selectedMethod = selectedMethodResult.get();
+
+        // Display method details before deletion
+        showMethodDetails(selectedMethod);
+
+        // Ask for confirmation before deleting the method
+        Alert confirmDeletion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDeletion.setTitle("Confirm Deletion");
+        confirmDeletion.setHeaderText("Confirm Deletion");
+        confirmDeletion.setContentText("Do you really want to delete this method?");
+        Optional<ButtonType> result = confirmDeletion.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            selectedClass.removeMethod(selectedMethod.getName()); // Use the method name for deletion
+            umlView.updateCanvas(diagram, selectedClass);
+            umlView.drawExistingRelationships();
+            showAlert("Info", "Method deleted successfully.");
+        } else {
+            // User canceled the deletion
+            showAlert("Info", "Deletion canceled. The method was not deleted.");
+        }
+    }
+
+    // Show method details using an Alert
+    private void showMethodDetails(UMLMethods method) {
+        String methodDetails = "Method Name: " + method.getName() + "\n" +
+                "Return Type: " + method.getReturnType() + "\n" +
+                "Parameters: " + method.getParameters().toString();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Method Details");
+        alert.setHeaderText(null);
+        alert.setContentText(methodDetails);
+        alert.showAndWait();
     }
 
     // Unfinished
     @FXML
     void renameClassFieldGui(ActionEvent event) {
+        // Check if there are no classes in the list
+        if (drawnUMLClasses.isEmpty()) {
+            showAlert("Error", "No classes found. Please add a class first.");
+            return;
+        }
 
+        // Step 1: Select a class
+        ChoiceDialog<String> classDialog = new ChoiceDialog<>(
+                drawnUMLClasses.get(0).getName(),
+                drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
+        classDialog.setTitle("Select Class");
+        classDialog.setHeaderText("Select the class of the field to rename:");
+        classDialog.setContentText("Class:");
+
+        Optional<String> classNameResult = classDialog.showAndWait();
+        if (!classNameResult.isPresent()) {
+            return; // User canceled class selection
+        }
+        String className = classNameResult.get();
+        UMLClass selectedClass = findUMLClass(className);
+        if (selectedClass == null) {
+            showAlert("Error", "Class not found.");
+            return;
+        }
+
+        // Step 2: Select a field
+        ChoiceDialog<String> fieldDialog = new ChoiceDialog<>(
+                selectedClass.getFields().get(0).getName(),
+                selectedClass.getFields().stream().map(UMLFields::getName).collect(Collectors.toList()));
+        fieldDialog.setTitle("Select Field");
+        fieldDialog.setHeaderText("Select the field to rename:");
+        fieldDialog.setContentText("Field:");
+
+        Optional<String> fieldNameResult = fieldDialog.showAndWait();
+        if (!fieldNameResult.isPresent()) {
+            return; // User canceled field selection
+        }
+        String fieldName = fieldNameResult.get();
+
+        // Step 3: Enter new name
+        TextInputDialog newNameDialog = new TextInputDialog();
+        newNameDialog.setTitle("Rename Field");
+        newNameDialog.setHeaderText("Enter the New Field Name");
+        newNameDialog.setContentText("New Field Name:");
+
+        Optional<String> newNameResult = newNameDialog.showAndWait();
+        newNameResult.ifPresent(newName -> {
+            // Step 4: Rename the field
+            selectedClass.renameField(fieldName, newName);
+            showAlert("Success", "Field renamed from '" + fieldName + "' to '" + newName + "'");
+            // Update the view
+            umlView.drawUpdatedClass(selectedClass);
+        });
     }
+
 
     // Unfinished
     @FXML
     void renameClassMethodGui(ActionEvent event) {
+        // Check if there are no classes in the list
+        if (drawnUMLClasses.isEmpty()) {
+            showAlert("Error", "No classes found. Please add a class first.");
+            return;
+        }
 
+        // Step 1: Select a class
+        ChoiceDialog<String> classDialog = new ChoiceDialog<>(
+                drawnUMLClasses.get(0).getName(),
+                drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
+        classDialog.setTitle("Select Class");
+        classDialog.setHeaderText("Select the class of the method to rename:");
+        classDialog.setContentText("Class:");
+
+        Optional<String> classNameResult = classDialog.showAndWait();
+        if (!classNameResult.isPresent()) {
+            return; // User canceled class selection
+        }
+        String className = classNameResult.get();
+        UMLClass selectedClass = findUMLClass(className);
+        if (selectedClass == null) {
+            showAlert("Error", "Class not found.");
+            return;
+        }
+
+        // Step 2: Select a method
+        ChoiceDialog<UMLMethods> methodDialog = new ChoiceDialog<>(
+                selectedClass.getMethods().isEmpty() ? null : selectedClass.getMethods().get(0),
+                selectedClass.getMethods());
+        methodDialog.setTitle("Select Method");
+        methodDialog.setHeaderText("Select the method to rename:");
+        methodDialog.setContentText("Method:");
+
+        Optional<UMLMethods> selectedMethodResult = methodDialog.showAndWait();
+        if (!selectedMethodResult.isPresent()) {
+            return; // User canceled method selection
+        }
+
+        UMLMethods selectedMethod = selectedMethodResult.get();
+
+        // Step 3: Display method details, including parameters and types
+        StringBuilder methodDetails = new StringBuilder();
+        methodDetails.append("Method Name: ").append(selectedMethod.getName()).append("\n");
+        methodDetails.append("Return Type: ").append(selectedMethod.getReturnType()).append("\n");
+        methodDetails.append("Parameters:\n");
+        for (String parameter : selectedMethod.getParameters()) {
+            methodDetails.append(" - ").append(parameter).append("\n");
+        }
+
+        Alert methodDetailsAlert = new Alert(Alert.AlertType.INFORMATION);
+        methodDetailsAlert.setTitle("Method Details");
+        methodDetailsAlert.setHeaderText("Method Details");
+        methodDetailsAlert.setContentText(methodDetails.toString());
+        methodDetailsAlert.showAndWait();
+
+        // Step 4: Ask for confirmation before renaming the method
+        Alert confirmRename = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmRename.setTitle("Confirm Rename");
+        confirmRename.setHeaderText("Confirm Rename");
+        confirmRename.setContentText("Do you really want to rename this method?");
+        Optional<ButtonType> result = confirmRename.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Step 5: Enter new name
+            TextInputDialog newNameDialog = new TextInputDialog();
+            newNameDialog.setTitle("Rename Method");
+            newNameDialog.setHeaderText("Enter the New Method Name");
+            newNameDialog.setContentText("New Method Name:");
+
+            Optional<String> newNameResult = newNameDialog.showAndWait();
+            newNameResult.ifPresent(newName -> {
+                // Step 6: Rename the method
+                selectedClass.renameMethod(selectedMethod.getName(), newName);
+                showAlert("Success", "Method renamed to: " + newName);
+                // Update the view
+                umlView.drawUpdatedClass(selectedClass);
+            });
+        } else {
+            // User canceled the rename
+            showAlert("Info", "Rename canceled. The method was not renamed.");
+        }
     }
+    
+
 
     // Unfinished
     @FXML
     void changeRelTypeGui(ActionEvent event) {
+        if (drawnUMLRelationships.isEmpty()) {
+            showAlert("Error", "No relationships have been created to change.");
+            return;
+        }
 
+        // Step 1: Select a relationship
+        ChoiceDialog<UMLRelationships> relationshipDialog = new ChoiceDialog<>(null, new ArrayList<>(drawnUMLRelationships));
+        relationshipDialog.setTitle("Change Relationship Type");
+        relationshipDialog.setHeaderText("Select the relationship to change:");
+        relationshipDialog.setContentText("Relationship:");
+
+        Optional<UMLRelationships> relationshipResult = relationshipDialog.showAndWait();
+        if (!relationshipResult.isPresent()) {
+            return; // User canceled relationship selection
+        }
+
+        UMLRelationships selectedRelationship = relationshipResult.get();
+
+        // Step 2: Choose new relationship type
+        ChoiceDialog<UMLRelationships.RelationshipType> relationshipTypeDialog = new ChoiceDialog<>(selectedRelationship.getType(), UMLRelationships.RelationshipType.values());
+        relationshipTypeDialog.setTitle("Change Relationship Type");
+        relationshipTypeDialog.setHeaderText("Select the new type of relationship:");
+        relationshipTypeDialog.setContentText("New Relationship Type:");
+
+        Optional<UMLRelationships.RelationshipType> newTypeResult = relationshipTypeDialog.showAndWait();
+        if (!newTypeResult.isPresent()) {
+            return; // User canceled new type selection
+        }
+
+        UMLRelationships.RelationshipType newType = newTypeResult.get();
+
+        // Step 3: Update the relationship type
+        umlView.updateRelationType(selectedRelationship.getSource(), selectedRelationship.getDest(), newType);
+
+        showAlert("Success", "Relationship type changed successfully.");
     }
+
+
 
     // Unifinished
     @FXML
     void renameClassGui(ActionEvent event) {
-        // Get all class names from the UML diagram
-        List<String> classNames = new ArrayList<>(diagram.getClasses().keySet());
+        // Check if there are no classes in the list
+        if (drawnUMLClasses.isEmpty()) {
+            showAlert("Error", "No classes found. Please add a class first.");
+            return;
+        }
 
-        // Create a new ChoiceDialog instance with the list of class names for the user to select which class to rename
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(null, classNames);
-        dialog.setTitle("Rename Class");
-        dialog.setHeaderText("Select a Class to Rename");
-        dialog.setContentText("Class:");
+        // Create a choice dialog for selecting the class to rename
+        ChoiceDialog<String> classDialog = new ChoiceDialog<>(
+                drawnUMLClasses.get(0).getName(),
+                drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
+        classDialog.setTitle("Select Class");
+        classDialog.setHeaderText("Choose the class to rename:");
+        classDialog.setContentText("Class:");
 
-        // Show the dialog and capture the result
-        Optional<String> result = dialog.showAndWait();
+        Optional<String> classNameResult = classDialog.showAndWait();
+        if (!classNameResult.isPresent()) {
+            return; // User canceled class selection
+        }
+        String className = classNameResult.get();
 
-        result.ifPresent(oldClassName -> {
-            // Prompt the user for the new class name
-            TextInputDialog renameDialog = new TextInputDialog(oldClassName);
-            renameDialog.setTitle("Rename Class");
-            renameDialog.setHeaderText("Renaming Class: " + oldClassName);
-            renameDialog.setContentText("Enter new class name:");
+        // Find the selected class using the findUMLClass method
+        UMLClass selectedClass = findUMLClass(className);
+        if (selectedClass == null) {
+            showAlert("Error", "Class not found.");
+            return;
+        }
 
-            Optional<String> newClassNameResult = renameDialog.showAndWait();
-            newClassNameResult.ifPresent(newClassName -> {
-                if (!newClassName.trim().isEmpty() && !newClassName.equals(oldClassName)) {
-                    // Check if the new class name already exists
-                    if (diagram.classExists(newClassName) == null) {
-                        // Find the UMLClass object to be renamed
-                        UMLClass classToRename = diagram.classExists(oldClassName);
+        // TextInputDialog to get the new class name
+        TextInputDialog newNameDialog = new TextInputDialog();
+        newNameDialog.setTitle("Rename Class");
+        newNameDialog.setHeaderText("Enter the New Class Name");
+        newNameDialog.setContentText("New Class Name:");
 
-                        // Rename the UMLClass with the new name
-                        classToRename.setName(newClassName);
+        Optional<String> newNameResult = newNameDialog.showAndWait();
+        newNameResult.ifPresent(newName -> {
+            // Use the UMLDiagram instance to rename the class
+            diagram.renameClass(className, newName);
 
-                        // Redraw the UMLClass on the canvas with the updated name and maintain its position
-                        umlView.updateCanvas(classToRename);
+            // Update the name in the drawnUMLClasses list
+            selectedClass.setName(newName);
 
-                        showAlert("Success", "Class '" + oldClassName + "' renamed to '" + newClassName + "'.");
-                    } else {
-                        showAlert("Error", "A class with the name '" + newClassName + "' already exists.");
-                    }
-                } else {
-                    showAlert("Error", "Invalid class name.");
-                }
-            });
+            // Update the view with the new class name
+            umlView.drawUpdatedClass(selectedClass);
         });
     }
+
+
 
 
 
@@ -760,9 +1204,10 @@ public class UMLController {
 
                 // Assign coordinates to each UMLClass using autoAssignCoordinatesGrid
                 for (UMLClass umlClass : diagram.getClasses().values()) {
-                    umlView.autoAssignCoordinatesGrid(umlClass); // Assign coordinates
-                    drawnUMLClasses.add(umlClass);       // Add to list
-                    umlView.drawUMLClass(umlClass);      // Draw the class
+                     // Assign coordinates
+                    drawnUMLClasses.add(umlClass);
+                    umlView.autoAssignCoordinatesGrid(umlClass);
+                    umlView.updateCanvas(diagram, umlClass);      // Draw the class
                 }
 
                 for (UMLRelationships relationship : diagram.getRelationships()) {
@@ -820,4 +1265,18 @@ public class UMLController {
 
     }
 
+    public void restartCLI(ActionEvent actionEvent) {
+        CView = true;
+        umlMenu.displayMenu();
+        Platform.exit();
+        myLaunch(UMLDiagramGUI.class);
+    }
+
+    public void zoomIn(ActionEvent actionEvent) {
+        umlView.zoomIn();
+    }
+
+    public void zoomOut(ActionEvent actionEvent) {
+        umlView.zoomOut();
+    }
 }

@@ -44,6 +44,10 @@ public class UMLRelationships {
         this.endY = 0;
     }
 
+    public void setType(RelationshipType type) {
+        this.type = type;
+    }
+
     public UMLClass getDest() {
         return dest;
     }
@@ -94,6 +98,11 @@ public class UMLRelationships {
 
     public boolean containsClass(UMLClass umlClass) {
         return source.equals(umlClass) || dest.equals(umlClass);
+    }
+
+    @Override
+    public String toString() {
+        return getSource() + " - " + getType() + " - " + getDest();
     }
 
 }
