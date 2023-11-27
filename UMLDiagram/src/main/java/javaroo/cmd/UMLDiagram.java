@@ -96,16 +96,6 @@ public class UMLDiagram {
         // Other state updates if needed
     }
 
-    public void listClasses() {
-        if (classes.isEmpty()) {
-            System.out.println("No classes defined.");
-        } else {
-            for (String className : classes.keySet()) {
-                listClassContents(className);
-                System.out.println();
-            }
-        }
-    }
 
     void listClassContents(String className) {
         UMLClass umlClassEntity = classExists(className);
