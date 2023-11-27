@@ -284,6 +284,7 @@ public class UMLDiagram {
                 System.out.println();
             }
         }
+    }
 
         
 
