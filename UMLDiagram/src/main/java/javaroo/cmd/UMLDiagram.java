@@ -249,7 +249,8 @@ public class UMLDiagram {
         if (originalClass == null) {
             System.out.println("Invalid originalClass provided for update.");
             return;
-
+        }
+    }
     public void removeRelationship(String sourceName, String destName) {
         // Create the identifier based on source and destination names
         String relationshipId = sourceName + destName;
