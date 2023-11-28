@@ -6,7 +6,7 @@ To be able to run the program, please follow these steps.
 
 2. Install java development kit
 
-3.  For Windows computer users ensure that you have `JAVA_HOME` added to your system variables
+3. For Windows computer users ensure that you have `JAVA_HOME` added to your system variables
    1. Locate the directory where the JDK is installed on your system and note down the path to this directory.
 
    2. Do one of the following:
@@ -30,18 +30,18 @@ To be able to run the program, please follow these steps.
       as there's no way to reload environment variables from an active command prompt. If the changes don't take
       effect after reopening the command window, restart Windows.
 
-4. download the code from the repository from github at `https://github.com/harley-ewu/Javaroo.git`
+5. download the code from the repository from github at `https://github.com/harley-ewu/Javaroo.git`
 
-5.  Navigate to the directory where you saved the downloaded code from github it should be a zipped file
+6.  Navigate to the directory where you saved the downloaded code from github it should be a zipped file
 
-6. Unzip the the file
+7. Unzip the the file
 
-7. Within the folder from the file you just unzipped, there will be another zipped file called `UMLDiagram-1.0.zip`
+8. Within the folder from the file you just unzipped, there will be another zipped file called `UMLDiagram-1.0.zip`
 
-8. Unzip the folder `UMLDiagram-1.0.zip`
+9. Unzip the folder `UMLDiagram-1.0.zip`
 
-9. Go into the unzipped folder and click into the bin folder you'll then see two files:
+10. Go into the unzipped folder and click into the bin folder you'll then see two files:
     1. If you are using a Macintosh or a Linux Computer double click the file named `UMLDiagram`
     2. If you are using a Windows Computer double click the file named `UMLDiagram.bat`
 
-10. Have fun with the JAVAROO UML Editor :)
+11. Have fun with the JAVAROO UML Editor :)
