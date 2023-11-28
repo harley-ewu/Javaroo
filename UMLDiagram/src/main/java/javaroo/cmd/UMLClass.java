@@ -192,7 +192,7 @@ public class UMLClass {
         }
 
         //remove method at index
-        this.methods.remove(index - 1);
+        this.methods.remove(index);
         System.out.println("Method removed");
     }
 
@@ -226,7 +226,7 @@ public class UMLClass {
             return;
         }
         // rename method at index
-        this.methods.get(index - 1).setName(newName);
+        this.methods.get(index).setName(newName);
         System.out.println("Method renamed to: " + newName);
     }
 

@@ -5,15 +5,22 @@ import javaroo.umldiagram.*;
 import org.fusesource.jansi.AnsiConsole;
 import java.io.IOException;
 import java.util.*;
+
 import org.jline.reader.*;
-import org.jline.reader.impl.LineReaderImpl;
+import org.jline.reader.impl.DefaultParser;
+import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.jline.terminal.TerminalBuilder;
+import static javafx.application.Application.launch;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-
-import static javafx.application.Application.launch;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
-
 public class UMLMenu {
+    private static final Logger logger = LoggerFactory.getLogger(UMLMenu.class);
 
     private UMLDiagram diagram;
     private static final List<String> CMDS = Arrays.asList("add class ", "add field ", "add method ", "add relationship ", "add parameter ",
@@ -60,22 +67,149 @@ public class UMLMenu {
     public static void main(String[] args) {
         UMLMenu menu = new UMLMenu();
         try {
-            AnsiConsole.systemInstall();
-            Terminal terminal = TerminalBuilder.builder().build();
-            LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).completer(new CommandCompleter()).build();
+            // Check for console availability
+            if (System.console() == null) {
+                System.err.println("No console available. Falling back to a simpler interface.");
+                // Implement a simpler, non-interactive command processing here if needed
+                return;
+            }
 
+            // Install AnsiConsole for ANSI support on Windows
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                AnsiConsole.systemInstall();
+            }
+
+            String osName = System.getProperty("os.name").toLowerCase();
+            boolean isMacOS = osName.startsWith("mac");
+
+            // Configure the terminal with JNA and Jansi
+            Terminal terminal;
+            try {
+                TerminalBuilder builder = TerminalBuilder.builder()
+                        .system(true)
+                        .jna(true)
+                        .jansi(false)
+                        .exec(false)
+                        .dumb(false);
+
+                // Set exec to true if the operating system is macOS
+                if (isMacOS) {
+                    builder.exec(true);
+                }
+
+                terminal = builder.build();
+            } catch (IOException e) {
+                System.err.println("Failed to build the terminal: " + e.getMessage());
+                return;
+            }
+            // Build the line reader with a custom completer
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .completer(new CommandCompleter()) // Replace with your completer
+                    .build();
+
+            // Display help menu
             System.out.println(helpMenu);
             String prompt = "Enter command: ";
             String line;
+
+            // Command processing loop
             while (!(line = lineReader.readLine(prompt)).equals("exit")) {
-                menu.processCommandCLI(line);
+                try {
+                    menu.processCommandCLI(line); // Replace with your command processing logic
+                } catch (Exception e) {
+                    System.err.println("Error processing command: " + e.getMessage());
+                }
             }
-            AnsiConsole.systemUninstall();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // Uninstall AnsiConsole if it was installed
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                AnsiConsole.systemUninstall();
+            }
+        }
+    }
+
+
+//    private static Terminal createTerminal(String type) throws Exception {
+//        switch (type) {
+//            case "exec":
+//                return TerminalBuilder.builder().exec(true).build();
+//            case "unix":
+//                return TerminalBuilder.builder().unix(true).build();
+//            case "win":
+//                return TerminalBuilder.builder().win(true).build();
+//            case "jna":
+//                return TerminalBuilder.builder().jna(true).build();
+//            case "jansi":
+//                return TerminalBuilder.builder().jansi(true).build();
+//            case "false":
+//                return TerminalBuilder.builder().dumb(true).build();
+//            default:
+//                return TerminalBuilder.builder().build();
+//        }
+//    }
+
+    private static Terminal terminal;
+
+    private static void setupTerminal() {
+        try {
+            // Create a terminal instance
+            Terminal terminal = TerminalBuilder.builder()
+                    .system(true)
+                    .jna(true)
+                    .jansi(false)
+                    .exec(false)
+                    .dumb(false)
+                    .build();
+
+            if (terminal == null) {
+                System.err.println("Terminal is not initialized.");
+                return;
+            }
+
+            // Create a LineReader for the terminal
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .build();
+
+            String prompt = "Enter command: ";
+            String line;
+
+            // Read and process lines
+            while (!(line = lineReader.readLine(prompt)).equals("exit")) {
+                System.out.println("Command entered: " + line);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error in command processing: " + e.getMessage());
+        }
+    }
+
+
+    private static void processCommands() {
+        if (terminal == null) {
+            System.err.println("Terminal is not initialized.");
+            return;
         }
 
     }
+
+
+
+
+    private static void cleanup() {
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            AnsiConsole.systemUninstall();
+            System.out.println("AnsiConsole uninstalled.");
+        }
+    }
+
+
+
+
+
 
     static class CommandCompleter implements Completer {
         @Override
