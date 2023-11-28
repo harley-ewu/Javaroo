@@ -79,21 +79,29 @@ public class UMLMenu {
                 AnsiConsole.systemInstall();
             }
 
+            String osName = System.getProperty("os.name").toLowerCase();
+            boolean isMacOS = osName.startsWith("mac");
+
             // Configure the terminal with JNA and Jansi
             Terminal terminal;
             try {
-                terminal = TerminalBuilder.builder()
+                TerminalBuilder builder = TerminalBuilder.builder()
                         .system(true)
                         .jna(true)
                         .jansi(false)
                         .exec(false)
-                        .dumb(false)
-                        .build();
+                        .dumb(false);
+
+                // Set exec to true if the operating system is macOS
+                if (isMacOS) {
+                    builder.exec(true);
+                }
+
+                terminal = builder.build();
             } catch (IOException e) {
                 System.err.println("Failed to build the terminal: " + e.getMessage());
                 return;
             }
-
             // Build the line reader with a custom completer
             LineReader lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
