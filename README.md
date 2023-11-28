@@ -40,9 +40,8 @@ To be able to run the program, please follow these steps.
 
 8. Unzip the folder `UMLDiagram-1.0.zip`
 
-9. Go into the unzipped folder and click into the bin folder you'll then see two files
-         If you are using a Macintosh or a Linux Computer double click the file named `UMLDiagram`
-            or
-         If you are using a Windows Computer double click the file named `UMLDiagram.bat`
+9. Go into the unzipped folder and click into the bin folder you'll then see two files:
+    1. If you are using a Macintosh or a Linux Computer double click the file named `UMLDiagram`
+    2. If you are using a Windows Computer double click the file named `UMLDiagram.bat`
 
-10. Have fun with the JAVAROO UML Editor :)
+11. Have fun with the JAVAROO UML Editor :)
