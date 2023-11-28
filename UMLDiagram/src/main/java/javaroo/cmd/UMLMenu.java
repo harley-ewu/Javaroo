@@ -61,7 +61,7 @@ public class UMLMenu {
         UMLMenu menu = new UMLMenu();
         try {
             AnsiConsole.systemInstall();
-            Terminal terminal = TerminalBuilder.builder().build();
+            Terminal terminal = TerminalBuilder.builder().jansi(true).build();
             LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).completer(new CommandCompleter()).build();
 
             System.out.println(helpMenu);
