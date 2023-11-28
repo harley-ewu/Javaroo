@@ -1,0 +1,26 @@
+Javaroo Design Patterns
+
+
+Memento : Undo/Redo
+	class - UMLDiagram
+	-> This class is responsible for creating snapshots of its current state and can later revert to these snapchats. Thus, this enables undo and redo functionality in our program.
+	line/s - setMemento and createMemento methods 
+	
+
+Command : Undo/Redo
+	class - AddClassCommand/RemoveClassCommand/etc
+	-> These classes contain specific functionalities such as adding or removing a class. This allows for a more modular and organized approach for these actions.
+	line/s - whole class 
+
+
+Observer : Buttons of the GUI, and the refreshing of the diagram(s)
+	class -
+	line/s - 
+
+Singleton : The Diagram
+	class -
+	line/s - 
+
+Proxy : GUI copies the diagram instead of accessing it
+	class -
+	line/s - 
