@@ -70,7 +70,7 @@ public class UMLMenu {
             while (!(line = lineReader.readLine(prompt)).equals("exit")) {
                 menu.processCommandCLI(line);
             }
-            AnsiConsole.systemUnistall();
+            AnsiConsole.systemUninstall();
         } catch (IOException e) {
             e.printStackTrace();
         }
