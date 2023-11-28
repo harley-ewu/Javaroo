@@ -15,9 +15,9 @@ To be able to run the program, please follow these steps.
 6. For Windows computer users ensure that you have `JAVA_HOME` added to your system variables
    1. Locate the directory where the JDK is installed on your system and note down the path to this directory.
    2. Do one of the following:
-            `Windows 7` – Right click My Computer and select Properties > Advanced
-            `Windows 8` – Go to Control Panel > System > Advanced System Settings
-            `Windows 10/11` – Search for Environment Variables then select Edit the system environment variables
+             .`Windows 7` – Right click My Computer and select Properties > Advanced
+             .`Windows 8` – Go to Control Panel > System > Advanced System Settings
+             .`Windows 10/11` – Search for Environment Variables then select Edit the system environment variables
    3. Click the Environment Variables button
    4. Under System Variables, click New
    5. In the Variable Name field, enter either:
