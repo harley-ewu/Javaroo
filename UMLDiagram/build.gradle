@@ -42,6 +42,7 @@ javafx {
 
 dependencies {
 
+    implementation 'org.fusesource.jansi:jansi:2.4.1'
     implementation 'org.jline:jline:3.24.1'
     implementation 'junit:junit:4.13.2'
     implementation 'junit:junit-dep:4.11'

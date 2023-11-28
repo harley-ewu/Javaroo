@@ -2,6 +2,7 @@ package javaroo.cmd;
 import javaroo.cmd.UMLDiagram;
 import javaroo.umldiagram.*;
 
+import org.fusesource.jansi.AnsiConsole;
 import java.io.IOException;
 import java.util.*;
 import org.jline.reader.*;
@@ -59,6 +60,7 @@ public class UMLMenu {
     public static void main(String[] args) {
         UMLMenu menu = new UMLMenu();
         try {
+            AnsiConsole.systemInstall();
             Terminal terminal = TerminalBuilder.builder().build();
             LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).completer(new CommandCompleter()).build();
 
@@ -68,6 +70,7 @@ public class UMLMenu {
             while (!(line = lineReader.readLine(prompt)).equals("exit")) {
                 menu.processCommandCLI(line);
             }
+            AnsiConsole.systemUninstall();
         } catch (IOException e) {
             e.printStackTrace();
         }
