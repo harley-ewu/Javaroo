@@ -2,6 +2,7 @@ package javaroo.cmd;
 import javaroo.cmd.UMLDiagram;
 import javaroo.umldiagram.*;
 
+import org.fusesource.jansi.AnsiConsole;
 import java.io.IOException;
 import java.util.*;
 import org.jline.reader.*;
@@ -11,8 +12,8 @@ import org.jline.terminal.TerminalBuilder;
 
 import static javafx.application.Application.launch;
 import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
-
 public class UMLMenu {
+
 
     private UMLDiagram diagram;
     private static final List<String> CMDS = Arrays.asList("add class ", "add field ", "add method ", "add relationship ", "add parameter ",
@@ -59,20 +60,62 @@ public class UMLMenu {
     public static void main(String[] args) {
         UMLMenu menu = new UMLMenu();
         try {
-            Terminal terminal = TerminalBuilder.builder().build();
-            LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).completer(new CommandCompleter()).build();
+            // Check for console availability
+            if (System.console() == null) {
+                System.err.println("No console available. Falling back to a simpler interface.");
+                // Implement a simpler, non-interactive command processing here if needed
+                return;
+            }
 
+            // Install AnsiConsole for ANSI support, with a check for Windows OS
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                // Only install AnsiConsole on Windows as it's needed for ANSI support
+                AnsiConsole.systemInstall();
+            }
+
+            // Configure the terminal with JNA and Jansi, with added error handling
+            Terminal terminal;
+            try {
+                terminal = TerminalBuilder.builder()
+                        .jna(true)
+                        .jansi(true)
+                        .system(true) // Ensures the use of a system terminal where possible
+                        .build();
+            } catch (IOException e) {
+                System.err.println("Failed to build the terminal: " + e.getMessage());
+                return;
+            }
+
+            // Build the line reader with a custom completer
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .completer(new CommandCompleter()) // Replace with your completer
+                    .build();
+
+            // Display help menu
             System.out.println(helpMenu);
             String prompt = "Enter command: ";
             String line;
+
+            // Command processing loop
             while (!(line = lineReader.readLine(prompt)).equals("exit")) {
-                menu.processCommandCLI(line);
+                try {
+                    menu.processCommandCLI(line); // Replace with your command processing logic
+                } catch (Exception e) {
+                    System.err.println("Error processing command: " + e.getMessage());
+                }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // Uninstall AnsiConsole if it was installed
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                AnsiConsole.systemUninstall();
+            }
         }
 
     }
+
 
     static class CommandCompleter implements Completer {
         @Override
