@@ -20,6 +20,7 @@ module javaroo.umldiagram {
     requires javafx.fxml;
     requires com.google.gson;
     requires junit;
+    requires org.fusesource.jansi;
 
     opens javaroo.umldiagram to javafx.fxml;
     // Added exports and opens directives for javaroo.cmd
