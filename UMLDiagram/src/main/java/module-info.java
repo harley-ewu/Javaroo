@@ -20,8 +20,8 @@ module javaroo.umldiagram {
     requires javafx.fxml;
     requires com.google.gson;
     requires org.fusesource.jansi;
-    requires org.jline;
     requires org.slf4j;
+    requires org.jline;
 
     opens javaroo.umldiagram to javafx.fxml;
     //exports and opens directives for javaroo.cmd
