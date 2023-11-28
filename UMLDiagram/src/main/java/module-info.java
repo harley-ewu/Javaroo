@@ -19,13 +19,15 @@ module javaroo.umldiagram {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
-    requires junit;
     requires org.fusesource.jansi;
+    requires org.jline;
+    requires org.slf4j;
 
     opens javaroo.umldiagram to javafx.fxml;
-    // Added exports and opens directives for javaroo.cmd
+    //exports and opens directives for javaroo.cmd
     exports javaroo.cmd to junit, javafx.graphics;
     opens javaroo.cmd to junit;
+    exports javaroo.umldiagram to javafx.graphics;
 
     // Other exports if necessary
 }
