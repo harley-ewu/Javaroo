@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static javaroo.cmd.UMLMenu.*;
-//import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
 
 public class UMLController {
 
@@ -67,15 +66,7 @@ public class UMLController {
     public UMLView getUMLView() {
         return this.umlView;
     }
-
-
-    // Public method to get the instance
-    public static UMLController getInstance() {
-        if (controllerInstance == null) {
-            controllerInstance = new UMLController();
-        }
-        return controllerInstance;
-    }
+    
 
     public UMLController() {
         this.umlView = new UMLView(this);
@@ -340,14 +331,6 @@ public class UMLController {
             umlView.updateCanvas(diagram, umlClass);      // Draw the class
         }
 
-//        for (UMLClass umlClass : classesMap.values()) {
-//            drawnUMLClasses.add(umlClass);
-//        }
-//        for (UMLClass umlClass : drawnUMLClasses) {
-//            umlView.autoAssignCoordinatesGrid(umlClass);
-//            umlView.updateCanvas(diagram, umlClass);
-//
-//        }
 
         for (UMLRelationships relationship : diagram.getRelationships()) {
             drawnUMLRelationships.add(relationship);
