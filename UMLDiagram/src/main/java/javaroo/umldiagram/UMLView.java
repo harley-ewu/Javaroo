@@ -651,6 +651,11 @@ public class UMLView {
         scrollPane.setVvalue(vvalue);
     }
 
+    public void clearCanvas() {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
+    }
+
     public void refresh(){
 
         controller.drawnUMLClasses.clear();
@@ -658,6 +663,10 @@ public class UMLView {
 
 
         controller.drawnUMLClasses.addAll(controller.classesMap.values());
+
+        if(controller.drawnUMLClasses.isEmpty()){
+            clearCanvas();
+        }
         for (UMLClass umlClass : controller.drawnUMLClasses) {
            autoAssignCoordinatesGrid(umlClass);
             updateCanvas(controller.diagram, umlClass);
