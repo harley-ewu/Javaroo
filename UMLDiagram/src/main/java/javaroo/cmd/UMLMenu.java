@@ -187,25 +187,11 @@ public class UMLMenu {
                 System.out.println("Executing 'undo' command");
                 // Add logic for 'undo'
                 undo();
-                Platform.runLater(() -> {
-                    if (umlView != null) {
-                        umlView.refresh();
-                    } else {
-                        System.out.println("Error: UMLView is null.");
-                    }
-                });
                 break;
             case "redo":
                 System.out.println("Executing 'redo' command");
                 // Add logic for 'redo'
                 redo();
-                Platform.runLater(() -> {
-                    if (umlView != null) {
-                        umlView.refresh();
-                    } else {
-                        System.out.println("Error: UMLView is null.");
-                    }
-                });
                 break;
             case "visualize":
                 System.out.println("Executing 'visualize' command");
@@ -367,6 +353,7 @@ public class UMLMenu {
                 UMLCommandManager.executeCommand(new RemoveClassCommand(diagram, name));
                 Platform.runLater(() -> {
                     if (umlView != null) {
+                        umlView.updateCanvasRemoveClass(name);
                         umlView.refresh();
                     } else {
                         System.out.println("Error: UMLView is null.");

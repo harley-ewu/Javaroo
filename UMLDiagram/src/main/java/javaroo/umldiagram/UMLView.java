@@ -404,7 +404,7 @@ public class UMLView {
     }
 
 
-    void updateCanvasRemoveClass(String className) {
+    public void updateCanvasRemoveClass(String className) {
         UMLClass umlClassToRemove = null;
         List<UMLRelationships> relationshipsToRemove = new ArrayList<>();
 
