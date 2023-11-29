@@ -1,5 +1,8 @@
 package javaroo.cmd;
 
+import javafx.application.Platform;
+import javaroo.umldiagram.UMLController;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
