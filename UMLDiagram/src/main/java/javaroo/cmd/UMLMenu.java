@@ -210,6 +210,9 @@ public class UMLMenu {
                 UMLSaveLoad load = new UMLSaveLoad(diagram);
                 load.loadData(fileName);
                 break;
+            case "exit":
+
+                System.exit(0);
             case "help":
                 // This should print out the help menu showing cmd usage
                 System.out.println(helpMenu);
