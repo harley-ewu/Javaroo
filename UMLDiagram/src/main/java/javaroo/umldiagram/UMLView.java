@@ -660,4 +660,26 @@ public class UMLView {
         scrollPane.setHvalue(hvalue);
         scrollPane.setVvalue(vvalue);
     }
+
+    public void refresh(){
+
+        controller.drawnUMLClasses.clear();
+        controller.drawnUMLRelationships.clear();
+
+
+        controller.drawnUMLClasses.addAll(controller.classesMap.values());
+        for (UMLClass umlClass : controller.drawnUMLClasses) {
+           autoAssignCoordinatesGrid(umlClass);
+            updateCanvas(controller.diagram, umlClass);
+
+        }
+
+        for (UMLRelationships relationship : controller.diagram.getRelationships()) {
+            controller.drawnUMLRelationships.add(relationship);
+            drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
+        }
+
+        // Draw the existing relationships.
+        drawExistingRelationships();
+    }
 }
