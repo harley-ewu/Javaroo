@@ -224,11 +224,25 @@ public class UMLMenu {
   
     private void undo() {
         UMLCommandManager.undo();
+        Platform.runLater(() -> {
+            if (umlView != null) {
+                umlView.refresh();
+            } else {
+                System.out.println("Error: UMLView is null.");
+            }
+        });
         System.out.println("Undo");
     }
 
     private void redo() {
         UMLCommandManager.redo();
+        Platform.runLater(() -> {
+            if (umlView != null) {
+                umlView.refresh();
+            } else {
+                System.out.println("Error: UMLView is null.");
+            }
+        });
         System.out.println("Redo");
     }
 
