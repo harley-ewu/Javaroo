@@ -404,7 +404,7 @@ public class UMLView {
     }
 
 
-    void updateCanvasRemoveClass(String className) {
+    public void updateCanvasRemoveClass(String className) {
         UMLClass umlClassToRemove = null;
         List<UMLRelationships> relationshipsToRemove = new ArrayList<>();
 
@@ -629,16 +629,6 @@ public class UMLView {
         alert.setContentText(content);
         alert.showAndWait();
     }
-//    public void drawUpdatedClass(UMLClass updatedClass) {
-//        GraphicsContext gc = centerContent.getGraphicsContext2D();
-//        gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
-//        drawUMLClass(updatedClass);
-//    }
-
- //   public void adjustViewAfterDrawing(UMLClass newUmlClass) {
-        // Calculate the bounding box of all UML diagrams
-  //      Rectangle2D boundingBox = calculateBoundingBox();
-   // }
     public void drawUpdatedClass(UMLClass updatedClass) {
 
         GraphicsContext gc = centerContent.getGraphicsContext2D();
@@ -659,5 +649,27 @@ public class UMLView {
         // Adjust the scrollPane's hvalue and vvalue to center on the new class
         scrollPane.setHvalue(hvalue);
         scrollPane.setVvalue(vvalue);
+    }
+
+    public void refresh(){
+
+        controller.drawnUMLClasses.clear();
+        controller.drawnUMLRelationships.clear();
+
+
+        controller.drawnUMLClasses.addAll(controller.classesMap.values());
+        for (UMLClass umlClass : controller.drawnUMLClasses) {
+           autoAssignCoordinatesGrid(umlClass);
+            updateCanvas(controller.diagram, umlClass);
+
+        }
+
+        for (UMLRelationships relationship : controller.diagram.getRelationships()) {
+            controller.drawnUMLRelationships.add(relationship);
+            drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
+        }
+
+        // Draw the existing relationships.
+        drawExistingRelationships();
     }
 }

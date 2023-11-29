@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static javaroo.cmd.UMLMenu.*;
-import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
+//import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
 
 public class UMLController {
 
-    private final UMLView umlView;
+    private UMLView umlView;
 
     @FXML
     private Button addClassButton;
@@ -62,7 +62,12 @@ public class UMLController {
     @FXML
     private Button renameMethodButton;
 
-    private static UMLController controllerInstance;
+    public static UMLController controllerInstance;
+
+    public UMLView getUMLView() {
+        return this.umlView;
+    }
+
 
     // Public method to get the instance
     public static UMLController getInstance() {
@@ -1245,6 +1250,8 @@ public class UMLController {
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
+
+        this.umlView = new UMLView(this);
         assert addClassButton != null : "fx:id=\"addClassButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert addFieldButton != null : "fx:id=\"addFieldButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
         assert addMethodButton != null : "fx:id=\"addMethodButton\" was not injected: check your FXML file 'UMLCreator.fxml'.";
@@ -1268,7 +1275,7 @@ public class UMLController {
     public void restartCLI(ActionEvent actionEvent) {
         CView = true;
         Platform.exit();
-        myLaunch(UMLDiagramGUI.class);
+        //myLaunch(UMLDiagramGUI.class);
     }
 
     public void zoomIn(ActionEvent actionEvent) {

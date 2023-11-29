@@ -1,28 +1,31 @@
 package javaroo.cmd;
-import javaroo.cmd.UMLDiagram;
+import javafx.application.Application;
+import javafx.application.Platform;
 import javaroo.umldiagram.*;
-
 import org.fusesource.jansi.AnsiConsole;
 import java.io.IOException;
 import java.util.*;
-
 import org.jline.reader.*;
-import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jline.terminal.TerminalBuilder;
-import static javafx.application.Application.launch;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
-import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
 public class UMLMenu {
     private static final Logger logger = LoggerFactory.getLogger(UMLMenu.class);
 
     private UMLDiagram diagram;
+
+    private UMLView umlView; // Add a field for UMLView
+
+    public UMLMenu(UMLView umlView) {
+        this.diagram = new UMLDiagram();
+        this.umlView = umlView; // Initialize UMLView
+    }
+
+
+
     private static final List<String> CMDS = Arrays.asList("add class ", "add field ", "add method ", "add relationship ", "add parameter ",
             "delete class ", "delete field ", "delete method ", "delete relationship ", "delete parameter ",
     "rename class ", "rename field ", "rename method ", "rename parameter ", "list all",
@@ -65,7 +68,17 @@ public class UMLMenu {
     public static boolean CView = true;
   
     public static void main(String[] args) {
-        UMLMenu menu = new UMLMenu();
+        new Thread(() -> Application.launch(UMLDiagramGUI.class)).start();
+        UMLDiagramGUI.waitForInitialization();
+
+        // Obtain UMLController from UMLDiagramGUI
+        UMLController umlController = UMLDiagramGUI.getController(); // Implement this method in UMLDiagramGUI
+
+        // Use the UMLView from the controller
+        UMLView umlView = umlController.getUMLView(); // Implement getUMLView in UMLController
+
+        // Pass the UMLView instance to UMLMenu
+        UMLMenu menu = new UMLMenu(umlView);
         try {
             // Check for console availability
             if (System.console() == null) {
@@ -131,86 +144,6 @@ public class UMLMenu {
         }
     }
 
-
-//    private static Terminal createTerminal(String type) throws Exception {
-//        switch (type) {
-//            case "exec":
-//                return TerminalBuilder.builder().exec(true).build();
-//            case "unix":
-//                return TerminalBuilder.builder().unix(true).build();
-//            case "win":
-//                return TerminalBuilder.builder().win(true).build();
-//            case "jna":
-//                return TerminalBuilder.builder().jna(true).build();
-//            case "jansi":
-//                return TerminalBuilder.builder().jansi(true).build();
-//            case "false":
-//                return TerminalBuilder.builder().dumb(true).build();
-//            default:
-//                return TerminalBuilder.builder().build();
-//        }
-//    }
-
-    private static Terminal terminal;
-
-    private static void setupTerminal() {
-        try {
-            // Create a terminal instance
-            Terminal terminal = TerminalBuilder.builder()
-                    .system(true)
-                    .jna(true)
-                    .jansi(false)
-                    .exec(false)
-                    .dumb(false)
-                    .build();
-
-            if (terminal == null) {
-                System.err.println("Terminal is not initialized.");
-                return;
-            }
-
-            // Create a LineReader for the terminal
-            LineReader lineReader = LineReaderBuilder.builder()
-                    .terminal(terminal)
-                    .build();
-
-            String prompt = "Enter command: ";
-            String line;
-
-            // Read and process lines
-            while (!(line = lineReader.readLine(prompt)).equals("exit")) {
-                System.out.println("Command entered: " + line);
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error in command processing: " + e.getMessage());
-        }
-    }
-
-
-    private static void processCommands() {
-        if (terminal == null) {
-            System.err.println("Terminal is not initialized.");
-            return;
-        }
-
-    }
-
-
-
-
-    private static void cleanup() {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            AnsiConsole.systemUninstall();
-            System.out.println("AnsiConsole uninstalled.");
-        }
-    }
-
-
-
-
-
-
     static class CommandCompleter implements Completer {
         @Override
         public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
@@ -263,7 +196,7 @@ public class UMLMenu {
             case "visualize":
                 System.out.println("Executing 'visualize' command");
                 // Add logic for 'visualize', this is the command to open the GUI
-                myLaunch(UMLDiagramGUI.class);
+                UMLDiagramGUI.getInstance().showGUI(true);
                 break;
             case "save":
                 //add logic to save the diagram
@@ -310,6 +243,13 @@ public class UMLMenu {
             case "class":
                 // Add logic for 'add class' with the class name (name)
                 UMLCommandManager.executeCommand(new AddClassCommand(diagram, name));
+                Platform.runLater(() -> {
+                    if (umlView != null) {
+                        umlView.refresh();
+                    } else {
+                        System.out.println("Error: UMLView is null.");
+                    }
+                });
                 break;
             case "field":
                 // Add logic for 'add field' with the field name (name)
@@ -321,6 +261,13 @@ public class UMLMenu {
                     if(cls != null)
                     {
                         cls.addField(fieldName, fieldType, visibility);
+                        Platform.runLater(() -> {
+                            if (umlView != null) {
+                                umlView.refresh();
+                            } else {
+                                System.out.println("Error: UMLView is null.");
+                            }
+                        });
                     }
                     else {
                         System.out.println("Class " + name + " doesn't exist.");
@@ -329,6 +276,7 @@ public class UMLMenu {
                 else {
                     System.out.println("Please use format: add field <class> <visibility> <type> <name>");
                 }
+
                 break;
             case "method":
                 // Add logic for 'add method' with the method name (name)
@@ -346,6 +294,13 @@ public class UMLMenu {
                     if(cls != null)
                     {
                         cls.addMethod(methodName, returnType, params);
+                        Platform.runLater(() -> {
+                            if (umlView != null) {
+                                umlView.refresh();
+                            } else {
+                                System.out.println("Error: UMLView is null.");
+                            }
+                        });
                     }
                     else {
                         System.out.println("Class " + name + " doesn't exist.");
@@ -360,6 +315,13 @@ public class UMLMenu {
                 if(parts.length > 4) {
                     UMLRelationships.RelationshipType relType = UMLRelationships.RelationshipType.valueOf(parts[4].toUpperCase());
                     diagram.addRelationship(diagram.classExists(name), diagram.classExists(parts[3]), relType);
+                    Platform.runLater(() -> {
+                        if (umlView != null) {
+                            umlView.refresh();
+                        } else {
+                            System.out.println("Error: UMLView is null.");
+                        }
+                    });
                 }
                 else {
                     System.out.println("Please use format: add relationship <class> <class> <type>");
@@ -389,6 +351,14 @@ public class UMLMenu {
             case "class":
                 // Add logic for 'delete class' with the class name (name)
                 UMLCommandManager.executeCommand(new RemoveClassCommand(diagram, name));
+                Platform.runLater(() -> {
+                    if (umlView != null) {
+                        umlView.updateCanvasRemoveClass(name);
+                        umlView.refresh();
+                    } else {
+                        System.out.println("Error: UMLView is null.");
+                    }
+                });
                 break;
             case "field":
                 // Add logic for 'delete field' with the field name (name)
@@ -399,6 +369,13 @@ public class UMLMenu {
                     if(cls != null)
                     {
                         cls.removeField(fieldName);
+                        Platform.runLater(() -> {
+                            if (umlView != null) {
+                                umlView.refresh();
+                            } else {
+                                System.out.println("Error: UMLView is null.");
+                            }
+                        });
                     }
                     else {
                         System.out.println("Class " + name + " doesn't exist.");
@@ -417,6 +394,13 @@ public class UMLMenu {
                     {
                         int index = Integer.parseInt(parts[3]);
                         cls.removeMethod(index - 1);
+                        Platform.runLater(() -> {
+                            if (umlView != null) {
+                                umlView.refresh();
+                            } else {
+                                System.out.println("Error: UMLView is null.");
+                            }
+                        });
                     }
                     else {
                         System.out.println("Class " + name + " doesn't exist.");
@@ -434,6 +418,13 @@ public class UMLMenu {
                 {
                     int index = UMLDiagram.getRelationships().indexOf(rel);
                     diagram.removeRelationship(index);
+                    Platform.runLater(() -> {
+                        if (umlView != null) {
+                            umlView.refresh();
+                        } else {
+                            System.out.println("Error: UMLView is null.");
+                        }
+                    });
                     System.out.println("Relationship removed.");
                 }
                 else {
@@ -465,6 +456,13 @@ public class UMLMenu {
             case "class":
                 // Add logic for 'rename class' with the old and new class names (oldName, newName)
                 UMLCommandManager.executeCommand(new RenameClassCommand(diagram, oldName, newName));
+                Platform.runLater(() -> {
+                    if (umlView != null) {
+                        umlView.refresh();
+                    } else {
+                        System.out.println("Error: UMLView is null.");
+                    }
+                });
                 break;
             case "field":
                 // Add logic for 'rename field' with the old and new field names (oldName, newName)
@@ -477,6 +475,13 @@ public class UMLMenu {
                     if(cls != null)
                     {
                         cls.renameField(oldName, newName);
+                        Platform.runLater(() -> {
+                            if (umlView != null) {
+                                umlView.refresh();
+                            } else {
+                                System.out.println("Error: UMLView is null.");
+                            }
+                        });
                     }
                     else {
                         System.out.println("Class" + className + " doesn't exist.");
@@ -497,6 +502,13 @@ public class UMLMenu {
                     if(cls != null)
                     {
                         cls.renameMethod(index - 1, newName);
+                        Platform.runLater(() -> {
+                            if (umlView != null) {
+                                umlView.refresh();
+                            } else {
+                                System.out.println("Error: UMLView is null.");
+                            }
+                        });
                     }
                     else {
                         System.out.println("Class " + className + " doesn't exist.");
