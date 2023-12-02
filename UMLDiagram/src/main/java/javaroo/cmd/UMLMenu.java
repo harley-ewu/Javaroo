@@ -459,7 +459,7 @@ public class UMLMenu {
 
 
     private void processRenameCommand(String[] parts) {
-        if (parts.length < 4) {
+        if (parts.length < 3) {
             System.out.println("Invalid 'rename' command format. Usage: rename <type> <oldName> <newName>");
             return;
         }
@@ -495,6 +495,14 @@ public class UMLMenu {
                 break;
             case "method":
                 // Add logic for 'rename method' with the old and new method names (oldName, newName)
+                if(diagram.classExists(oldName) != null)
+                {
+                    diagram.listClassContents(oldName);
+                    System.out.println("Choose the method you want to remove from the above list and re-enter the command in this format: delete method <class> <numInList> ");
+                }
+                else {
+                    System.out.println("Class " + oldName + " doesn't exist.");
+                }
                 if(parts.length > 4)
                 {
                     String className = parts[2];
