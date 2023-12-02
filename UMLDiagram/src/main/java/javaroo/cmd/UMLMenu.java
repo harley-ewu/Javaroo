@@ -39,7 +39,7 @@ public class UMLMenu {
             "Delete Commands:\n" +
             "  delete class <ClassName>\n" +
             "  delete field <class> <fieldName>\n" +
-            "  Please use the list class <name> command to show the list of methods. Then use this format: delete method <class> <numberInList>\n" +
+            "  delete method <class>\n" +
             "  delete relationship <sourceClass> <destinationClass>\n" +
             //"  delete parameter <ParameterName>\n\n" +
 
@@ -410,7 +410,18 @@ public class UMLMenu {
                 break;
             case "method":
                 // Add logic for 'delete method' with the method name (name)
-                if(parts.length > 3)
+                if(parts.length == 3)
+                {
+                    if(diagram.classExists(name) != null)
+                    {
+                        diagram.listClassContents(name);
+                        System.out.println("Choose the method you want to remove from the above list and re-enter the command in this format: delete method <class> <numInList> ");
+                    }
+                    else {
+                        System.out.println("Class " + name + " doesn't exist.");
+                    }
+                }
+                else
                 {
                     UMLClass cls = diagram.classExists(name);
                     if(cls != null)
@@ -421,10 +432,6 @@ public class UMLMenu {
                     else {
                         System.out.println("Class " + name + " doesn't exist.");
                     }
-                }
-                else {
-                    System.out.println("Please use the list class <name> command to show the list of methods. Then " +
-                            "use this format: delete method <class> <numberInList>");
                 }
                 break;
             case "relationship":
