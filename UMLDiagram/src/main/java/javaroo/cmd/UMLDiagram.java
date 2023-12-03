@@ -22,8 +22,8 @@ public class UMLDiagram {
         return classes;
     }
 
-    public static void setClasses(Map<String, UMLClass> classes) {
-        UMLDiagram.classes = classes;
+    public void setClasses(Map<String, UMLClass> classes) {
+        this.classes = classes;
     }
 
     public static List<UMLRelationships> getRelationships() {
@@ -45,21 +45,25 @@ public class UMLDiagram {
             UMLMemento undoMemento = undoStack.pop();
             redoStack.push(createMemento()); // Save current state for potential redo
 
-            // Restore the state from the undoMemento
-            setMemento(undoMemento);
-
             // Perform class updates and removals separately
             for (UMLClass originalClass : undoMemento.getState().getClasses().values()) {
                 if (classExists(originalClass.getName()) != null) {
                     // If the class exists, update its details
                     updateClass(originalClass);
                 } else {
-                    // If the class does not exist, remove it
-                    removeClassInternal(originalClass.getName());
+                    // If the class does not exist, add it back
+                    addClassInternal(originalClass.getName());
+                    UMLClass restoredClass = classExists(originalClass.getName());
+                    if (restoredClass != null) {
+                        // Restore fields and methods
+                        restoredClass.setFields(new ArrayList<>(originalClass.getFields()));
+                        restoredClass.setMethods(new ArrayList<>(originalClass.getMethods()));
+                    }
                 }
             }
         }
     }
+
 
 
 
@@ -93,8 +97,23 @@ public class UMLDiagram {
         // Update the current state with the new state
         setClasses(newState.getClasses());
         setRelationships(newState.getRelationships());
+
+        // Iterate through the classes and update fields and methods
+        for (Map.Entry<String, UMLClass> entry : classes.entrySet()) {
+            String className = entry.getKey();
+            UMLClass existingClass = entry.getValue();
+            UMLClass newClass = newState.getClasses().get(className);
+
+            // Update fields and methods of existingClass with those from newClass
+            if (newClass != null) {
+                existingClass.setFields(new ArrayList<>(newClass.getFields()));
+                existingClass.setMethods(new ArrayList<>(newClass.getMethods()));
+            }
+        }
+
         // Other state updates if needed
     }
+
 
 
     void listClassContents(String className) {
@@ -148,9 +167,21 @@ public class UMLDiagram {
         if (removedClass != null) {
             // Add the removed class back to the classes map
             getClasses().put(name, removedClass);
-            System.out.println("Class restored: " + name);
+
+            // Restore fields and methods
+            UMLClass restoredClass = getClasses().get(name);
+            UMLClass originalClass = removedClass;
+
+            if (restoredClass != null && originalClass != null) {
+                restoredClass.setFields(new ArrayList<>(originalClass.getFields()));
+                restoredClass.setMethods(new ArrayList<>(originalClass.getMethods()));
+                System.out.println("Class restored: " + name);
+            } else {
+                System.out.println("Error restoring class: " + name);
+            }
         }
     }
+
 
 
     public void renameClass(String oldName, String newName) {
