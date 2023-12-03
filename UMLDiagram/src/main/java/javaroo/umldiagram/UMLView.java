@@ -138,37 +138,7 @@ public class UMLView {
         };
     }
 
-
-
-
-
-//    void autoAssignCoordinatesGrid(UMLClass umlClass) {
-//        int totalClasses = controller.drawnUMLClasses.size() + 1;
-//        int cols = (int) Math.ceil(Math.sqrt(totalClasses));
-//        double gridWidth = centerContent.getWidth() / cols;
-//        double gridHeight = centerContent.getHeight() / cols;
 //
-//        int index = controller.drawnUMLClasses.indexOf(umlClass);
-//        if (index == -1) {
-//            index = totalClasses - 1; // Position for the new class
-//        }
-//
-//        // Calculate the top-left corner of the grid cell
-//        double cellX = (index % cols) * gridWidth;
-//        double cellY = (index / cols) * gridHeight;
-//
-//        // Center the UMLClass in its grid cell
-//        double x = cellX + (gridWidth - umlClass.getWidth()) / 2;
-//        double y = cellY + (gridHeight - umlClass.getHeight()) / 2;
-//
-//        // Adjust for overall centering in the ScrollPane
-//        double totalWidth = cols * gridWidth;
-//        double totalHeight = (int) Math.ceil((double) totalClasses / cols) * gridHeight;
-//        double offsetX = (centerContent.getWidth() - totalWidth) / 2;
-//        double offsetY = (centerContent.getHeight() - totalHeight) / 2;
-//
-//        umlClass.setPosition(x + offsetX, y + offsetY);
-//    }
 
     void autoAssignCoordinatesGrid(UMLClass umlClass) {
         int totalClasses = controller.drawnUMLClasses.size() + 1;
@@ -185,8 +155,8 @@ public class UMLView {
         double gridWidth = Math.max(centerContent.getWidth() / cols, maxClassWidth);
         double gridHeight = Math.max(centerContent.getHeight() / cols, maxClassHeight);
 
-        // Spacing reduction for rows after the first
-        double verticalSpacingReduction = .4; // Adjust this value as needed
+        // Spacing reduction for all rows, including the first
+        double verticalSpacingReduction = 0.4; // Adjust this value as needed
 
         if (!controller.drawnUMLClasses.contains(umlClass)) {
             controller.drawnUMLClasses.add(umlClass);
@@ -209,10 +179,8 @@ public class UMLView {
             x = cellX + (gridWidth - umlClass.getWidth()) / 2;
             y = cellY + (gridHeight - umlClass.getHeight()) / 2;
 
-            // Reduce the y-coordinate for classes in rows after the first
-            if (row > 0) {
-                y -= verticalSpacingReduction * row;
-            }
+            // Reduce the y-coordinate for all rows
+            y -= verticalSpacingReduction * row;
         }
 
         umlClass.setPosition(x, y);
@@ -435,6 +403,7 @@ public class UMLView {
             // Redraw all remaining classes (excluding the removed class)
             for (UMLClass existingClass : controller.drawnUMLClasses) {
                 if (!existingClass.getName().equals(className)) {
+                    autoAssignCoordinatesGrid(existingClass);
                     drawUMLClass(existingClass);
                 }
             }
@@ -446,29 +415,7 @@ public class UMLView {
             for (UMLRelationships relationship : controller.drawnUMLRelationships) {
                 drawExistingRelationships();
             }
-
-            // Remove the class from the diagram
-            controller.diagram.undoRemoveClass(className);
         }
-    }
-
-
-    // Helper method to updated the contents of the screen
-    void updateCanvas(UMLClass umlClass) {
-        GraphicsContext gc = centerContent.getGraphicsContext2D();
-
-        // Clear the entire canvas
-        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
-
-        // Redraw all classes except the renamed class
-        for (UMLClass existingClass : controller.diagram.getClasses().values()) {
-            if (existingClass != umlClass) {
-                drawUMLClass(existingClass);
-            }
-        }
-
-        // Redraw the renamed class with its updated name
-        drawUMLClass(umlClass);
     }
 
     void drawExistingRelationships() {
@@ -617,9 +564,6 @@ public class UMLView {
                 drawExistingRelationships();
             }
         }
-
-        // Notify the user of a successful relationship removal
-        showAlert("Success", "Relationship deleted.");
     }
 
     private void showAlert(String title, String content) {
@@ -630,11 +574,15 @@ public class UMLView {
         alert.showAndWait();
     }
     public void drawUpdatedClass(UMLClass updatedClass) {
-
         GraphicsContext gc = centerContent.getGraphicsContext2D();
+
+        // Clear the specific area
         gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
+
+        // Redraw the class
         drawUMLClass(updatedClass);
     }
+
 
     private void centerOnClass(UMLClass umlClass, ScrollPane scrollPane) {
         // Calculate the center position of the class

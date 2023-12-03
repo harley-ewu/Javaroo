@@ -195,9 +195,9 @@ public class UMLMenu {
                 break;
             case "visualize":
                 System.out.println("Executing 'visualize' command");
-                // Add logic for 'visualize', this is the command to open the GUI
                 UMLDiagramGUI.getInstance().showGUI(true);
                 break;
+
             case "save":
                 //add logic to save the diagram
                 String fileName = parts[1];
@@ -211,7 +211,6 @@ public class UMLMenu {
                 load.loadData(fileName);
                 break;
             case "exit":
-
                 System.exit(0);
             case "help":
                 // This should print out the help menu showing cmd usage

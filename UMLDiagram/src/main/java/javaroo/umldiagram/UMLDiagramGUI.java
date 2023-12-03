@@ -20,6 +20,8 @@ public class UMLDiagramGUI extends Application {
     private Stage primaryStage;
     //private UMLController controller;
 
+    public static boolean isGUIRunning = false;
+
     public static UMLController getController() {
         return controllerInstance;
     }
@@ -45,10 +47,14 @@ public class UMLDiagramGUI extends Application {
         stage.getIcons().add(appIcon);
         stage.setTitle("UML Diagram Builder");
         stage.setScene(scene);
-        stage.setOnCloseRequest(event -> Platform.runLater(() -> stage.hide()));
+        stage.setOnCloseRequest(event -> Platform.runLater(stage::hide));
+
+        stage.setOnCloseRequest(event -> {
+            showGUI(false);
+        });
 
         // Do not show the stage immediately
-        // stage.show();
+//         stage.show();
 
         launchLatch.countDown();
     }
