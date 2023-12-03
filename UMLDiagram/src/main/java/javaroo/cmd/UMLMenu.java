@@ -34,14 +34,14 @@ public class UMLMenu {
             "  add field <class> <visibility> <type> <name>\n" +
             "  add method <class> <returnType> <methodName> <param1Type> <param1Name> etc.\n" +
             "  add relationship <sourceClass> <destinationClass> <type>\n" +
-            //"  add parameter <ParameterName>\n\n" +
+            "  add parameter <class>\n\n" +
 
             "Delete Commands:\n" +
             "  delete class <ClassName>\n" +
             "  delete field <class> <fieldName>\n" +
             "  delete method <class>\n" +
             "  delete relationship <sourceClass> <destinationClass>\n" +
-            //"  delete parameter <ParameterName>\n\n" +
+            "  delete parameter <class>\n\n" +
 
             "Rename Commands:\n" +
             "  rename class <OldClassName> <NewClassName>\n" +
