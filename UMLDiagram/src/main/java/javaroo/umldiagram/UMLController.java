@@ -126,19 +126,22 @@ public class UMLController {
 
             // If the user made a choice, proceed with the logic
             if (choiceResult.get().equals("Add Fields and Methods")) {
-                diagram.addClass(newUMLClass.getName());
+                //diagram.addClass(newUMLClass.getName());
+                UMLCommandManager.executeCommand(new AddClassCommand(diagram, newUMLClass.getName()));
                 addFieldsToClass(newUMLClass);
-                //addMethodsToClass(newUMLClass);
+                drawnUMLClasses.add(newUMLClass);
                 showAlert("Success", "Class '" + className + "' added with fields and methods.");
             } else {
                 // User chose to skip adding fields and methods or made another choice
-                diagram.addClass(newUMLClass.getName());
+                //diagram.addClass(newUMLClass.getName());
+                UMLCommandManager.executeCommand(new AddClassCommand(diagram, newUMLClass.getName()));
+                drawnUMLClasses.add(newUMLClass);
                 showAlert("Success", "Class '" + className + "' added.");
             }
 
             // Update the visual representation
-            umlView.autoAssignCoordinatesGrid(newUMLClass); // This method should set the coordinates for the new class
-            drawnUMLClasses.add(newUMLClass); // This should be a collection of UMLClass objects that are currently drawn
+            umlView.autoAssignCoordinatesGrid(newUMLClass);
+//            UMLCommandManager.executeCommand(new AddClassCommand(diagram, newUMLClass.getName()));
             umlView.drawUMLClass(newUMLClass); // This method should handle the actual drawing of the class on the canvas or pane
         } catch (Exception e) {
             // Log the stack trace along with the message
@@ -162,8 +165,8 @@ public class UMLController {
     }
 
     // Helper method to add fields to the class
-    private void addFieldsToClass(UMLClass umlClass) {
-        List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean");
+    public void addFieldsToClass(UMLClass umlClass) {
+        List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean", "other");
         AtomicBoolean proceedToAddMethods = new AtomicBoolean(false);
 
         while (true) {
@@ -218,6 +221,21 @@ public class UMLController {
             }
             String fieldType = fieldTypeResult.get();
 
+            // Check if 'other' is selected and prompt for custom field type
+            if ("other".equals(fieldType)) {
+                TextInputDialog customFieldTypeDialog = new TextInputDialog();
+                customFieldTypeDialog.setTitle("Field Type");
+                customFieldTypeDialog.setHeaderText("Enter Field Type:");
+                customFieldTypeDialog.setContentText("Field Type:");
+
+                Optional<String> customFieldTypeResult = customFieldTypeDialog.showAndWait();
+                if (customFieldTypeResult.isPresent() && !customFieldTypeResult.get().isEmpty()) {
+                    fieldType = customFieldTypeResult.get().trim();
+                } else {
+                    continue; // Skip adding field if no custom type is entered
+                }
+            }
+
             // Create a new ChoiceDialog for field visibility
             ChoiceDialog<String> visibilityDialog = new ChoiceDialog<>("public", Arrays.asList("public", "private"));
             visibilityDialog.setTitle("Field Visibility");
@@ -232,7 +250,9 @@ public class UMLController {
 
             // Add the field to the class
             umlClass.addField(fieldName, fieldType, fieldVisibility);
-            diagram.classExists(umlClass.getName()).addField(fieldName, fieldType, fieldVisibility);
+            diagram.classExists(umlClass.getName()).addFieldGUI(fieldName, fieldType, fieldVisibility);
+
+
         }
 
         if (proceedToAddMethods.get()) {
@@ -240,15 +260,6 @@ public class UMLController {
             addMethodsToClass(umlClass);
         }
     }
-
-
-    // Utility method to clear a text field
-    private void clearTextField(TextField textField) {
-        Platform.runLater(() -> textField.setText(""));
-    }
-
-
-
 
 
     // Helper method to add methods to the class
@@ -287,7 +298,7 @@ public class UMLController {
             String methodName = methodNameResult.get().replaceAll("\\s", "").trim(); // Trim the input
 
             // Create a custom dialog for selecting the method return type
-            ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", "int", "double", "char", "void", "float", "boolean");
+            ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", Arrays.asList("String", "int", "double", "char", "void", "float", "boolean", "other"));
             returnTypeDialog.setTitle("Select Method Return Type");
             returnTypeDialog.setHeaderText("Choose the method return type:");
             returnTypeDialog.setContentText("Method Return Type:");
@@ -298,6 +309,21 @@ public class UMLController {
                 continue;
             }
             String methodType = methodTypeResult.get().trim(); // Selected return type
+
+            // Check if 'other' is selected and prompt for custom method return type
+            if ("other".equals(methodType)) {
+                TextInputDialog customMethodTypeDialog = new TextInputDialog();
+                customMethodTypeDialog.setTitle("Custom Method Return Type");
+                customMethodTypeDialog.setHeaderText("Enter Custom Method Return Type:");
+                customMethodTypeDialog.setContentText("Method Return Type:");
+
+                Optional<String> customMethodTypeResult = customMethodTypeDialog.showAndWait();
+                if (customMethodTypeResult.isPresent() && !customMethodTypeResult.get().isEmpty()) {
+                    methodType = customMethodTypeResult.get().trim();
+                } else {
+                    continue; // Skip adding method if no custom return type is entered
+                }
+            }
 
             // Clear the input text before showing the next dialog
             methodDialog.getEditor().clear();
@@ -315,7 +341,7 @@ public class UMLController {
 
             // Add the method to the class
             umlClass.addMethod(methodName, methodType, paramsList);
-            diagram.classExists(umlClass.getName()).addMethod(methodName, methodType, paramsList);
+            diagram.classExists(umlClass.getName()).addMethodGUI(methodName, methodType, paramsList);
         }
     }
   
@@ -371,7 +397,7 @@ public class UMLController {
         }
 
         // Define the list of available field types
-        List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean");
+        List<String> fieldTypes = Arrays.asList("String", "int", "double", "char", "void", "float", "boolean", "other");
 
         // Now proceed with adding fields to the selected class using the diagram
         while (true) {
@@ -415,10 +441,25 @@ public class UMLController {
 
             Optional<String> fieldTypeResult = fieldTypeDialog.showAndWait();
             if (!fieldTypeResult.isPresent()) {
-                // User canceled field type selection
-                continue; // Go back to entering field details
+                continue;
             }
             String fieldType = fieldTypeResult.get();
+
+            if ("other".equalsIgnoreCase(fieldType)) {
+                // If "other" is selected, show a text input dialog for custom field type
+                TextInputDialog customFieldTypeDialog = new TextInputDialog();
+                customFieldTypeDialog.setTitle("Field Type");
+                customFieldTypeDialog.setHeaderText("Enter Field Type:");
+                customFieldTypeDialog.setContentText("Field Type:");
+
+                Optional<String> customFieldTypeResult = customFieldTypeDialog.showAndWait();
+                if (customFieldTypeResult.isPresent() && !customFieldTypeResult.get().isEmpty()) {
+                    fieldType = customFieldTypeResult.get();
+                } else {
+                    // If the custom field type is empty or canceled, continue the loop
+                    continue;
+                }
+            }
 
             // Create a choice dialog for selecting field visibility (public or private)
             ChoiceDialog<String> visibilityDialog = new ChoiceDialog<>("public", "public", "private");
@@ -435,13 +476,12 @@ public class UMLController {
 
             // Create the new field and add it to the selected class using the diagram
             selectedClass.addField(fieldName, fieldType, fieldVisibility);
-            diagram.classExists(selectedClass.getName()).addField(fieldName, fieldType, fieldVisibility);
-
+            diagram.classExists(selectedClass.getName()).addFieldGUI(fieldName, fieldType, fieldVisibility);
             // Redraw the updated class on the canvas
-            //umlView.autoAssignCoordinatesGrid(selectedClass);
             umlView.drawUpdatedClass(selectedClass);
             //umlView.drawUpdatedClass(selectedClass);
             umlView.drawExistingRelationships();
+
         }
     }
 
@@ -457,7 +497,6 @@ public class UMLController {
         ButtonType finishButtonType = new ButtonType("Finish", ButtonBar.ButtonData.CANCEL_CLOSE);
 
 
-        // Create a choice dialog for selecting the class
         ChoiceDialog<String> classDialog = new ChoiceDialog<>(
                 drawnUMLClasses.get(0).getName(),
                 drawnUMLClasses.stream().map(UMLClass::getName).collect(Collectors.toList()));
@@ -509,8 +548,7 @@ public class UMLController {
             }
             String methodName = methodNameResult.get().replaceAll("\\s+", "").trim(); // Trim the input
 
-            // Choice dialog for method return type
-            ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", "int", "double", "char", "void", "float", "boolean");
+            ChoiceDialog<String> returnTypeDialog = new ChoiceDialog<>("String", "int", "double", "char", "void", "float", "boolean", "other");
             returnTypeDialog.setTitle("Select Method Return Type");
             returnTypeDialog.setHeaderText("Choose the method return type:");
             returnTypeDialog.setContentText("Method Return Type:");
@@ -521,6 +559,22 @@ public class UMLController {
                 continue;
             }
             String methodType = methodTypeResult.get().trim(); // Selected return type
+
+            if ("other".equalsIgnoreCase(methodType)) {
+                // If "other" is selected, show a text input dialog for custom return type
+                TextInputDialog customReturnTypeDialog = new TextInputDialog();
+                customReturnTypeDialog.setTitle("Custom Method Return Type");
+                customReturnTypeDialog.setHeaderText("Enter Custom Method Return Type:");
+                customReturnTypeDialog.setContentText("Custom Method Return Type:");
+
+                Optional<String> customReturnTypeResult = customReturnTypeDialog.showAndWait();
+                if (customReturnTypeResult.isPresent() && !customReturnTypeResult.get().isEmpty()) {
+                    methodType = customReturnTypeResult.get();
+                } else {
+                    // If the custom return type is empty or canceled, continue the loop
+                    continue;
+                }
+            }
 
             // Clear the input text before showing the next dialog
             methodDialog.getEditor().clear();
@@ -539,7 +593,7 @@ public class UMLController {
 
             // Add the method to the selected class and update the diagram
             selectedClass.addMethod(methodName, methodType, paramsList);
-            diagram.classExists(selectedClass.getName()).addMethod(methodName, methodType, paramsList);
+            diagram.classExists(selectedClass.getName()).addMethodGUI(methodName, methodType, paramsList);
 
             // Redraw the updated class on the canvas
             umlView.drawUpdatedClass(selectedClass);
@@ -675,7 +729,7 @@ public class UMLController {
 
         if (result.isPresent()) {
             String className = result.get();
-            UMLClass umlClass = diagram.classExists(className);
+            UMLClass umlClass = findUMLClass(className);
 
             if (umlClass != null) {
                 // Check if the class is part of any relationship
@@ -683,7 +737,8 @@ public class UMLController {
                     showAlert("Error", "Class '" + className + "' is part of a relationship and cannot be deleted.");
                 } else {
                     // Remove the class from the diagram
-                    diagram.undoRemoveClass(className);
+//                    diagram.removeClass(className);
+                    UMLCommandManager.executeCommand(new RemoveClassCommand(diagram, className));
 
                     // Update the canvas by removing the specified class
                     umlView.updateCanvasRemoveClass(umlClass.getName());
@@ -808,6 +863,7 @@ public class UMLController {
         }
         String fieldName = fieldNameResult.get();
         selectedClass.removeField(fieldName);
+        diagram.classExists(selectedClass.getName()).removeFieldGUI(fieldName);
 
         // Update GUI
         umlView.updateCanvas(diagram,selectedClass);
@@ -878,6 +934,7 @@ public class UMLController {
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             selectedClass.removeMethod(selectedMethod.getName()); // Use the method name for deletion
+            diagram.classExists(selectedClass.getName()).removeMethodGUI(selectedMethod.getName());
             umlView.updateCanvas(diagram, selectedClass);
             umlView.drawExistingRelationships();
             showAlert("Info", "Method deleted successfully.");
@@ -952,6 +1009,7 @@ public class UMLController {
         newNameResult.ifPresent(newName -> {
             // Step 4: Rename the field
             selectedClass.renameField(fieldName, newName);
+            diagram.classExists(selectedClass.getName()).renameFieldGUI(fieldName, newName);
             showAlert("Success", "Field renamed from '" + fieldName + "' to '" + newName + "'");
             // Update the view
             umlView.drawUpdatedClass(selectedClass);
@@ -1002,7 +1060,7 @@ public class UMLController {
 
         UMLMethods selectedMethod = selectedMethodResult.get();
 
-        // Step 3: Display method details, including parameters and types
+        // Step 3: Display method details
         StringBuilder methodDetails = new StringBuilder();
         methodDetails.append("Method Name: ").append(selectedMethod.getName()).append("\n");
         methodDetails.append("Return Type: ").append(selectedMethod.getReturnType()).append("\n");
@@ -1017,7 +1075,7 @@ public class UMLController {
         methodDetailsAlert.setContentText(methodDetails.toString());
         methodDetailsAlert.showAndWait();
 
-        // Step 4: Ask for confirmation before renaming the method
+        // Step 4: Ask for confirmation before renaming
         Alert confirmRename = new Alert(Alert.AlertType.CONFIRMATION);
         confirmRename.setTitle("Confirm Rename");
         confirmRename.setHeaderText("Confirm Rename");
@@ -1034,7 +1092,10 @@ public class UMLController {
             Optional<String> newNameResult = newNameDialog.showAndWait();
             newNameResult.ifPresent(newName -> {
                 // Step 6: Rename the method
-                selectedClass.renameMethod(selectedMethod.getName(), newName);
+                int methodIndex = selectedClass.getMethods().indexOf(selectedMethod);
+                diagram.classExists(selectedClass.getName()).renameMethodGUI(methodIndex, newName);
+                selectedClass.renameMethod(methodIndex, newName);
+
                 showAlert("Success", "Method renamed to: " + newName);
                 // Update the view
                 umlView.drawUpdatedClass(selectedClass);
@@ -1044,7 +1105,10 @@ public class UMLController {
             showAlert("Info", "Rename canceled. The method was not renamed.");
         }
     }
-    
+
+// Helper methods like findUMLClass, showAlert, etc., should be defined as required.
+
+
 
 
     // Unfinished
@@ -1128,7 +1192,8 @@ public class UMLController {
         Optional<String> newNameResult = newNameDialog.showAndWait();
         newNameResult.ifPresent(newName -> {
             // Use the UMLDiagram instance to rename the class
-            diagram.renameClass(className, newName);
+            //diagram.renameClass(className, newName);
+            UMLCommandManager.executeCommand(new RenameClassCommand(diagram, className, newName));
 
             // Update the name in the drawnUMLClasses list
             selectedClass.setName(newName);
@@ -1211,15 +1276,6 @@ public class UMLController {
     }
 
 
-    private void showErrorDialog(String errorMessage) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(errorMessage);
-        alert.showAndWait();
-    }
-
-
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -1255,17 +1311,22 @@ public class UMLController {
 
     }
 
-    public void restartCLI(ActionEvent actionEvent) {
-        CView = true;
-        Platform.exit();
-        //myLaunch(UMLDiagramGUI.class);
-    }
-
     public void zoomIn(ActionEvent actionEvent) {
         umlView.zoomIn();
     }
 
     public void zoomOut(ActionEvent actionEvent) {
         umlView.zoomOut();
+    }
+
+    public void undo(ActionEvent actionEvent) {
+        UMLCommandManager.undo();
+        umlView.refresh();
+    }
+
+
+    public void redo(ActionEvent actionEvent) {
+        UMLCommandManager.redo();
+        umlView.refresh();
     }
 }

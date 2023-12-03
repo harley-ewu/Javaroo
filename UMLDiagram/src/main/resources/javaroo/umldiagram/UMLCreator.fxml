@@ -21,11 +21,6 @@
                   <MenuItem mnemonicParsing="false" onAction="#loadDiagramGui" text="Load Diagram" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="View">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#restartCLI" text="Switch to CLI" />
-            </items>
-          </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
@@ -41,6 +36,12 @@
                 <MenuItem mnemonicParsing="false" onAction="#zoomIn" text="Zoom In" />
                   <MenuItem mnemonicParsing="false" onAction="#zoomOut" text="Zoom out" />
               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Time Travel">
+                <items>
+                    <MenuItem mnemonicParsing="false" onAction="#undo" text="Undo" />
+                    <MenuItem mnemonicParsing="false" onAction="#redo" text="Redo" />
+                </items>
             </Menu>
         </menus>
       </MenuBar>
