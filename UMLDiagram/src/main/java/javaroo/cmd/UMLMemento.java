@@ -36,11 +36,20 @@ public class UMLMemento {
         }
 
         // Deep copy relationships
-        destination.getRelationships().addAll(new ArrayList<>(source.getRelationships()));
+        for (UMLRelationships relationship : source.getRelationships()) {
+            UMLRelationships copiedRelationship = new UMLRelationships(
+                    destination.classExists(relationship.getSource().getName()),
+                    destination.classExists(relationship.getDest().getName()),
+                    relationship.getType()
+            );
+            destination.getRelationships().add(copiedRelationship);
+        }
 
         // Copy command manager state
         destination.setCommandManager(new UMLCommandManager());
         destination.getCommandManager().setUndoStack(new Stack<>());
         destination.getCommandManager().setRedoStack(new Stack<>());
     }
+
+
 }

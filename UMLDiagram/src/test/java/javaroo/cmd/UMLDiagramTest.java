@@ -30,7 +30,7 @@ class UMLDiagramTest {
         final Map<String, UMLClass> classes = Map.ofEntries(Map.entry("value", new UMLClass("newName", 0.0, 0.0)));
 
         // Run the test
-        UMLDiagram.setClasses(classes);
+        umlDiagramUnderTest.setClasses(classes);
 
         // Verify the results
     }
@@ -39,7 +39,7 @@ class UMLDiagramTest {
     void testGetRelationships() {
         // Setup
         // Run the test
-        final List<UMLRelationships> result = UMLDiagram.getRelationships();
+        final List<UMLRelationships> result = umlDiagramUnderTest.getRelationships();
 
         // Verify the results
     }
@@ -52,7 +52,7 @@ class UMLDiagramTest {
                         UMLRelationships.RelationshipType.AGGREGATION, 0.0, 0.0, 0.0, 0.0));
 
         // Run the test
-        UMLDiagram.setRelationships(relationships);
+        umlDiagramUnderTest.setRelationships(relationships);
 
         // Verify the results
     }
