@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static javafx.embed.swing.SwingFXUtils.fromFXImage;
 import static javaroo.cmd.UMLMenu.*;
 
-import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
+//import static javaroo.umldiagram.UMLDiagramGUI.myLaunch;
 import static javaroo.umldiagram.UMLDiagramGUI.stages;
 
 
