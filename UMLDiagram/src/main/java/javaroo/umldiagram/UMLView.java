@@ -138,37 +138,7 @@ public class UMLView {
         };
     }
 
-
-
-
-
-//    void autoAssignCoordinatesGrid(UMLClass umlClass) {
-//        int totalClasses = controller.drawnUMLClasses.size() + 1;
-//        int cols = (int) Math.ceil(Math.sqrt(totalClasses));
-//        double gridWidth = centerContent.getWidth() / cols;
-//        double gridHeight = centerContent.getHeight() / cols;
 //
-//        int index = controller.drawnUMLClasses.indexOf(umlClass);
-//        if (index == -1) {
-//            index = totalClasses - 1; // Position for the new class
-//        }
-//
-//        // Calculate the top-left corner of the grid cell
-//        double cellX = (index % cols) * gridWidth;
-//        double cellY = (index / cols) * gridHeight;
-//
-//        // Center the UMLClass in its grid cell
-//        double x = cellX + (gridWidth - umlClass.getWidth()) / 2;
-//        double y = cellY + (gridHeight - umlClass.getHeight()) / 2;
-//
-//        // Adjust for overall centering in the ScrollPane
-//        double totalWidth = cols * gridWidth;
-//        double totalHeight = (int) Math.ceil((double) totalClasses / cols) * gridHeight;
-//        double offsetX = (centerContent.getWidth() - totalWidth) / 2;
-//        double offsetY = (centerContent.getHeight() - totalHeight) / 2;
-//
-//        umlClass.setPosition(x + offsetX, y + offsetY);
-//    }
 
     void autoAssignCoordinatesGrid(UMLClass umlClass) {
         int totalClasses = controller.drawnUMLClasses.size() + 1;
@@ -185,8 +155,8 @@ public class UMLView {
         double gridWidth = Math.max(centerContent.getWidth() / cols, maxClassWidth);
         double gridHeight = Math.max(centerContent.getHeight() / cols, maxClassHeight);
 
-        // Spacing reduction for rows after the first
-        double verticalSpacingReduction = .4; // Adjust this value as needed
+        // Spacing reduction for all rows, including the first
+        double verticalSpacingReduction = 0.4; // Adjust this value as needed
 
         if (!controller.drawnUMLClasses.contains(umlClass)) {
             controller.drawnUMLClasses.add(umlClass);
@@ -209,12 +179,10 @@ public class UMLView {
             x = cellX + (gridWidth - umlClass.getWidth()) / 2;
             y = cellY + (gridHeight - umlClass.getHeight()) / 2;
 
-            // Reduce the y-coordinate for classes in rows after the first
-            if (row > 0) {
-                y -= verticalSpacingReduction * row;
-            }
+            // Reduce the y-coordinate for all rows
+            y -= verticalSpacingReduction * row;
         }
-
+        if(y==0){y+= 60;}
         umlClass.setPosition(x, y);
     }
 
@@ -263,10 +231,10 @@ public class UMLView {
         double destY = destinationClass.getY();
 
         // Calculate the start and end points of the relationship lines
-        double startX = sourceX + sourceClass.getWidth() / 2;
-        double startY = sourceY + sourceClass.getHeight() / 2;
-        double endX = destX + destinationClass.getWidth() / 2;
-        double endY = destY + destinationClass.getHeight() / 2;
+        double startX = sourceX + 10;
+        double startY = sourceY;
+        double endX = destX + 10;
+        double endY = destY - 40;
 
         // Calculate the triangle points at the end of the line
         double triangleHalfWidth = 20; // Half the width of the triangle
@@ -281,97 +249,74 @@ public class UMLView {
         switch (relationshipType) {
             case AGGREGATION:
                 // Vertical line from source to a little below destination
-                gc.strokeLine(startX, startY, startX, endY + 20);
-                // Horizontal line from startX to endX at the same Y-coordinate
-                gc.strokeLine(startX, endY + 20, endX, endY + 20);
+                endY -= 13;
+                if(startY<=endY) {
+                    gc.strokeLine(startX, startY, startX, startY-20);
+                    gc.strokeLine(startX, startY - 20, endX, startY - 20);
+                    gc.strokeLine(endX, startY - 20, endX, endY + 20);
+                }
+                else{
+                    gc.strokeLine(startX, startY, startX, endY+15);
+                    gc.strokeLine(startX, endY+15, endX, endY+15);
+                }
                 // Draw the diamond shape at the end of the line
-                gc.strokePolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
+                gc.strokePolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 37, endY+17, endY + 37, endY + 57}, 4);
                 break;
 
             case INHERITANCE:
-                // Calculate the triangle position based on the direction of the relationship
-                if (startX < endX) {
-                    // Inheritance arrow points right
-                    double arrowX = endX;
-                    double arrowY = endY;
-                    double x1 = arrowX - triangleHalfWidth;
-                    double y1 = arrowY - triangleHeight;
-                    double x2 = arrowX - triangleHalfWidth;
-                    double y2 = arrowY + triangleHeight;
-                    double x3 = arrowX;
-                    double y3 = arrowY;
-                    gc.setFill(Color.WHITE); // Set fill color to white
-                    gc.setStroke(Color.BLACK); // Set stroke color to black
-                    gc.strokeLine(startX, startY, startX, endY);
-                    gc.strokeLine(startX, endY, endX, endY);
-                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                } else {
-                    // Inheritance arrow points left
-                    double arrowX = endX;
-                    double arrowY = endY;
-                    double x1 = arrowX + triangleHalfWidth;
-                    double y1 = arrowY - triangleHeight;
-                    double x2 = arrowX + triangleHalfWidth;
-                    double y2 = arrowY + triangleHeight;
-                    double x3 = arrowX;
-                    double y3 = arrowY;
-                    gc.setFill(Color.WHITE); // Set fill color to white
-                    gc.setStroke(Color.BLACK); // Set stroke color to black
-                    gc.strokeLine(startX, startY, startX, endY);
-                    gc.strokeLine(startX, endY, endX, endY);
-                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                gc.setFill(Color.WHITE); // Set fill color to white
+                gc.setStroke(Color.BLACK); // Set stroke color to black
+                endY -= 13;
+                if(startY<=endY) {
+                    gc.strokeLine(startX, startY, startX, startY-20);
+                    gc.strokeLine(startX, startY - 20, endX, startY - 20);
+                    gc.strokeLine(endX, startY - 20, endX, endY + 40);
                 }
+                else{
+                    gc.strokeLine(startX, startY, startX, endY+15);
+                    gc.strokeLine(startX, endY+15, endX, endY+15);
+                    gc.strokeLine(endX, endY+15, endX, endY + 40);
+                }
+                gc.fillPolygon(new double[]{endX-10, endX, endX+10}, new double[]{endY+37, endY+57, endY+37}, 3);
+                gc.strokePolygon(new double[]{endX-10, endX, endX+10}, new double[]{endY+37, endY+57, endY+37}, 3);
                 break;
 
             case REALIZATION:
                 // Vertical line from source to the same Y-coordinate as destination
                 gc.setLineDashes(5);
-                gc.strokeLine(startX, startY, startX, endY);
                 // Horizontal dashed line from startX to endX at the same Y-coordinate
-                gc.setLineDashes(5); // Set line style to dashed
-                gc.strokeLine(startX, endY, endX, endY);
-
-                // Adjust the triangle position based on the direction of the relationship
-                if (startX < endX) {
-                    // Triangle points right
-                    double arrowX = endX;
-                    double arrowY = endY;
-                    double x1 = arrowX - triangleHalfWidth;
-                    double y1 = arrowY - triangleHeight;
-                    double x2 = arrowX - triangleHalfWidth;
-                    double y2 = arrowY + triangleHeight;
-                    double x3 = arrowX;
-                    double y3 = arrowY;
-                    gc.setFill(Color.WHITE); // Set fill color to white
-                    gc.setStroke(Color.BLACK); // Set stroke color to black
-                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                } else {
-                    // Triangle points left
-                    double arrowX = endX;
-                    double arrowY = endY;
-                    double x1 = arrowX + triangleHalfWidth;
-                    double y1 = arrowY - triangleHeight;
-                    double x2 = arrowX + triangleHalfWidth;
-                    double y2 = arrowY + triangleHeight;
-                    double x3 = arrowX;
-                    double y3 = arrowY;
-                    gc.setFill(Color.WHITE); // Set fill color to white
-                    gc.setStroke(Color.BLACK); // Set stroke color to black
-                    gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
+                gc.setFill(Color.WHITE); // Set fill color to white
+                gc.setStroke(Color.BLACK); // Set stroke color to black
+                endY -= 13;
+                if(startY<=endY) {
+                    gc.strokeLine(startX, startY, startX, startY-20);
+                    gc.strokeLine(startX, startY - 20, endX, startY - 20);
+                    gc.strokeLine(endX, startY - 20, endX, endY + 40);
                 }
+                else{
+                    gc.strokeLine(startX, startY, startX, endY+15);
+                    gc.strokeLine(startX, endY+15, endX, endY+15);
+                    gc.strokeLine(endX, endY+15, endX, endY + 40);
+                }
+                gc.fillPolygon(new double[]{endX-10, endX, endX+10}, new double[]{endY+37, endY+57, endY+37}, 3);
+                gc.strokePolygon(new double[]{endX-10, endX, endX+10}, new double[]{endY+37, endY+57, endY+37}, 3);
+                gc.setLineDashes(0);
                 break;
 
             case COMPOSITION:
                 // Vertical line from source to a little below destination
-                gc.strokeLine(startX, startY, startX, endY + 20);
-                // Horizontal line from startX to endX at the same Y-coordinate
-                gc.strokeLine(startX, endY + 20, endX, endY + 20);
-                // Draw the filled diamond shape at the end of the line
-                gc.fillPolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
+                endY -= 13;
+                if(startY<=endY) {
+                    gc.strokeLine(startX, startY, startX, startY-20);
+                    gc.strokeLine(startX, startY - 20, endX, startY - 20);
+                    gc.strokeLine(endX, startY - 20, endX, endY + 20);
+                }
+                else{
+                    gc.strokeLine(startX, startY, startX, endY+15);
+                    gc.strokeLine(startX, endY+15, endX, endY+15);
+                }
+                // Draw the diamond shape at the end of the line
+                gc.fillPolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 37, endY+17, endY + 37, endY + 57}, 4);
                 break;
         }
     }
@@ -404,7 +349,7 @@ public class UMLView {
     }
 
 
-    void updateCanvasRemoveClass(String className) {
+    public void updateCanvasRemoveClass(String className) {
         UMLClass umlClassToRemove = null;
         List<UMLRelationships> relationshipsToRemove = new ArrayList<>();
 
@@ -435,6 +380,7 @@ public class UMLView {
             // Redraw all remaining classes (excluding the removed class)
             for (UMLClass existingClass : controller.drawnUMLClasses) {
                 if (!existingClass.getName().equals(className)) {
+                    autoAssignCoordinatesGrid(existingClass);
                     drawUMLClass(existingClass);
                 }
             }
@@ -446,29 +392,7 @@ public class UMLView {
             for (UMLRelationships relationship : controller.drawnUMLRelationships) {
                 drawExistingRelationships();
             }
-
-            // Remove the class from the diagram
-            controller.diagram.removeClass(className);
         }
-    }
-
-
-    // Helper method to updated the contents of the screen
-    void updateCanvas(UMLClass umlClass) {
-        GraphicsContext gc = centerContent.getGraphicsContext2D();
-
-        // Clear the entire canvas
-        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
-
-        // Redraw all classes except the renamed class
-        for (UMLClass existingClass : controller.diagram.getClasses().values()) {
-            if (existingClass != umlClass) {
-                drawUMLClass(existingClass);
-            }
-        }
-
-        // Redraw the renamed class with its updated name
-        drawUMLClass(umlClass);
     }
 
     void drawExistingRelationships() {
@@ -476,127 +400,7 @@ public class UMLView {
         gc.setLineWidth(1.0);
 
         for (UMLRelationships relationship : controller.drawnUMLRelationships) {
-            UMLClass sourceClass = relationship.getSource();
-            UMLClass destinationClass = relationship.getDest();
-            UMLRelationships.RelationshipType relationshipType = relationship.getType();
-
-            // Get coordinates of source and destination classes
-            double sourceX = sourceClass.getX();
-            double sourceY = sourceClass.getY();
-            double destX = destinationClass.getX();
-            double destY = destinationClass.getY();
-
-            // Calculate the start and end points of the relationship lines
-            double startX = sourceX + sourceClass.getWidth() / 2;
-            double startY = sourceY + sourceClass.getHeight() / 2;
-            double endX = destX + destinationClass.getWidth() / 2;
-            double endY = destY + destinationClass.getHeight() / 2;
-
-            // Calculate the triangle points at the end of the line
-            double triangleHalfWidth = 20; // Half the width of the triangle
-            double triangleHeight = 15; // Height of the triangle
-
-            // Set line colors and styles based on the relationship type
-            gc.setStroke(Color.BLACK); // Default color
-            gc.setLineDashes(0); // Reset line style
-
-            // Draw the relationship line based on the relationship type
-            switch (relationshipType) {
-                case AGGREGATION:
-                    // Vertical line from source to a little below destination
-                    gc.strokeLine(startX, startY, startX, endY + 20);
-                    // Horizontal line from startX to endX at the same Y-coordinate
-                    gc.strokeLine(startX, endY + 20, endX, endY + 20);
-                    // Draw the diamond shape at the end of the line
-                    gc.strokePolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
-                    break;
-
-                case INHERITANCE:
-                    // Calculate the triangle position based on the direction of the relationship
-                    if (startX < endX) {
-                        // Inheritance arrow points right
-                        double arrowX = endX;
-                        double arrowY = endY;
-                        double x1 = arrowX - triangleHalfWidth;
-                        double y1 = arrowY - triangleHeight;
-                        double x2 = arrowX - triangleHalfWidth;
-                        double y2 = arrowY + triangleHeight;
-                        double x3 = arrowX;
-                        double y3 = arrowY;
-                        gc.setFill(Color.WHITE); // Set fill color to white
-                        gc.setStroke(Color.BLACK); // Set stroke color to black
-                        gc.strokeLine(startX, startY, startX, endY);
-                        gc.strokeLine(startX, endY, endX, endY);
-                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    } else {
-                        // Inheritance arrow points left
-                        double arrowX = endX;
-                        double arrowY = endY;
-                        double x1 = arrowX + triangleHalfWidth;
-                        double y1 = arrowY - triangleHeight;
-                        double x2 = arrowX + triangleHalfWidth;
-                        double y2 = arrowY + triangleHeight;
-                        double x3 = arrowX;
-                        double y3 = arrowY;
-                        gc.setFill(Color.WHITE); // Set fill color to white
-                        gc.setStroke(Color.BLACK); // Set stroke color to black
-                        gc.strokeLine(startX, startY, startX, endY);
-                        gc.strokeLine(startX, endY, endX, endY);
-                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    }
-                    break;
-
-                case REALIZATION:
-                    // Vertical line from source to the same Y-coordinate as destination
-                    gc.setLineDashes(5);
-                    gc.strokeLine(startX, startY, startX, endY);
-                    // Horizontal dashed line from startX to endX at the same Y-coordinate
-                    gc.setLineDashes(5); // Set line style to dashed
-                    gc.strokeLine(startX, endY, endX, endY);
-
-                    // Adjust the triangle position based on the direction of the relationship
-                    if (startX < endX) {
-                        // Triangle points right
-                        double arrowX = endX;
-                        double arrowY = endY;
-                        double x1 = arrowX - triangleHalfWidth;
-                        double y1 = arrowY - triangleHeight;
-                        double x2 = arrowX - triangleHalfWidth;
-                        double y2 = arrowY + triangleHeight;
-                        double x3 = arrowX;
-                        double y3 = arrowY;
-                        gc.setFill(Color.WHITE); // Set fill color to white
-                        gc.setStroke(Color.BLACK); // Set stroke color to black
-                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    } else {
-                        // Triangle points left
-                        double arrowX = endX;
-                        double arrowY = endY;
-                        double x1 = arrowX + triangleHalfWidth;
-                        double y1 = arrowY - triangleHeight;
-                        double x2 = arrowX + triangleHalfWidth;
-                        double y2 = arrowY + triangleHeight;
-                        double x3 = arrowX;
-                        double y3 = arrowY;
-                        gc.setFill(Color.WHITE); // Set fill color to white
-                        gc.setStroke(Color.BLACK); // Set stroke color to black
-                        gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                        gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-                    }
-                    break;
-
-                case COMPOSITION:
-                    // Vertical line from source to a little below destination
-                    gc.strokeLine(startX, startY, startX, endY + 20);
-                    // Horizontal line from startX to endX at the same Y-coordinate
-                    gc.strokeLine(startX, endY + 20, endX, endY + 20);
-                    // Draw the filled diamond shape at the end of the line
-                    gc.fillPolygon(new double[]{endX - 10, endX, endX + 10, endX}, new double[]{endY + 20, endY, endY + 20, endY + 40}, 4);
-                    break;
-            }
+            drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
         }
     }
 
@@ -617,9 +421,6 @@ public class UMLView {
                 drawExistingRelationships();
             }
         }
-
-        // Notify the user of a successful relationship removal
-        showAlert("Success", "Relationship deleted.");
     }
 
     private void showAlert(String title, String content) {
@@ -630,11 +431,15 @@ public class UMLView {
         alert.showAndWait();
     }
     public void drawUpdatedClass(UMLClass updatedClass) {
-
         GraphicsContext gc = centerContent.getGraphicsContext2D();
+
+        // Clear the specific area
         gc.clearRect(updatedClass.getX(), updatedClass.getY(), updatedClass.getWidth(), updatedClass.getHeight());
+
+        // Redraw the class
         drawUMLClass(updatedClass);
     }
+
 
     private void centerOnClass(UMLClass umlClass, ScrollPane scrollPane) {
         // Calculate the center position of the class
@@ -649,5 +454,36 @@ public class UMLView {
         // Adjust the scrollPane's hvalue and vvalue to center on the new class
         scrollPane.setHvalue(hvalue);
         scrollPane.setVvalue(vvalue);
+    }
+
+    public void clearCanvas() {
+        GraphicsContext gc = centerContent.getGraphicsContext2D();
+        gc.clearRect(0, 0, centerContent.getWidth(), centerContent.getHeight());
+    }
+
+    public void refresh(){
+
+        controller.drawnUMLClasses.clear();
+        controller.drawnUMLRelationships.clear();
+
+
+        controller.drawnUMLClasses.addAll(controller.classesMap.values());
+
+        if(controller.drawnUMLClasses.isEmpty()){
+            clearCanvas();
+        }
+        for (UMLClass umlClass : controller.drawnUMLClasses) {
+           autoAssignCoordinatesGrid(umlClass);
+            updateCanvas(controller.diagram, umlClass);
+
+        }
+
+        for (UMLRelationships relationship : controller.diagram.getRelationships()) {
+            controller.drawnUMLRelationships.add(relationship);
+            drawUMLRelationship(relationship.getSource(), relationship.getDest(), relationship.getType());
+        }
+
+        // Draw the existing relationships.
+        drawExistingRelationships();
     }
 }

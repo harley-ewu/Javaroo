@@ -1,17 +1,25 @@
 package javaroo.cmd;
 
+import javafx.application.Platform;
+import javaroo.umldiagram.UMLController;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class UMLDiagram {
-    // Here we declare a Map named 'classes'. It stores pairs of String and UMLClass.
-    // The String is the key (representing the name of the UMLClass), and the UMLClass object is the value.
-    // This allows for easy retrieval of UMLClass objects by using their name.
     private static Map<String, UMLClass> classes = new HashMap<>();
-    // A list to store objects representing relationships between UML classes.
     private static List<UMLRelationships> relationships = new ArrayList<>();
+    private UMLCommandManager commandManager = new UMLCommandManager();
+
+    private Stack<UMLMemento> mementoStack = new Stack<>();
+    private Stack<UMLMemento> undoStack = new Stack<>();
+    private Stack<UMLMemento> redoStack = new Stack<>();
+
+    public UMLDiagram() {
+    }
 
     public static Map<String, UMLClass> getClasses() {
         return classes;
@@ -29,15 +37,86 @@ public class UMLDiagram {
         UMLDiagram.relationships = relationships;
     }
 
-    //Method to see if a specific class exists in the UML diagram.
+    public void executeCommand(Command command) {
+        command.execute();
+        undoStack.push(createMemento()); // Save current state for potential undo
+        redoStack.clear(); // Clear redo stack after executing a new command
+    }
+
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            UMLMemento undoMemento = undoStack.pop();
+            redoStack.push(createMemento()); // Save current state for potential redo
+
+            // Restore the state from the undoMemento
+            setMemento(undoMemento);
+
+            // Perform class updates and removals separately
+            for (UMLClass originalClass : undoMemento.getState().getClasses().values()) {
+                if (classExists(originalClass.getName()) != null) {
+                    // If the class exists, update its details
+                    updateClass(originalClass);
+                } else {
+                    // If the class does not exist, remove it
+                    removeClassInternal(originalClass.getName());
+                }
+            }
+        }
+    }
+
+
+
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            UMLMemento redoMemento = redoStack.pop();
+            undoStack.push(createMemento()); // Save current state for potential undo
+
+            // Restore the state from the redoMemento
+            setMemento(redoMemento);
+        }
+    }
+
+    public void removeClassInternal(String name) {
+        UMLClass removedClass = classes.remove(name);
+        if (removedClass != null) {
+            System.out.println("Class deleted: " + name);
+        } else {
+            System.out.println("Class '" + name + "' does not exist.");
+        }
+    }
+
+
+    public UMLMemento createMemento() {
+        return new UMLMemento(this);
+    }
+
+    public void setMemento(UMLMemento memento) {
+        UMLDiagram newState = memento.getState();
+
+        // Update the current state with the new state
+        setClasses(newState.getClasses());
+        setRelationships(newState.getRelationships());
+        // Other state updates if needed
+    }
+
+
+    void listClassContents(String className) {
+        UMLClass umlClassEntity = classExists(className);
+        if (umlClassEntity != null) {
+            System.out.println(umlClassEntity.toString());
+        } else {
+            System.out.println("Class '" + className + "' does not exist.");
+        }
+    }
+
     public UMLClass classExists(String name)
     {
-        //check if name is null
-//        if(name == null)
-//        {
-//            System.out.println("Sorry but we could not find a valid name for this class");
-//            return null;
-//        }
+//        check if name is null
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return null;
+        }
 
         for(UMLClass c : classes.values())
         {
@@ -47,30 +126,21 @@ public class UMLDiagram {
             }
         }
         return null;
-
     }
 
-    //Method to create a UMLClass object and add it to the classes map.
-    public void addClass(String name)
-    {
-        // Remove all spaces and tabs from the name for the checks
-        String processedName = name.replaceAll("\\s+", "");
+    public void addClass(String name) {
+        if (classExists(name) != null) {
+            //System.out.println("Sorry, but this class already exists");
+            return;
+        }
 
-        // Check if the name is null or empty after removing spaces/tabs
-        if(processedName == null || processedName.isEmpty())
-        {
-            System.out.println("Sorry but we could not find a valid name for this class");
+        if (UMLCommandManager.getLastExecutedCommand() instanceof AddClassCommand) {
+            System.out.println("Error: Adding class failed due to recursion.");
             return;
         }
-        // Check if the class already exists.
-        if(classExists(processedName) != null)
-        {
-            System.out.println("Sorry but this class already exists");
-            return;
-        }
-        // Create a new UMLClass object and add it to the classes map.
-        getClasses().put(processedName, new UMLClass(processedName));
-        System.out.println("Class added: " + processedName);
+
+        Command addClassCommand = new AddClassCommand(this, name);
+        executeCommand(addClassCommand);
     }
 
     //Method to remove a UMLClass object from the classes map via its name.
@@ -93,94 +163,133 @@ public class UMLDiagram {
         System.out.println("Class deleted: " + name);
     }
 
-    //Method to rename a UMLClass object in the classes map via its name.
-    public void renameClass(String oldName, String newName)
-    {
-        //Check if the oldName and newName are null.
-        if(oldName == null || newName == null)
-        {
+    void addClassInternal(String name) {
+        String processedName = name.trim();
+
+        if (processedName.isEmpty()) {
+            System.out.println("Sorry, but we could not find a valid name for this class");
+            return;
+        }
+
+        if (classExists(processedName) != null) {
+            System.out.println("Sorry, but this class already exists");
+            return;
+        }
+
+        UMLClass newClass = new UMLClass(processedName);
+        classes.put(processedName, newClass);
+        System.out.println("Class added: " + processedName);
+    }
+
+    public void undoRemoveClass(String name) {
+        UMLClass removedClass = classExists(name);
+        if (removedClass != null) {
+            // Add the removed class back to the classes map
+            getClasses().put(name, removedClass);
+            System.out.println("Class restored: " + name);
+        }
+    }
+
+
+    public void renameClass(String oldName, String newName) {
+        if (oldName == null || newName == null) {
             System.out.println("Sorry but we could not find a valid name for this class");
             return;
         }
-        //Check if the class exists.
-        if(classExists(oldName) == null)
-        {
+        if (classExists(oldName) == null) {
             System.out.println("Sorry but this class does not exist");
             return;
         }
-        //Check if the newName already exists.
-        if(classExists(newName) != null)
-        {
+        if (classExists(newName) != null) {
             System.out.println("Sorry but this class already exists");
             return;
         }
-        //Rename the UMLClass object in the classes map.
-        UMLClass c = classExists(oldName);
-        c.setName(newName);
+
+        UMLClass existingClass = classExists(oldName);
+        UMLClass updatedClass = new UMLClass(newName);
+        updatedClass.setFields(existingClass.getFields());
+        updatedClass.setMethods(existingClass.getMethods());
+        updatedClass.setWidth(existingClass.getWidth());
+        updatedClass.setHeight(existingClass.getHeight());
+
+        // Update the existing class with the new name
         getClasses().remove(oldName);
-        getClasses().put(newName, c);
+        getClasses().put(newName, updatedClass);
+
+        // Inform the user about the successful rename
         System.out.println("Class renamed: " + oldName + " to " + newName);
     }
 
-    //Method to see if a specific relationship exists in the UML diagram.
-    public UMLRelationships relationshipExists(String id)
-    {
-        //check if id is null
-        if(id == null)
-        {
-            System.out.println("Sorry but we could not find a valid id for this relationship");
-            return null;
-        }
 
-        for(UMLRelationships r : relationships)
-        {
-            if(r.getId().equals(id))
-            {
-                return r;
+
+    public void listRelationships() {
+        int index = 0;
+        if (relationships.isEmpty()) {
+            System.out.println("No relationships defined.");
+        } else {
+            System.out.println("Relationships:");
+            for (UMLRelationships relationship : relationships) {
+                System.out.println(index + ":" + relationship.getSource().getName() + " --> " +
+                        relationship.getDest().getName() + "::" + relationship.getType());
+                index++;
             }
         }
-        return null;
     }
 
-    //Method to create a UMLRelationships object and add it to the relationships list.
-    public void addRelationship(UMLClass src, UMLClass dest, UMLRelationships.RelationshipType type)
-    {
-        //Check if the source and destination classes exist.
-        if(src == null || dest == null)
-        {
-            System.out.println("Sorry but we could not find a valid source or destination for this diagram");
+    public void addRelationship(UMLClass src, UMLClass dest, UMLRelationships.RelationshipType type) {
+        if (src == null || dest == null || type == null) {
+            System.out.println("Invalid source, destination, or relationship type");
             return;
         }
-        //Check if the relationship type is valid.
-        if(type == null)
-        {
-            System.out.println("Sorry but we could not find a valid type for this relationship");
+
+        String relationshipId = src.getName() + dest.getName();
+        if (relationshipExists(relationshipId) != null) {
+            System.out.println("Relationship already exists");
             return;
         }
-        //Check if the relationship already exists.
-        if(relationshipExists(src.getName() + dest.getName()) != null)
-        {
-            System.out.println("Sorry but this relationship already exists");
-            return;
-        }
-        //Create a new UMLRelationships object and add it to the relationships list.
-        relationships.add(new UMLRelationships(src, dest, type));
-        System.out.println("\nRelationship added.");
+
+        UMLRelationships newRelationship = new UMLRelationships(src, dest, type);
+        relationships.add(newRelationship);
+        System.out.println("Relationship added: " + relationshipId);
     }
 
-    //Method to remove a UMLRelationships object from the relationships list via its index.
-    public void removeRelationship(int index)
-    {
-        //Check if the index is valid.
-        if(index < 0 || index >= relationships.size())
-        {
-            System.out.println("Sorry but we could not find a valid index for this relationship");
+
+//    public void removeRelationship(int index) {
+//        if (index < 0 || index >= relationships.size()) {
+//            System.out.println("Sorry but we could not find a valid index for this relationship");
+//            return;
+//        }
+//        Command removeRelationshipCommand = new RemoveRelationshipCommand(this, index);
+//        commandManager.executeCommand(removeRelationshipCommand);
+//    }
+
+    public void removeRelationship(int index) {
+        if (index < 0 || index >= relationships.size()) {
+            System.out.println("Invalid index for relationship removal");
             return;
         }
-        //Remove the UMLRelationships object from the relationships list.
+
         relationships.remove(index);
     }
 
+
+    public void updateClass(UMLClass originalClass) {
+        if (originalClass == null) {
+            System.out.println("Invalid originalClass provided for update.");
+            return;
+        }
+        String className = originalClass.getName();
+        UMLClass existingClass = classExists(className);
+
+        if (existingClass != null) {
+            existingClass.setFields(new ArrayList<>(originalClass.getFields()));
+            existingClass.setMethods(new ArrayList<>(originalClass.getMethods()));
+            System.out.println("Class updated: " + className);
+        } else {
+            System.out.println("Class not found: " + className);
+        }
+    }
+    
     public void removeRelationship(String sourceName, String destName) {
         // Create the identifier based on source and destination names
         String relationshipId = sourceName + destName;
@@ -215,39 +324,45 @@ public class UMLDiagram {
         }
     }
 
-    // Method to list all classes and their details present in the UML diagram.
-    void listClassContents(String className) {
-        // Check if the provided className exists in the classes map.
-        UMLClass UMLClassEntity = classExists(className);
-        if (UMLClassEntity != null) {
-            // Print basic class information (name).
-            System.out.println(UMLClassEntity.toString());
-        } else {
-            // Inform the user if the specified className does not exist within the classes map.
-            System.out.println("Class '" + className + "' does not exist.");
-        }
+        
+
+    public UMLCommandManager getCommandManager() {
+        return commandManager;
     }
 
-    // Method to check if a specific class exists in the UML diagram.
+    public void setCommandManager(UMLCommandManager commandManager) {
+        this.commandManager = commandManager;
+    }
 
+    public UMLRelationships relationshipExists(String id) {
+        if (id == null) {
+            System.out.println("Sorry but we could not find a valid id for this relationship");
+            return null;
+        }
 
-    // Method to list all relationships defined in the UML diagram.
-    void listRelationships() {
-        int index = 0;
-        // Check if the relationships list is empty, implying no relationships have been defined.
-        if (relationships.isEmpty()) {
-            System.out.println("No relationships defined.");
-        } else {
-            System.out.println("Relationships:");
-            // If relationships are present, iterate through the relationships list.
-            // This loop will run once for each UMLRelationship object stored in the list.
-            for (UMLRelationships relationship : relationships) {
-                // Print each relationship, showcasing the source class and destination class.
-                System.out.println(index + ":"+ relationship.getSource().getName() + " --> " +
-                        relationship.getDest().getName() + "::"+ relationship.getType());
-                index ++;
+        for (UMLRelationships r : relationships) {
+            if (r.getId().equals(id)) {
+                System.out.println("Found existing relationship: " + id);
+                return r;
             }
         }
+        return null;
     }
+
+
+//    public void removeClassNameOnly(String name) {
+//        if (name == null) {
+//            System.out.println("Sorry but we could not find a valid name for this class");
+//            return;
+//        }
+//        if (classExists(name) == null) {
+//            System.out.println("Sorry but this class does not exist");
+//            return;
+//        }
+//
+//        // Remove the UMLClass object from the classes map without creating a new command
+//        classes.remove(name);
+//        System.out.println("Class deleted: " + name);
+//    }
 
 }

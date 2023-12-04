@@ -7,22 +7,17 @@ public class UMLFields {
     private String visibility;
 
     public UMLFields(String name, String type, String visibility) {
-        //check for the empty string in paramters or if input contains only spaces
-        if(name.trim().isEmpty() || type.trim().isEmpty() || visibility.trim().isEmpty())
-        {
-            System.out.println("Invalid input");
-            return;
+        if (name.trim().isEmpty() || type.trim().isEmpty() || visibility.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid input");
         }
-        //check for valid visibility
-        if(!visibility.equals("public") && !visibility.equals("private"))
-        {
-            System.out.println("Invalid visibility");
-            return;
+        if (!visibility.equals("public") && !visibility.equals("private")) {
+            throw new IllegalArgumentException("Invalid visibility");
         }
         this.name = name;
         this.type = type;
         this.visibility = visibility;
     }
+
 
     public String getName() {
         return name;
@@ -41,11 +36,16 @@ public class UMLFields {
     }
 
     public String toString() {
-        
-        if (this.visibility.equals("public")) {
-            return "+" + name + " : " + type;
+        if (this.visibility != null) {
+            if (this.visibility.equals("public")) {
+                return "+" + name + " : " + type;
+            } else {
+                return "-" + name + " : " + type;
+            }
         } else {
-            return "-" + name + " : " + type;
+            // Handle the case where visibility is null (e.g., provide a default)
+            return "Unknown Visibility" + name + " : " + type;
         }
     }
+
 }
