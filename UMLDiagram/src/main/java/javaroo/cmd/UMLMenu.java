@@ -124,7 +124,6 @@ public class UMLMenu {
             System.out.println(helpMenu);
             String prompt = "Enter command: ";
             String line;
-
             // Command processing loop
             while (!(line = lineReader.readLine(prompt)).equals("exit")) {
                 try {
