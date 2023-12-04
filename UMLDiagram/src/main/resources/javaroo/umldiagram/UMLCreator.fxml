@@ -37,11 +37,14 @@
                   <MenuItem mnemonicParsing="false" onAction="#zoomOut" text="Zoom out" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Screenshot">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#screenshot" text="Screenshot" />
+              </items>
             <Menu mnemonicParsing="false" text="Time Travel">
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#undo" text="Undo" />
                     <MenuItem mnemonicParsing="false" onAction="#redo" text="Redo" />
-                </items>
             </Menu>
         </menus>
       </MenuBar>

@@ -1,20 +1,3 @@
-/* module javaroo.umldiagram {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires com.google.gson;
-    requires org.jline;
-    requires junit;
-
-
-    opens javaroo.umldiagram to javafx.fxml;
-    //exports javaroo.umldiagram;
-    exports javaroo.umldiagram to javafx.graphics;
-}
-
-
- */
-
-
 module javaroo.umldiagram {
     requires javafx.controls;
     requires javafx.fxml;
@@ -22,6 +5,9 @@ module javaroo.umldiagram {
     requires org.fusesource.jansi;
     requires org.slf4j;
     requires org.jline;
+  
+    requires java.desktop;
+    requires javafx.swing;
 
     opens javaroo.umldiagram to javafx.fxml;
     //exports and opens directives for javaroo.cmd
