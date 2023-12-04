@@ -44,4 +44,5 @@ To be able to run the program, please follow these steps.
     1. If you are using a Macintosh or a Linux Computer double click the file named `UMLDiagram`
     2. If you are using a Windows Computer double click the file named `UMLDiagram.bat`
 
-11. Have fun with the JAVAROO UML Editor :)
+11. Have fun with the JAVAROO UML Editor :) Note the .json and Screenshot will be stored int /Users/yourAccountName
+    
