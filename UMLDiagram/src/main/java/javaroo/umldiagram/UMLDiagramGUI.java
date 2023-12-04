@@ -15,15 +15,21 @@ import java.util.concurrent.CountDownLatch;
 import static javaroo.umldiagram.UMLController.controllerInstance;
 
 public class UMLDiagramGUI extends Application {
+
+    public static boolean first = true;
+    public static UMLDiagramGUI x;
+    public static Stage stages;
+
     private static final CountDownLatch launchLatch = new CountDownLatch(1);
     private static UMLDiagramGUI instance;
     private Stage primaryStage;
     //private UMLController controller;
 
+    public static boolean isGUIRunning = false;
+
     public static UMLController getController() {
         return controllerInstance;
     }
-
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -45,10 +51,18 @@ public class UMLDiagramGUI extends Application {
         stage.getIcons().add(appIcon);
         stage.setTitle("UML Diagram Builder");
         stage.setScene(scene);
-        stage.setOnCloseRequest(event -> Platform.runLater(() -> stage.hide()));
+
+        stages = stage;
+    
+        stage.setOnCloseRequest(event -> Platform.runLater(stage::hide));
+
+        stage.setOnCloseRequest(event -> {
+            showGUI(false);
+
+        });
 
         // Do not show the stage immediately
-        // stage.show();
+//         stage.show();
 
         launchLatch.countDown();
     }

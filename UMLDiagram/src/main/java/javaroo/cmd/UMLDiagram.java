@@ -109,13 +109,28 @@ public class UMLDiagram {
         }
     }
 
-    public UMLClass classExists(String name) {
-        return classes.get(name);
+    public UMLClass classExists(String name)
+    {
+//        check if name is null
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return null;
+        }
+
+        for(UMLClass c : classes.values())
+        {
+            if(c.getName().equals(name))
+            {
+                return c;
+            }
+        }
+        return null;
     }
 
     public void addClass(String name) {
         if (classExists(name) != null) {
-            System.out.println("Sorry, but this class already exists");
+            //System.out.println("Sorry, but this class already exists");
             return;
         }
 
@@ -126,6 +141,26 @@ public class UMLDiagram {
 
         Command addClassCommand = new AddClassCommand(this, name);
         executeCommand(addClassCommand);
+    }
+
+    //Method to remove a UMLClass object from the classes map via its name.
+    public void removeClass(String name)
+    {
+        //check if name is null
+        if(name == null)
+        {
+            System.out.println("Sorry but we could not find a valid name for this class");
+            return;
+        }
+        //Check if the class exists.
+        if(classExists(name) == null)
+        {
+            System.out.println("Sorry but this class does not exist");
+            return;
+        }
+        //Remove the UMLClass object from the classes map.
+        getClasses().remove(name);
+        System.out.println("Class deleted: " + name);
     }
 
     void addClassInternal(String name) {
