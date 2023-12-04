@@ -28,7 +28,7 @@ public class UMLMenu {
 
     private static final List<String> CMDS = Arrays.asList("add class ", "add field ", "add method ", "add relationship ", "add parameter ",
             "delete class ", "delete field ", "delete method ", "delete relationship ", "delete parameter ",
-    "rename class ", "rename field ", "rename method ", "rename parameter ", "list all",
+    "rename class ", "rename field ", "rename method ", "list all",
     "list class ", "list relationships", "undo", "redo", "visualize", "save", "load ", "help", "exit");
 
     private static final String helpMenu = "Available Commands:\n" +
@@ -37,20 +37,19 @@ public class UMLMenu {
             "  add field <class> <visibility> <type> <name>\n" +
             "  add method <class> <returnType> <methodName> <param1Type> <param1Name> etc.\n" +
             "  add relationship <sourceClass> <destinationClass> <type>\n" +
-            //"  add parameter <ParameterName>\n\n" +
+            "  add parameter <class>\n\n" +
 
             "Delete Commands:\n" +
             "  delete class <ClassName>\n" +
             "  delete field <class> <fieldName>\n" +
-            "  Please use the list class <name> command to show the list of methods. Then use this format: delete method <class> <numberInList>\n" +
+            "  delete method <class>\n" +
             "  delete relationship <sourceClass> <destinationClass>\n" +
-            //"  delete parameter <ParameterName>\n\n" +
+            "  delete parameter <class>\n\n" +
 
             "Rename Commands:\n" +
             "  rename class <OldClassName> <NewClassName>\n" +
             "  rename field <class> <old> <new>\n" +
-            "  Please use the list class <name> command to show the list of methods. Then use this format: rename method <class> <numberInList> <newName>\n" +
-            //"  rename parameter <OldParameterName> <NewParameterName>\n\n" +
+            "  rename method <class>\n" +
 
             "List Commands:\n" +
             "  list all\n" +
@@ -344,9 +343,31 @@ public class UMLMenu {
                 }
                 break;
             case "parameter":
-                System.out.println("Add param");
                 // Add logic for adding a parameter
-                System.out.println("Sorry, not implemented yet :(");
+                if(parts.length == 3)
+                {
+                    if(diagram.classExists(name) != null)
+                    {
+                        diagram.listClassContents(name);
+                        System.out.println("Choose the method you want to remove from the above list and re-enter the command in this format: add parameter <class> <numInList> <paramType> <paramName>");
+                    }
+                    else {
+                        System.out.println("Class " + name + " doesn't exist.");
+                    }
+                }
+                else
+                {
+                    UMLClass cls = diagram.classExists(name);
+                    if(cls != null)
+                    {
+                        int index = Integer.parseInt(parts[3]);
+                        UMLMethods method = cls.getMethods().get(index - 1);
+                        method.addParameters(parts[4] + " " + parts[5]);
+                    }
+                    else {
+                        System.out.println("Class " + name + " doesn't exist.");
+                    }
+                }
                 break;
             default:
                 System.out.println("Unknown 'add' subcommand: " + type);
@@ -403,7 +424,18 @@ public class UMLMenu {
                 break;
             case "method":
                 // Add logic for 'delete method' with the method name (name)
-                if(parts.length > 3)
+                if(parts.length == 3)
+                {
+                    if(diagram.classExists(name) != null)
+                    {
+                        diagram.listClassContents(name);
+                        System.out.println("Choose the method you want to remove from the above list and re-enter the command in this format: delete method <class> <numInList> ");
+                    }
+                    else {
+                        System.out.println("Class " + name + " doesn't exist.");
+                    }
+                }
+                else
                 {
                     UMLClass cls = diagram.classExists(name);
                     if(cls != null)
@@ -421,10 +453,6 @@ public class UMLMenu {
                     else {
                         System.out.println("Class " + name + " doesn't exist.");
                     }
-                }
-                else {
-                    System.out.println("Please use the list class <name> command to show the list of methods. Then " +
-                            "use this format: delete method <class> <numberInList>");
                 }
                 break;
             case "relationship":
@@ -448,9 +476,31 @@ public class UMLMenu {
                 }
                 break;
             case "parameter":
-                System.out.println("Delete param");
                 // Add logic for deleting a parameter
-                System.out.println("Sorry, not implemented yet :(");
+                if(parts.length == 3)
+                {
+                    if(diagram.classExists(name) != null)
+                    {
+                        diagram.listClassContents(name);
+                        System.out.println("Choose the method you want to remove from the above list and re-enter the command in this format: delete parameter <class> <numInList> <paramType> <paramName>");
+                    }
+                    else {
+                        System.out.println("Class " + name + " doesn't exist.");
+                    }
+                }
+                else
+                {
+                    UMLClass cls = diagram.classExists(name);
+                    if(cls != null)
+                    {
+                        int index = Integer.parseInt(parts[3]);
+                        UMLMethods method = cls.getMethods().get(index - 1);
+                        method.removeParameters(parts[4] + " " + parts[5]);
+                    }
+                    else {
+                        System.out.println("Class " + name + " doesn't exist.");
+                    }
+                }
                 break;
             default:
                 System.out.println("Unknown 'delete' subcommand: " + type);
@@ -459,7 +509,7 @@ public class UMLMenu {
 
 
     private void processRenameCommand(String[] parts) {
-        if (parts.length < 4) {
+        if (parts.length < 3) {
             System.out.println("Invalid 'rename' command format. Usage: rename <type> <oldName> <newName>");
             return;
         }
@@ -509,6 +559,14 @@ public class UMLMenu {
                 break;
             case "method":
                 // Add logic for 'rename method' with the old and new method names (oldName, newName)
+                if(diagram.classExists(oldName) != null)
+                {
+                    diagram.listClassContents(oldName);
+                    System.out.println("Choose the method you want to remove from the above list and re-enter the command in this format: delete method <class> <numInList> ");
+                }
+                else {
+                    System.out.println("Class " + oldName + " doesn't exist.");
+                }
                 if(parts.length > 4)
                 {
                     String className = parts[2];
@@ -531,7 +589,7 @@ public class UMLMenu {
                     }
                 }
                 else {
-                    System.out.println("Please use the list class <name> command to show the list of methods. Then " +
+                    System.out.println("Please " +
                             "use this format: rename method <class> <numberInList> <newName>");
                 }
                 break;
